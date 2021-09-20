@@ -1,0 +1,53 @@
+[0.237s] Invoking command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake /home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3/turtlebot3_navigation2 -DCMAKE_INSTALL_PREFIX=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2
+[0.288s] -- The C compiler identification is GNU 9.3.0
+[0.341s] -- The CXX compiler identification is GNU 9.3.0
+[0.352s] -- Check for working C compiler: /usr/bin/cc
+[0.451s] -- Check for working C compiler: /usr/bin/cc -- works
+[0.456s] -- Detecting C compiler ABI info
+[0.592s] -- Detecting C compiler ABI info - done
+[0.608s] -- Detecting C compile features
+[0.609s] -- Detecting C compile features - done
+[0.611s] -- Check for working CXX compiler: /usr/bin/c++
+[0.685s] -- Check for working CXX compiler: /usr/bin/c++ -- works
+[0.686s] -- Detecting CXX compiler ABI info
+[0.762s] -- Detecting CXX compiler ABI info - done
+[0.803s] -- Detecting CXX compile features
+[0.803s] -- Detecting CXX compile features - done
+[0.803s] -- Found ament_cmake: 0.9.9 (/home/tomas/ros2_foxy/ros2-linux/share/ament_cmake/cmake)
+[0.816s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+[0.816s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[1.034s] -- Configuring done
+[1.036s] -- Generating done
+[1.037s] -- Build files have been written to: /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2
+[1.085s] Invoked command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake /home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3/turtlebot3_navigation2 -DCMAKE_INSTALL_PREFIX=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2
+[1.087s] Invoking command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2 -- -j6 -l6
+[1.118s] Invoked command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2 -- -j6 -l6
+[1.155s] Invoking command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --install /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2
+[1.164s] -- Install configuration: ""
+[1.164s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/launch
+[1.164s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/launch/navigation2.launch.py
+[1.164s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/map
+[1.164s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/map/turtlebot3_world.yaml
+[1.164s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/map/turtlebot3_world.pgm
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/param
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/param/waffle_pi.yaml
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/param/waffle.yaml
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/param/burger.yaml
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/rviz
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/rviz/tb3_navigation2.rviz
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/ament_index/resource_index/package_run_dependencies/turtlebot3_navigation2
+[1.165s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/ament_index/resource_index/parent_prefix_path/turtlebot3_navigation2
+[1.167s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/environment/ament_prefix_path.sh
+[1.167s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/environment/ament_prefix_path.dsv
+[1.167s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/environment/path.sh
+[1.167s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/environment/path.dsv
+[1.167s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/local_setup.bash
+[1.167s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/local_setup.sh
+[1.167s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/local_setup.zsh
+[1.168s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/local_setup.dsv
+[1.168s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/package.dsv
+[1.168s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/ament_index/resource_index/packages/turtlebot3_navigation2
+[1.168s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/cmake/turtlebot3_navigation2Config.cmake
+[1.168s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/cmake/turtlebot3_navigation2Config-version.cmake
+[1.168s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_navigation2/share/turtlebot3_navigation2/package.xml
+[1.183s] Invoked command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --install /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2

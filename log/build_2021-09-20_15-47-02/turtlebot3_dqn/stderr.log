@@ -1,0 +1,5 @@
+  File "/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent/dqn_agent.py", line 188
+    r_path,
+    ^
+SyntaxError: invalid syntax
+

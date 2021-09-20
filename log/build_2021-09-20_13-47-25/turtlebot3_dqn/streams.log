@@ -1,0 +1,27 @@
+[0.453s] Invoking command in '/home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3_machine_learning/turtlebot3_dqn': PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../../build/turtlebot3_dqn build --build-base /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_dqn/build install --prefix /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn --record /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_dqn/install.log --single-version-externally-managed
+[0.650s] running egg_info
+[0.652s] writing ../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info/PKG-INFO
+[0.652s] writing dependency_links to ../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info/dependency_links.txt
+[0.652s] writing entry points to ../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info/entry_points.txt
+[0.652s] writing requirements to ../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info/requires.txt
+[0.652s] writing top-level names to ../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info/top_level.txt
+[0.677s] reading manifest file '../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info/SOURCES.txt'
+[0.678s] writing manifest file '../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info/SOURCES.txt'
+[0.678s] running build
+[0.678s] running build_py
+[0.679s] copying turtlebot3_dqn/dqn_agent/dqn_agent.py -> /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_dqn/build/lib/turtlebot3_dqn/dqn_agent
+[0.679s] running install
+[0.680s] running install_lib
+[0.680s] copying /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_dqn/build/lib/turtlebot3_dqn/dqn_agent/dqn_agent.py -> /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent
+[0.681s] byte-compiling /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent/dqn_agent.py to dqn_agent.cpython-38.pyc
+[0.683s] running install_data
+[0.684s] running install_egg_info
+[0.685s] removing '/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn-2.0.0-py3.8.egg-info' (and everything under it)
+[0.685s] Copying ../../../build/turtlebot3_dqn/turtlebot3_dqn.egg-info to /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn-2.0.0-py3.8.egg-info
+[0.686s] running install_scripts
+[0.699s] Installing dqn_agent script to /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/turtlebot3_dqn
+[0.700s] Installing dqn_environment script to /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/turtlebot3_dqn
+[0.701s] Installing dqn_gazebo script to /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/turtlebot3_dqn
+[0.701s] Installing dqn_test script to /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/turtlebot3_dqn
+[0.701s] writing list of installed files to '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_dqn/install.log'
+[0.813s] Invoked command in '/home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3_machine_learning/turtlebot3_dqn' returned '0': PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../../build/turtlebot3_dqn build --build-base /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_dqn/build install --prefix /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn --record /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_dqn/install.log --single-version-externally-managed

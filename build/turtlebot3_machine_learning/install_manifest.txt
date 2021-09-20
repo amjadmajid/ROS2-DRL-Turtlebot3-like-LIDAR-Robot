@@ -1,0 +1,15 @@
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/ament_index/resource_index/package_run_dependencies/turtlebot3_machine_learning
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/ament_index/resource_index/parent_prefix_path/turtlebot3_machine_learning
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/ament_prefix_path.sh
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/ament_prefix_path.dsv
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/path.sh
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/path.dsv
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.bash
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.sh
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.zsh
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.dsv
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/package.dsv
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/ament_index/resource_index/packages/turtlebot3_machine_learning
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/cmake/turtlebot3_machine_learningConfig.cmake
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/cmake/turtlebot3_machine_learningConfig-version.cmake
+/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/package.xml

@@ -1,0 +1,15 @@
+[0.000000] (-) TimerEvent: {}
+[0.000561] (-) JobUnselected: {'identifier': 'turtlebot3'}
+[0.000622] (-) JobUnselected: {'identifier': 'turtlebot3_bringup'}
+[0.000726] (-) JobUnselected: {'identifier': 'turtlebot3_cartographer'}
+[0.000870] (-) JobUnselected: {'identifier': 'turtlebot3_description'}
+[0.000912] (-) JobUnselected: {'identifier': 'turtlebot3_dqn'}
+[0.000980] (-) JobUnselected: {'identifier': 'turtlebot3_example'}
+[0.001044] (-) JobUnselected: {'identifier': 'turtlebot3_fake_node'}
+[0.001110] (-) JobUnselected: {'identifier': 'turtlebot3_gazebo'}
+[0.001151] (-) JobUnselected: {'identifier': 'turtlebot3_machine_learning'}
+[0.001166] (-) JobUnselected: {'identifier': 'turtlebot3_navigation2'}
+[0.001179] (-) JobUnselected: {'identifier': 'turtlebot3_node'}
+[0.001193] (-) JobUnselected: {'identifier': 'turtlebot3_simulations'}
+[0.001219] (-) JobUnselected: {'identifier': 'turtlebot3_teleop'}
+[0.001232] (-) EventReactorShutdown: {}

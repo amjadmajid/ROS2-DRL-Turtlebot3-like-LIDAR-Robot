@@ -1,0 +1,42 @@
+[0.042s] Invoking command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning': AMENT_PREFIX_PATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_teleop:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_example:/opt/ros/foxy PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/cmake /home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3_machine_learning/turtlebot3_machine_learning -DCMAKE_INSTALL_PREFIX=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning
+[0.126s] -- The C compiler identification is GNU 9.3.0
+[0.183s] -- The CXX compiler identification is GNU 9.3.0
+[0.187s] -- Check for working C compiler: /usr/bin/cc
+[0.271s] -- Check for working C compiler: /usr/bin/cc -- works
+[0.271s] -- Detecting C compiler ABI info
+[0.331s] -- Detecting C compiler ABI info - done
+[0.340s] -- Detecting C compile features
+[0.340s] -- Detecting C compile features - done
+[0.342s] -- Check for working CXX compiler: /usr/bin/c++
+[0.413s] -- Check for working CXX compiler: /usr/bin/c++ -- works
+[0.413s] -- Detecting CXX compiler ABI info
+[0.472s] -- Detecting CXX compiler ABI info - done
+[0.481s] -- Detecting CXX compile features
+[0.482s] -- Detecting CXX compile features - done
+[0.483s] -- Found ament_cmake: 0.9.9 (/home/tomas/ros2_foxy/ros2-linux/share/ament_cmake/cmake)
+[0.503s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+[0.503s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[0.728s] -- Configuring done
+[0.729s] -- Generating done
+[0.729s] -- Build files have been written to: /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning
+[0.732s] Invoked command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning' returned '0': AMENT_PREFIX_PATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_teleop:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_example:/opt/ros/foxy PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/cmake /home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3_machine_learning/turtlebot3_machine_learning -DCMAKE_INSTALL_PREFIX=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning
+[0.734s] Invoking command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning': AMENT_PREFIX_PATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_teleop:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_example:/opt/ros/foxy PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/cmake --build /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning -- -j6 -l6
+[0.766s] Invoked command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning' returned '0': AMENT_PREFIX_PATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_teleop:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_example:/opt/ros/foxy PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/cmake --build /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning -- -j6 -l6
+[0.783s] Invoking command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning': AMENT_PREFIX_PATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_teleop:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_example:/opt/ros/foxy PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/cmake --install /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning
+[0.790s] -- Install configuration: ""
+[0.793s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/ament_index/resource_index/package_run_dependencies/turtlebot3_machine_learning
+[0.793s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/ament_index/resource_index/parent_prefix_path/turtlebot3_machine_learning
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/ament_prefix_path.sh
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/ament_prefix_path.dsv
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/path.sh
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/environment/path.dsv
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.bash
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.sh
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.zsh
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/local_setup.dsv
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/package.dsv
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/ament_index/resource_index/packages/turtlebot3_machine_learning
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/cmake/turtlebot3_machine_learningConfig.cmake
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/cmake/turtlebot3_machine_learningConfig-version.cmake
+[0.794s] -- Installing: /home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_machine_learning/share/turtlebot3_machine_learning/package.xml
+[0.799s] Invoked command in '/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning' returned '0': AMENT_PREFIX_PATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_teleop:/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_example:/opt/ros/foxy PYTHONPATH=/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/cmake --install /home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_machine_learning
