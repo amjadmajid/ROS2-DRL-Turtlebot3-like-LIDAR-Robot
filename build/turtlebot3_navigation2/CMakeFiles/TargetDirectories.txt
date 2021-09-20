@@ -1,9 +1,0 @@
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/install/strip.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/install/local.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/install.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/list_install_components.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/rebuild_cache.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/edit_cache.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/test.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/turtlebot3_navigation2_uninstall.dir
-/home/tomas/code/thesis/turtlebot3_ws/build/turtlebot3_navigation2/CMakeFiles/uninstall.dir

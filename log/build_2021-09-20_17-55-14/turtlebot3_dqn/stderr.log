@@ -1,5 +1,0 @@
-  File "/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent/dqn_agent.py", line 233
-    x_batch = numpy.empty((0, self.state_size), dtype=numpy.float`64`)
-                                                                 ^
-SyntaxError: invalid syntax
-
