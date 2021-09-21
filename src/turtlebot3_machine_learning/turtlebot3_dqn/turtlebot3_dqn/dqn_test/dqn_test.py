@@ -63,9 +63,8 @@ class DQNTest(Node):
         # Replay memory
         self.memory = collections.deque(maxlen=1000000)
 
-        # Build model and target model
+        # Build model
         self.model = self.build_model()
-        self.target_model = self.build_model()
 
         # Load saved models
         self.load_model = True
@@ -157,17 +156,16 @@ class DQNTest(Node):
     def build_model(self):
         model = Sequential()
         model.add(Dense(
-            64,
+            8,
             input_shape=(self.state_size,),
             activation='relu',
             kernel_initializer='lecun_uniform'))
-        model.add(Dense(64, activation='relu', kernel_initializer='lecun_uniform'))
+        model.add(Dense(8, activation='relu', kernel_initializer='lecun_uniform'))
         model.add(Dropout(0.2))
         model.add(Dense(self.action_size, kernel_initializer='lecun_uniform'))
         model.add(Activation('linear'))
         model.compile(loss='mse', optimizer=RMSprop(lr=self.learning_rate, rho=0.9, epsilon=1e-06))
         model.summary()
-
         return model
 
     def get_action(self, state):
@@ -178,44 +176,6 @@ class DQNTest(Node):
             q_value = self.model.predict(state.reshape(1, len(state)))
             print(numpy.argmax(q_value[0]))
             return numpy.argmax(q_value[0])
-
-    def train_model(self, target_train_start=False):
-        mini_batch = random.sample(self.memory, self.batch_size)
-        x_batch = numpy.empty((0, self.state_size), dtype=numpy.float64)
-        y_batch = numpy.empty((0, self.action_size), dtype=numpy.float64)
-
-        for i in range(self.batch_size):
-            state = numpy.asarray(mini_batch[i][0])
-            action = numpy.asarray(mini_batch[i][1])
-            reward = numpy.asarray(mini_batch[i][2])
-            next_state = numpy.asarray(mini_batch[i][3])
-            done = numpy.asarray(mini_batch[i][4])
-
-            q_value = self.model.predict(state.reshape(1, len(state)))
-            self.max_q_value = numpy.max(q_value)
-
-            if not target_train_start:
-                target_value = self.model.predict(next_state.reshape(1, len(next_state)))
-            else:
-                target_value = self.target_model.predict(next_state.reshape(1, len(next_state)))
-
-            if done:
-                next_q_value = reward
-            else:
-                next_q_value = reward + self.discount_factor * numpy.amax(target_value)
-
-            x_batch = numpy.append(x_batch, numpy.array([state.copy()]), axis=0)
-
-            y_sample = q_value.copy()
-            y_sample[0][action] = next_q_value
-            y_batch = numpy.append(y_batch, numpy.array([y_sample[0]]), axis=0)
-
-            if done:
-                x_batch = numpy.append(x_batch, numpy.array([next_state.copy()]), axis=0)
-                y_batch = numpy.append(y_batch, numpy.array([[reward] * self.action_size]), axis=0)
-
-        self.model.fit(x_batch, y_batch, batch_size=self.batch_size, epochs=1, verbose=0)
-
 
 def main(args=sys.argv[1]):
     rclpy.init(args=args)
