@@ -214,8 +214,7 @@ class DQNEnvironment(Node):
             reward += 5
         elif self.fail:
             reward -= -10
-        print(reward)
-
+        print("step: {}, r: {:.3f}".format(self.local_step, reward))
         return reward
 
     """*******************************************************************************
