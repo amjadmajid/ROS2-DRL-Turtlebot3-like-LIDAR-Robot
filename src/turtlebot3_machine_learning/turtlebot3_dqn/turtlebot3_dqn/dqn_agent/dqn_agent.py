@@ -54,7 +54,7 @@ class DQNAgent(Node):
 
         # DQN hyperparameter
         self.discount_factor = 0.99
-        self.learning_rate = 0.00025
+        self.learning_rate = 0.001
         self.epsilon = 1.0
         self.epsilon_decay = 0.99
         self.epsilon_min = 0.05
@@ -93,8 +93,8 @@ class DQNAgent(Node):
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
 
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        self.output_file = open(timestr + '.txt', 'w+')
+        self.timestr = time.strftime("%Y%m%d-%H%M%S")
+        self.output_file = open(self.timestr + '.txt', 'w+')
 
         """************************************************************
         ** Initialise ROS clients
@@ -205,11 +205,11 @@ class DQNAgent(Node):
             if episode % 10 == 0:
                 self.model_path = os.path.join(
                     self.model_dir_path,
-                    'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+                    self.timestr +'_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
                 self.model.save(self.model_path)
                 with open(os.path.join(
                     self.model_dir_path,
-                        'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
+                        self.timestr + '_stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
                     json.dump(param_dictionary, outfile)
 
             # Epsilon
@@ -241,7 +241,7 @@ class DQNAgent(Node):
         else:
             state = numpy.asarray(state)
             q_value = self.model.predict(state.reshape(1, len(state)))
-            print(numpy.argmax(q_value[0]))
+            # print(numpy.argmax(q_value[0]))
             return int(numpy.argmax(q_value[0])), False
 
     def append_sample(self, state, action, reward, next_state, done):
