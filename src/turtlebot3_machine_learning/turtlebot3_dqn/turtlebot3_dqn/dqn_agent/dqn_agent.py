@@ -18,12 +18,14 @@
 
 import collections
 import tensorflow
+from keras import backend as K
 from keras.layers import Activation
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.models import Sequential
 from keras.models import load_model
 from tensorflow.keras.optimizers import RMSprop
+from tensorflow.python.client import device_lib
 import json
 import numpy
 import os
@@ -64,9 +66,14 @@ class DQNAgent(Node):
         # Replay memory
         self.memory = collections.deque(maxlen=1000000)
 
+        # GPU initalization
+        print("GPU INITALIZATION")
+        print("physical devices: {}".format(tensorflow.config.experimental.list_physical_devices()))
         gpu_devices = tensorflow.config.experimental.list_physical_devices('GPU')
-        for device in gpu_devices:
-            tensorflow.config.experimental.set_memory_growth(device, True)
+        print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
+        # for device in gpu_devices:
+        #     tensorflow.config.experimental.set_memory_growth(device, True)
+        print("list local devices".format(device_lib.list_local_devices()))
 
         # Build model and target model
         self.model = self.build_model()
