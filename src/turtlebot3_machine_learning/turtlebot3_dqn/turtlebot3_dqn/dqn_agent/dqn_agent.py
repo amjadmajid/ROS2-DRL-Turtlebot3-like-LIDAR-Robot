@@ -142,6 +142,7 @@ class DQNAgent(Node):
             time.sleep(1.0)
 
             while not done:
+                step_start = time.time()
                 local_step += 1
 
                 # Aciton based on the current state
@@ -205,6 +206,7 @@ class DQNAgent(Node):
                         param_values = [self.epsilon]
                         param_dictionary = dict(zip(param_keys, param_values))
 
+                print("step time: {:4f}".format(time.time() - step_start))
                 # While loop rate
                 time.sleep(0.01)
 
@@ -259,8 +261,6 @@ class DQNAgent(Node):
         mini_batch = random.sample(self.memory, self.batch_size)
         x_batch = numpy.empty((0, self.state_size), dtype=numpy.float64)
         y_batch = numpy.empty((0, self.action_size), dtype=numpy.float64)
-        # print("sample time: {}".format(time.time() - train_start_time))
-        # timestamp = time.time()
         for i in range(self.batch_size):
             state = numpy.asarray(mini_batch[i][0])
             action = numpy.asarray(mini_batch[i][1])
@@ -268,17 +268,17 @@ class DQNAgent(Node):
             next_state = numpy.asarray(mini_batch[i][3])
             done = numpy.asarray(mini_batch[i][4])
 
-            # timestamp = time.time()
+            timestamp = time.time()
             q_value = self.model.predict(state.reshape(1, len(state)))
-            # print("model predict time: {}".format(time.time() - timestamp))
+            print("model predict time: {}".format(time.time() - timestamp))
             self.max_q_value = numpy.max(q_value)
 
             if not target_train_start:
                 target_value = self.model.predict(next_state.reshape(1, len(next_state)))
             else:
-                # timestamp = time.time()
+                timestamp = time.time()
                 target_value = self.target_model.predict(next_state.reshape(1, len(next_state)))
-                # print("target model predict time: {}".format(time.time() - timestamp))
+                print("target model predict time: {}".format(time.time() - timestamp))
             if done:
                 next_q_value = reward
             else:
@@ -293,11 +293,11 @@ class DQNAgent(Node):
             if done:
                 x_batch = numpy.append(x_batch, numpy.array([next_state.copy()]), axis=0)
                 y_batch = numpy.append(y_batch, numpy.array([[reward] * self.action_size]), axis=0)
-        # print("loop time: {}".format(time.time() - timestamp))
-        # timestamp = time.time()
+        print("loop time: {}".format(time.time() - train_start_time))
+        timestamp = time.time()
         self.model.fit(x_batch, y_batch, batch_size=self.batch_size, epochs=1, verbose=0)
-        # print("fit time: {}".format(time.time() - timestamp))
-        # print("total train time: {}".format(time.time() - train_start_time))
+        print("fit time: {}".format(time.time() - timestamp))
+        print("total train time: {}".format(time.time() - train_start_time))
 
 
 def main(args=sys.argv[1]):
