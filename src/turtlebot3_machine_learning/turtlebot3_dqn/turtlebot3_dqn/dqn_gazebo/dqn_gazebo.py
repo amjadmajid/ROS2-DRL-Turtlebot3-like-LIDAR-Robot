@@ -63,16 +63,20 @@ class DQNGazebo(Node):
         self.goal_pose_pub = self.create_publisher(Pose, 'goal_pose', qos)
 
         # Initialise client
-        self.delete_entity_client = self.create_client(DeleteEntity, 'delete_entity')
-        self.spawn_entity_client = self.create_client(SpawnEntity, 'spawn_entity')
-        self.reset_simulation_client = self.create_client(Empty, 'reset_simulation')
+        self.delete_entity_client = self.create_client(
+            DeleteEntity, 'delete_entity')
+        self.spawn_entity_client = self.create_client(
+            SpawnEntity, 'spawn_entity')
+        self.reset_simulation_client = self.create_client(
+            Empty, 'reset_simulation')
 
         # Initialise servers
         self.task_succeed_server = self.create_service(
             Empty,
             'task_succeed',
             self.task_succeed_callback)
-        self.task_fail_server = self.create_service(Empty, 'task_fail', self.task_fail_callback)
+        self.task_fail_server = self.create_service(
+            Empty, 'task_fail', self.task_fail_callback)
 
         # Process
         self.publish_timer = self.create_timer(
@@ -82,6 +86,7 @@ class DQNGazebo(Node):
     """*******************************************************************************
     ** Callback functions and relevant functions
     *******************************************************************************"""
+
     def publish_callback(self):
         # Init
         if self.init_state is False:
@@ -89,7 +94,7 @@ class DQNGazebo(Node):
             self.reset_simulation()
             self.init_state = True
             print("init!!!")
-            print("Goal pose: ", self.goal_pose_x, self.goal_pose_y)
+            print("Goal pose:", self.goal_pose_x, self.goal_pose_y)
 
         # Publish goal pose
         goal_pose = Pose()
@@ -101,7 +106,8 @@ class DQNGazebo(Node):
     def task_succeed_callback(self, request, response):
         self.delete_entity()
         self.generate_goal_pose()
-        print("generate a new goal :)")
+        print("generate a new goal :) goal pose:",
+              self.goal_pose_x, self.goal_pose_y)
 
         return response
 
@@ -109,7 +115,8 @@ class DQNGazebo(Node):
         self.delete_entity()
         self.reset_simulation()
         self.generate_goal_pose()
-        print("reset the gazebo environment :(")
+        print("reset the gazebo environment :( goal pose:",
+              self.goal_pose_x, self.goal_pose_y)
 
         return response
 

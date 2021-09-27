@@ -60,7 +60,7 @@ class DQNAgent(Node):
         self.epsilon = 1.0
         self.epsilon_decay = 0.998
         self.epsilon_min = 0.05
-        self.batch_size = 32
+        self.batch_size = 8
         self.train_start = self.batch_size
 
         # Replay memory
@@ -68,12 +68,9 @@ class DQNAgent(Node):
 
         # GPU initalization
         print("GPU INITALIZATION")
-        print("physical devices: {}".format(tensorflow.config.experimental.list_physical_devices()))
-        gpu_devices = tensorflow.config.experimental.list_physical_devices('GPU')
+        gpu_devices = tensorflow.config.experimental.list_physical_devices(
+            'GPU')
         print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
-        # for device in gpu_devices:
-        #     tensorflow.config.experimental.set_memory_growth(device, True)
-        print("list local devices".format(device_lib.list_local_devices()))
 
         # Build model and target model
         self.model = self.build_model()
@@ -81,28 +78,34 @@ class DQNAgent(Node):
         self.update_target_model()
         self.update_target_model_start = 2000
 
-        # Load saved models
-        self.load_model = False
-        self.load_episode = 0
-        # self.model_dir_path = os.path.dirname(os.path.realpath(__file__))
-        # self.model_dir_path = self.model_dir_path.replace(
-        #     'turtlebot3_dqn/dqn_agent',
-        #     'model')
-        self.model_dir_path = "/home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3_machine_learning/turtlebot3_dqn/model"
-        self.model_path = os.path.join(
-            self.model_dir_path,
-            'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
-
+        models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
+                                                                           'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
+        # Load saved models if needed
+        self.load_model = 'dqn_1'  # change to false to not load model
+        self.load_episode = 450
         if self.load_model:
-            self.model.set_weights(load_model(self.model_path).get_weights())
-            with open(os.path.join(
-                    self.model_dir_path,
-                    'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.json')) as outfile:
+            self.model_dir = os.path.join(models_dir, self.load_model)
+            self.model_file = os.path.join(self.model_dir,
+                                           'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
+            self.model.set_weights(load_model(self.model_file).get_weights())
+            with open(os.path.join(self.model_dir,
+                                   'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.json')) as outfile:
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
+        else:  # make new dir
+            i = 0
+            self.model_dir = os.path.join(models_dir, "dqn_%s" % i)
+            while(os.path.exists(self.model_dir)):
+                i += 1
+                self.model_dir = os.path.join(models_dir, "dqn_%s" % i)
+            print("current model path: %s" % self.model_dir)
+            os.mkdir(self.model_dir)
 
+        # Determine summary file name
         self.timestr = time.strftime("%Y%m%d-%H%M%S")
-        self.output_file = open(self.timestr + '.txt', 'w+')
+        summary_path = os.path.join(self.model_dir,
+                                    self.timestr + '.txt')
+        self.summary_file = open(summary_path, 'w+')
 
         """************************************************************
         ** Initialise ROS clients
@@ -118,16 +121,13 @@ class DQNAgent(Node):
     """*******************************************************************************
     ** Callback functions and relevant functions
     *******************************************************************************"""
+
     def process(self):
         global_step = 0
         success_count = 0
 
-        if tensorflow.test.gpu_device_name():
-            print('Default GPU Device: {}'.format(tensorflow.test.gpu_device_name()))
-        else:
-            print("Please install GPU version of TF")
-
-        self.output_file.write("episode, reward, n_steps, epsilon, success_count, memory length\n")
+        self.summary_file.write(
+            "episode, reward, n_steps, epsilon, success_count, memory length\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
             global_step += 1
@@ -154,7 +154,6 @@ class DQNAgent(Node):
                     state = next_state
                     action, was_random = self.get_action(state)
 
-
                 # Send action and receive next state and reward
                 req = Dqn.Request()
                 print("a: {} ({})".format(int(action), was_random))
@@ -163,7 +162,6 @@ class DQNAgent(Node):
                 while not self.dqn_com_client.wait_for_service(timeout_sec=1.0):
                     self.get_logger().info('service not available, waiting again...')
                 future = self.dqn_com_client.call_async(req)
-
 
                 while rclpy.ok():
                     rclpy.spin_once(self)
@@ -202,7 +200,8 @@ class DQNAgent(Node):
                             "n_steps:", local_step,
                             "memory length:", len(self.memory),
                             "epsilon:", self.epsilon)
-                        self.output_file.write("{}, {}, {}, {}, {}, {}\n".format(episode, score, local_step, self.epsilon, success_count, len(self.memory)))
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}\n".format(
+                            episode, score, local_step, self.epsilon, success_count, len(self.memory)))
 
                         param_keys = ['epsilon']
                         param_values = [self.epsilon]
@@ -214,13 +213,11 @@ class DQNAgent(Node):
 
             # Update result and save model every 10 episodes
             if episode % 50 == 0:
-                self.model_path = os.path.join(
-                    self.model_dir_path,
-                    self.timestr +'_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
-                self.model.save(self.model_path)
+                self.model_file = os.path.join(
+                    self.model_dir, '_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+                self.model.save(self.model_file)
                 with open(os.path.join(
-                    self.model_dir_path,
-                        self.timestr + '_stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
+                        self.model_dir, '_stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
                     json.dump(param_dictionary, outfile)
 
             # Epsilon
@@ -234,11 +231,13 @@ class DQNAgent(Node):
             input_shape=(self.state_size,),
             activation='relu',
             kernel_initializer='lecun_uniform'))
-        model.add(Dense(64, activation='relu', kernel_initializer='lecun_uniform'))
+        model.add(Dense(64, activation='relu',
+                  kernel_initializer='lecun_uniform'))
         model.add(Dropout(0.2))
         model.add(Dense(self.action_size, kernel_initializer='lecun_uniform'))
         model.add(Activation('linear'))
-        model.compile(loss='mse', optimizer=RMSprop(lr=self.learning_rate, rho=0.9, epsilon=1e-06))
+        model.compile(loss='mse', optimizer=RMSprop(
+            lr=self.learning_rate, rho=0.9, epsilon=1e-06))
         model.summary()
 
         return model
@@ -252,7 +251,6 @@ class DQNAgent(Node):
         else:
             state = numpy.asarray(state)
             q_value = self.model.predict(state.reshape(1, len(state)))
-            # print(numpy.argmax(q_value[0]))
             return int(numpy.argmax(q_value[0])), False
 
     def append_sample(self, state, action, reward, next_state, done):
@@ -264,45 +262,41 @@ class DQNAgent(Node):
         x_batch = numpy.empty((0, self.state_size), dtype=numpy.float64)
         y_batch = numpy.empty((0, self.action_size), dtype=numpy.float64)
         for i in range(self.batch_size):
-            # iteration_start = time.time()
             state = numpy.asarray(mini_batch[i][0])
             action = numpy.asarray(mini_batch[i][1])
             reward = numpy.asarray(mini_batch[i][2])
             next_state = numpy.asarray(mini_batch[i][3])
             done = numpy.asarray(mini_batch[i][4])
 
-            # timestamp = time.time()
-            # q_value = self.model.predict(state.reshape(1, len(state)))
             q_value = (self.model(state.reshape(1, len(state)))).numpy()
-            # print("get q value ({}) time: {}".format(q_value, (time.time() - timestamp)))
             self.max_q_value = numpy.max(q_value)
 
-            # timestamp = time.time()
             if not target_train_start:
-                # target_value = self.model.predict(next_state.reshape(1, len(next_state)), self.batch_size)
-                target_value = (self.model(next_state.reshape(1, len(next_state)))).numpy()
+                target_value = (self.model(
+                    next_state.reshape(1, len(next_state)))).numpy()
             else:
-                # target_value = self.target_model.predict(next_state.reshape(1, len(next_state)))
-                target_value = (self.model(next_state.reshape(1, len(next_state)))).numpy()
-            # print("get target value time: {}".format(time.time() - timestamp))
+                target_value = (self.model(
+                    next_state.reshape(1, len(next_state)))).numpy()
             if done:
                 next_q_value = reward
             else:
-                next_q_value = reward + self.discount_factor * numpy.amax(target_value)
+                next_q_value = reward + self.discount_factor * \
+                    numpy.amax(target_value)
 
-            x_batch = numpy.append(x_batch, numpy.array([state.copy()]), axis=0)
+            x_batch = numpy.append(
+                x_batch, numpy.array([state.copy()]), axis=0)
 
             y_sample = q_value.copy()
             y_sample[0][action] = next_q_value
             y_batch = numpy.append(y_batch, numpy.array([y_sample[0]]), axis=0)
 
             if done:
-                x_batch = numpy.append(x_batch, numpy.array([next_state.copy()]), axis=0)
-                y_batch = numpy.append(y_batch, numpy.array([[reward] * self.action_size]), axis=0)
-            # print("loop iteration time: {}".format(time.time() - iteration_start))
-        # timestamp = time.time()
-        self.model.fit(x_batch, y_batch, batch_size=self.batch_size, epochs=1, verbose=0)
-        # print("fit time: {}".format(time.time() - timestamp))
+                x_batch = numpy.append(
+                    x_batch, numpy.array([next_state.copy()]), axis=0)
+                y_batch = numpy.append(y_batch, numpy.array(
+                    [[reward] * self.action_size]), axis=0)
+        self.model.fit(x_batch, y_batch,
+                       batch_size=self.batch_size, epochs=1, verbose=0)
         # print("total train time: {}".format(time.time() - train_start_time))
 
 
