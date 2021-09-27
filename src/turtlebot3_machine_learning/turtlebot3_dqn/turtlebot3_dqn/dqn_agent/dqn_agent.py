@@ -56,11 +56,11 @@ class DQNAgent(Node):
 
         # DQN hyperparameter
         self.discount_factor = 0.99
-        self.learning_rate = 0.001
+        self.learning_rate = 0.00025
         self.epsilon = 1.0
-        self.epsilon_decay = 0.99
+        self.epsilon_decay = 0.998
         self.epsilon_min = 0.05
-        self.batch_size = 64
+        self.batch_size = 32
         self.train_start = self.batch_size
 
         # Replay memory
@@ -153,6 +153,7 @@ class DQNAgent(Node):
                 else:
                     state = next_state
                     action, was_random = self.get_action(state)
+
 
                 # Send action and receive next state and reward
                 req = Dqn.Request()
@@ -258,12 +259,12 @@ class DQNAgent(Node):
         self.memory.append((state, action, reward, next_state, done))
 
     def train_model(self, target_train_start=False):
-        train_start_time = time.time()
+        # train_start_time = time.time()
         mini_batch = random.sample(self.memory, self.batch_size)
         x_batch = numpy.empty((0, self.state_size), dtype=numpy.float64)
         y_batch = numpy.empty((0, self.action_size), dtype=numpy.float64)
         for i in range(self.batch_size):
-            iteration_start = time.time()
+            # iteration_start = time.time()
             state = numpy.asarray(mini_batch[i][0])
             action = numpy.asarray(mini_batch[i][1])
             reward = numpy.asarray(mini_batch[i][2])
@@ -298,11 +299,11 @@ class DQNAgent(Node):
             if done:
                 x_batch = numpy.append(x_batch, numpy.array([next_state.copy()]), axis=0)
                 y_batch = numpy.append(y_batch, numpy.array([[reward] * self.action_size]), axis=0)
-            print("loop iteration time: {}".format(time.time() - iteration_start))
+            # print("loop iteration time: {}".format(time.time() - iteration_start))
         # timestamp = time.time()
         self.model.fit(x_batch, y_batch, batch_size=self.batch_size, epochs=1, verbose=0)
         # print("fit time: {}".format(time.time() - timestamp))
-        print("total train time: {}".format(time.time() - train_start_time))
+        # print("total train time: {}".format(time.time() - train_start_time))
 
 
 def main(args=sys.argv[1]):
