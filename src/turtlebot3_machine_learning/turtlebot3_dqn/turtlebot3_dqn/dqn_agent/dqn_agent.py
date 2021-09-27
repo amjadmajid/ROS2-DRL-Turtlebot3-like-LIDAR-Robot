@@ -60,8 +60,8 @@ class DQNAgent(Node):
         self.epsilon = 1.0
         self.epsilon_decay = 0.99
         self.epsilon_min = 0.05
-        self.batch_size = 8
-        self.train_start = 8
+        self.batch_size = 64
+        self.train_start = self.batch_size
 
         # Replay memory
         self.memory = collections.deque(maxlen=1000000)
@@ -84,10 +84,11 @@ class DQNAgent(Node):
         # Load saved models
         self.load_model = False
         self.load_episode = 0
-        self.model_dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.model_dir_path = self.model_dir_path.replace(
-            'turtlebot3_dqn/dqn_agent',
-            'model')
+        # self.model_dir_path = os.path.dirname(os.path.realpath(__file__))
+        # self.model_dir_path = self.model_dir_path.replace(
+        #     'turtlebot3_dqn/dqn_agent',
+        #     'model')
+        self.model_dir_path = "/home/tomas/code/thesis/turtlebot3_ws/src/turtlebot3_machine_learning/turtlebot3_dqn/model"
         self.model_path = os.path.join(
             self.model_dir_path,
             'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
@@ -211,7 +212,7 @@ class DQNAgent(Node):
                 time.sleep(0.01)
 
             # Update result and save model every 10 episodes
-            if episode % 10 == 0:
+            if episode % 50 == 0:
                 self.model_path = os.path.join(
                     self.model_dir_path,
                     self.timestr +'_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
@@ -228,11 +229,11 @@ class DQNAgent(Node):
     def build_model(self):
         model = Sequential()
         model.add(Dense(
-            8,
+            64,
             input_shape=(self.state_size,),
             activation='relu',
             kernel_initializer='lecun_uniform'))
-        model.add(Dense(8, activation='relu', kernel_initializer='lecun_uniform'))
+        model.add(Dense(64, activation='relu', kernel_initializer='lecun_uniform'))
         model.add(Dropout(0.2))
         model.add(Dense(self.action_size, kernel_initializer='lecun_uniform'))
         model.add(Activation('linear'))
@@ -262,23 +263,27 @@ class DQNAgent(Node):
         x_batch = numpy.empty((0, self.state_size), dtype=numpy.float64)
         y_batch = numpy.empty((0, self.action_size), dtype=numpy.float64)
         for i in range(self.batch_size):
+            iteration_start = time.time()
             state = numpy.asarray(mini_batch[i][0])
             action = numpy.asarray(mini_batch[i][1])
             reward = numpy.asarray(mini_batch[i][2])
             next_state = numpy.asarray(mini_batch[i][3])
             done = numpy.asarray(mini_batch[i][4])
 
-            timestamp = time.time()
-            q_value = self.model.predict(state.reshape(1, len(state)))
-            print("model predict time: {}".format(time.time() - timestamp))
+            # timestamp = time.time()
+            # q_value = self.model.predict(state.reshape(1, len(state)))
+            q_value = (self.model(state.reshape(1, len(state)))).numpy()
+            # print("get q value ({}) time: {}".format(q_value, (time.time() - timestamp)))
             self.max_q_value = numpy.max(q_value)
 
+            # timestamp = time.time()
             if not target_train_start:
-                target_value = self.model.predict(next_state.reshape(1, len(next_state)))
+                # target_value = self.model.predict(next_state.reshape(1, len(next_state)), self.batch_size)
+                target_value = (self.model(next_state.reshape(1, len(next_state)))).numpy()
             else:
-                timestamp = time.time()
-                target_value = self.target_model.predict(next_state.reshape(1, len(next_state)))
-                print("target model predict time: {}".format(time.time() - timestamp))
+                # target_value = self.target_model.predict(next_state.reshape(1, len(next_state)))
+                target_value = (self.model(next_state.reshape(1, len(next_state)))).numpy()
+            # print("get target value time: {}".format(time.time() - timestamp))
             if done:
                 next_q_value = reward
             else:
@@ -293,10 +298,10 @@ class DQNAgent(Node):
             if done:
                 x_batch = numpy.append(x_batch, numpy.array([next_state.copy()]), axis=0)
                 y_batch = numpy.append(y_batch, numpy.array([[reward] * self.action_size]), axis=0)
-        print("loop time: {}".format(time.time() - train_start_time))
-        timestamp = time.time()
+            print("loop iteration time: {}".format(time.time() - iteration_start))
+        # timestamp = time.time()
         self.model.fit(x_batch, y_batch, batch_size=self.batch_size, epochs=1, verbose=0)
-        print("fit time: {}".format(time.time() - timestamp))
+        # print("fit time: {}".format(time.time() - timestamp))
         print("total train time: {}".format(time.time() - train_start_time))
 
 
