@@ -82,24 +82,26 @@ class DQNAgent(Node):
         models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
                                                                            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
         # Load saved models if needed
-        self.load_model = False  # change to false to not load model
-        self.load_episode = 0
+        self.load_model = 'dqn_2'  # change to false to not load model
+        self.load_episode = 600
         if self.load_model:
             self.model_dir = os.path.join(models_dir, self.load_model)
             self.model_file = os.path.join(self.model_dir,
                                            'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
+            print("continuing agent model from file: %s" % self.model_file)
             self.model.set_weights(load_model(self.model_file).get_weights())
             with open(os.path.join(self.model_dir,
                                    'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.json')) as outfile:
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
+            print("continuing agent model from dir: %s" % self.model_dir)
         else:  # make new dir
             i = 0
             self.model_dir = os.path.join(models_dir, "dqn_%s" % i)
             while(os.path.exists(self.model_dir)):
                 i += 1
                 self.model_dir = os.path.join(models_dir, "dqn_%s" % i)
-            print("current model path: %s" % self.model_dir)
+            print("making new model dir: %s" % self.model_dir)
             os.mkdir(self.model_dir)
 
         # Determine summary file name
@@ -210,7 +212,7 @@ class DQNAgent(Node):
                         param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate', 
                         'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
 
-                        param_values =[self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
+                        param_values = [self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
                         discount_factor, self.episode_size, self.action_size, self. state_size, self.update_target_model_start, self.memory_size]
                         param_dictionary = dict(zip(param_keys, param_values))
 
@@ -220,12 +222,12 @@ class DQNAgent(Node):
                 time.sleep(0.01)
 
             # Update result and save model every 10 episodes
-            if episode % 50 == 0:
+            if episode % 100 == 0:
                 self.model_file = os.path.join(
-                    self.model_dir, '_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+                    self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
                 self.model.save(self.model_file)
                 with open(os.path.join(
-                        self.model_dir, '_stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
+                        self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
                     json.dump(param_dictionary, outfile)
 
             # Epsilon
