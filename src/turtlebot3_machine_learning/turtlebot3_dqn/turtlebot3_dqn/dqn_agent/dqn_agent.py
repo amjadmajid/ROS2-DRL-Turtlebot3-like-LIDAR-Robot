@@ -79,11 +79,12 @@ class DQNAgent(Node):
         self.update_target_model()
         self.update_target_model_start = 2000
 
+        print(os.path.dirname(os.path.realpath(__file__)))
         models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
                                                                            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
         # Load saved models if needed
-        self.load_model = 'dqn_2'  # change to false to not load model
-        self.load_episode = 600
+        self.load_model = False  # change to false to not load model
+        self.load_episode = 600 if self.load_model else 0
         if self.load_model:
             self.model_dir = os.path.join(models_dir, self.load_model)
             self.model_file = os.path.join(self.model_dir,
@@ -209,11 +210,11 @@ class DQNAgent(Node):
                         self.summary_file.write("{}, {}, {}, {}, {}, {}\n".format(
                             episode, score, local_step, self.epsilon, success_count, len(self.memory)))
 
-                        param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate', 
-                        'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
+                        param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate',
+                                      'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
 
                         param_values = [self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
-                        discount_factor, self.episode_size, self.action_size, self. state_size, self.update_target_model_start, self.memory_size]
+                                        discount_factor, self.episode_size, self.action_size, self. state_size, self.update_target_model_start, self.memory_size]
                         param_dictionary = dict(zip(param_keys, param_values))
 
                 # print("step time: {:4f}".format(time.time() - step_start))
@@ -222,7 +223,8 @@ class DQNAgent(Node):
                 time.sleep(0.01)
 
             # Update result and save model every 10 episodes
-            if episode % 25 == 0:
+            if (episode % 25 == 0) or (episode == 1):
+                print("saving data for episode: ", episode)
                 self.model_file = os.path.join(
                     self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
                 self.model.save(self.model_file)
