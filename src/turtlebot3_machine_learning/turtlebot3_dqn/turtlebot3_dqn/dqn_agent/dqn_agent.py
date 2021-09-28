@@ -222,7 +222,7 @@ class DQNAgent(Node):
                 time.sleep(0.01)
 
             # Update result and save model every 10 episodes
-            if episode % 100 == 0:
+            if episode % 25 == 0:
                 self.model_file = os.path.join(
                     self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
                 self.model.save(self.model_file)
