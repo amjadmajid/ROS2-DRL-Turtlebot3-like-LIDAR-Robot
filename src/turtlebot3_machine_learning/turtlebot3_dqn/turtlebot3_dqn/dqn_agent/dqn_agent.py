@@ -17,6 +17,7 @@
 # Authors: Ryan Shim, Gilbert
 
 import collections
+import pickle
 import tensorflow
 from keras import backend as K
 from keras.layers import Activation
@@ -64,7 +65,7 @@ class DQNAgent(Node):
         self.train_start = self.batch_size
 
         # Replay memory
-        self.memory_size = 1000000
+        self.memory_size = 100000
         self.memory = collections.deque(maxlen=self.memory_size)
 
         # GPU initalization
@@ -83,18 +84,25 @@ class DQNAgent(Node):
         models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
                                                                            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
         # Load saved models if needed
-        self.load_model = False  # change to false to not load model
-        self.load_episode = 600 if self.load_model else 0
+        self.load_model = 'dqn_4'  # change to false to not load model
+        self.load_episode = 5 if self.load_model else 0
         if self.load_model:
             self.model_dir = os.path.join(models_dir, self.load_model)
+            # load weights
             self.model_file = os.path.join(self.model_dir,
                                            'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
             print("continuing agent model from file: %s" % self.model_file)
             self.model.set_weights(load_model(self.model_file).get_weights())
+            # load hyperparameters
             with open(os.path.join(self.model_dir,
                                    'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.json')) as outfile:
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
+            # load replay memory buffer
+            with open(os.path.join(self.model_dir,
+                                   'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.pkl'), 'rb') as f:
+                self.memory = pickle.load(f)
+            print("memory length:", len(self.memory))
             print("continuing agent model from dir: %s" % self.model_dir)
         else:  # make new dir
             i = 0
@@ -222,8 +230,8 @@ class DQNAgent(Node):
                 # While loop rate
                 time.sleep(0.01)
 
-            # Update result and save model every 10 episodes
-            if (episode % 25 == 0) or (episode == 1):
+            # Update result and save model every 25 episodes
+            if (episode % 5 == 0) or (episode == 1):
                 print("saving data for episode: ", episode)
                 self.model_file = os.path.join(
                     self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
@@ -231,6 +239,9 @@ class DQNAgent(Node):
                 with open(os.path.join(
                         self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
                     json.dump(param_dictionary, outfile)
+                with open(os.path.join(
+                        self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
+                    pickle.dump(self.memory, f, pickle.HIGHEST_PROTOCOL)
 
             # Epsilon
             if self.epsilon > self.epsilon_minimum:
