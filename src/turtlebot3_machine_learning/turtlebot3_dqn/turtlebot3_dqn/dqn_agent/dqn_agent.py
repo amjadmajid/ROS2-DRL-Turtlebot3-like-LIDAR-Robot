@@ -59,12 +59,13 @@ class DQNAgent(Node):
         self.learning_rate = 0.00025
         self.epsilon = 1.0
         self.epsilon_decay = 0.998
-        self.epsilon_min = 0.05
+        self.epsilon_minimum = 0.05
         self.batch_size = 8
         self.train_start = self.batch_size
 
         # Replay memory
-        self.memory = collections.deque(maxlen=1000000)
+        self.memory_size = 1000000
+        self.memory = collections.deque(maxlen=self.memory_size)
 
         # GPU initalization
         print("GPU INITALIZATION")
@@ -81,8 +82,8 @@ class DQNAgent(Node):
         models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
                                                                            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
         # Load saved models if needed
-        self.load_model = 'dqn_1'  # change to false to not load model
-        self.load_episode = 450
+        self.load_model = False  # change to false to not load model
+        self.load_episode = 0
         if self.load_model:
             self.model_dir = os.path.join(models_dir, self.load_model)
             self.model_file = os.path.join(self.model_dir,
@@ -138,6 +139,7 @@ class DQNAgent(Node):
             done = False
             init = True
             score = 0
+            sum_step_time = 0
 
             # Reset DQN environment
             time.sleep(1.0)
@@ -156,7 +158,6 @@ class DQNAgent(Node):
 
                 # Send action and receive next state and reward
                 req = Dqn.Request()
-                print("a: {} ({})".format(int(action), was_random))
                 req.action = action
                 req.init = init
                 while not self.dqn_com_client.wait_for_service(timeout_sec=1.0):
@@ -194,20 +195,27 @@ class DQNAgent(Node):
                         # Update neural network
                         self.update_target_model()
 
+                        average_step_time = sum_step_time / local_step
+
                         print(
                             "Episode:", episode,
                             "score:", score,
                             "n_steps:", local_step,
                             "memory length:", len(self.memory),
-                            "epsilon:", self.epsilon)
+                            "epsilon:", self.epsilon,
+                            "average step_time: ", average_step_time)
                         self.summary_file.write("{}, {}, {}, {}, {}, {}\n".format(
                             episode, score, local_step, self.epsilon, success_count, len(self.memory)))
 
-                        param_keys = ['epsilon']
-                        param_values = [self.epsilon]
+                        param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate', 
+                        'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
+
+                        param_values =[self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
+                        discount_factor, self.episode_size, self.action_size, self. state_size, self.update_target_model_start, self.memory_size]
                         param_dictionary = dict(zip(param_keys, param_values))
 
-                print("step time: {:4f}".format(time.time() - step_start))
+                # print("step time: {:4f}".format(time.time() - step_start))
+                sum_step_time += (time.time() - step_start)
                 # While loop rate
                 time.sleep(0.01)
 
@@ -221,7 +229,7 @@ class DQNAgent(Node):
                     json.dump(param_dictionary, outfile)
 
             # Epsilon
-            if self.epsilon > self.epsilon_min:
+            if self.epsilon > self.epsilon_minimum:
                 self.epsilon *= self.epsilon_decay
 
     def build_model(self):
