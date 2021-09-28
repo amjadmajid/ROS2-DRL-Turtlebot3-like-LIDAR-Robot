@@ -158,7 +158,7 @@ class DQNEnvironment(Node):
                 self.get_logger().info('service not available, waiting again...')
             self.task_fail_client.call_async(req)
 
-        if self.local_step == 500:
+        if self.local_step == 1000:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
@@ -181,7 +181,7 @@ class DQNEnvironment(Node):
 
         response.state = self.get_state()
         response.reward = self.get_reward(action)
-        print("step: {}, R: {:.3f}, GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(self.local_step, response.reward, response.state[0], response.state[1], response.state[2], response.state[3]))
+        print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(self.local_step, response.reward, action, response.state[0], response.state[1], response.state[2], response.state[3]))
         response.done = self.done
 
         if self.done is True:
