@@ -81,11 +81,14 @@ class DQNAgent(Node):
         self.update_target_model_start = 2000
 
         print(os.path.dirname(os.path.realpath(__file__)))
-        models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
-                                                                           'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
+        #models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
+        #                                                                   'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
+
+	models_dir = '/media/tomas/JURAJ\'S USB'
+
         # Load saved models if needed
-        self.load_model = 'dqn_4'  # change to false to not load model
-        self.load_episode = 5 if self.load_model else 0
+        self.load_model = 'dqn_3'  # change to false to not load model
+        self.load_episode = 1000 if self.load_model else 0
         if self.load_model:
             self.model_dir = os.path.join(models_dir, self.load_model)
             # load weights
@@ -231,7 +234,7 @@ class DQNAgent(Node):
                 time.sleep(0.01)
 
             # Update result and save model every 25 episodes
-            if (episode % 5 == 0) or (episode == 1):
+            if (episode % 200 == 0) or (episode == 1):
                 print("saving data for episode: ", episode)
                 self.model_file = os.path.join(
                     self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
@@ -273,7 +276,8 @@ class DQNAgent(Node):
             return int(random.randrange(self.action_size)), True
         else:
             state = numpy.asarray(state)
-            q_value = self.model.predict(state.reshape(1, len(state)))
+            #q_value = self.model.predict(state.reshape(1, len(state)))
+            q_value = (self.model(state.reshape(1, len(state)))).numpy()
             return int(numpy.argmax(q_value[0])), False
 
     def append_sample(self, state, action, reward, next_state, done):
