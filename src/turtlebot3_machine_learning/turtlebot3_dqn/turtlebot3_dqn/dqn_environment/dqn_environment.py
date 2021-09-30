@@ -89,11 +89,13 @@ class DQNEnvironment(Node):
         self.task_fail_client = self.create_client(Empty, 'task_fail')
 
         # Initialise servers
-        self.dqn_com_server = self.create_service(Dqn, 'dqn_com', self.dqn_com_callback)
+        self.dqn_com_server = self.create_service(
+            Dqn, 'dqn_com', self.dqn_com_callback)
 
     """*******************************************************************************
     ** Callback functions and relevant functions
     *******************************************************************************"""
+
     def goal_pose_callback(self, msg):
         self.goal_pose_x = msg.position.x
         self.goal_pose_y = msg.position.y
@@ -101,7 +103,8 @@ class DQNEnvironment(Node):
     def odom_callback(self, msg):
         self.last_pose_x = msg.pose.pose.position.x
         self.last_pose_y = msg.pose.pose.position.y
-        _, _, self.last_pose_theta = self.euler_from_quaternion(msg.pose.pose.orientation)
+        _, _, self.last_pose_theta = self.euler_from_quaternion(
+            msg.pose.pose.orientation)
 
         goal_distance = math.sqrt(
             (self.goal_pose_x-self.last_pose_x)**2
@@ -181,7 +184,8 @@ class DQNEnvironment(Node):
 
         response.state = self.get_state()
         response.reward = self.get_reward(action)
-        print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(self.local_step, response.reward, action, response.state[0], response.state[1], response.state[2], response.state[3]))
+        print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
+            self.local_step, response.reward, action, response.state[0], response.state[1], response.state[2], response.state[3]))
         response.done = self.done
 
         if self.done is True:
@@ -212,14 +216,15 @@ class DQNEnvironment(Node):
 
         # + for succeed, - for fail
         if self.succeed:
-            reward += 5
+            reward += 50  # 5
         elif self.fail:
-            reward -= -10
+            reward -= 100  # -10
         return reward
 
     """*******************************************************************************
     ** Below should be replaced when porting for ROS 2 Python tf_conversions is done.
     *******************************************************************************"""
+
     def euler_from_quaternion(self, quat):
         """
         Converts quaternion (w in last place) to euler roll, pitch, yaw
