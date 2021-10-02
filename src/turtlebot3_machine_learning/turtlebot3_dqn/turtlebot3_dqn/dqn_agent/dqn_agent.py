@@ -84,7 +84,7 @@ class DQNAgent(Node):
         #models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
         #                                                                   'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
 
-	models_dir = '/media/tomas/JURAJ\'S USB'
+        models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Load saved models if needed
         self.load_model = 'dqn_3'  # change to false to not load model
@@ -138,7 +138,7 @@ class DQNAgent(Node):
     *******************************************************************************"""
 
     def process(self):
-        global_step = 0
+        global_step = int(self.load_episode)
         success_count = 0
 
         self.summary_file.write(

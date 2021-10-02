@@ -184,8 +184,9 @@ class DQNEnvironment(Node):
 
         response.state = self.get_state()
         response.reward = self.get_reward(action)
-        print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
-            self.local_step, response.reward, action, response.state[0], response.state[1], response.state[2], response.state[3]))
+        # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
+        print("step: {}, R: {:.3f}, A: {}".format(
+            self.local_step, response.reward, action))#, response.state[0], response.state[1], response.state[2], response.state[3]))
         response.done = self.done
 
         if self.done is True:
