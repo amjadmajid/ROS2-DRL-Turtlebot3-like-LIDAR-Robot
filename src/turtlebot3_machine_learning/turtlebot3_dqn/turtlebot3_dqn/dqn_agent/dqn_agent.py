@@ -81,14 +81,14 @@ class DQNAgent(Node):
         self.update_target_model_start = 2000
 
         print(os.path.dirname(os.path.realpath(__file__)))
-        #models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
-        #                                                                   'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
+        models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
+                                                                           'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
 
-        models_dir = '/media/tomas/JURAJ\'S USB'
+        #models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Load saved models if needed
-        self.load_model = 'dqn_3'  # change to false to not load model
-        self.load_episode = 1000 if self.load_model else 0
+        self.load_model = 'dqn_4'  # change to false to not load model
+        self.load_episode = 2800 if self.load_model else 0
         if self.load_model:
             self.model_dir = os.path.join(models_dir, self.load_model)
             # load weights
