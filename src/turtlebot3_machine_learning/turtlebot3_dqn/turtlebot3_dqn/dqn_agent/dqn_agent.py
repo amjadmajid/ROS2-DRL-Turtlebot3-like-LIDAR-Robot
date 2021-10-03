@@ -302,7 +302,7 @@ class DQNAgent(Node):
                 target_value = (self.model(
                     next_state.reshape(1, len(next_state)))).numpy()
             else:
-                target_value = (self.model(
+                target_value = (self.target_model(
                     next_state.reshape(1, len(next_state)))).numpy()
             if done:
                 next_q_value = reward
