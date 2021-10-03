@@ -53,7 +53,7 @@ class DQNAgent(Node):
         # State size and action size
         self.state_size = 4
         self.action_size = 5
-        self.episode_size = 3000
+        self.episode_size = 50000
 
         # DQN hyperparameter
         self.discount_factor = 0.99
