@@ -51,7 +51,7 @@ class DQNAgent(Node):
         self.stage = int(stage)
 
         # State size and action size
-        self.state_size = 4
+        self.state_size = 22
         self.action_size = 5
         self.episode_size = 50000
 
@@ -59,10 +59,11 @@ class DQNAgent(Node):
         self.discount_factor = 0.99
         self.learning_rate = 0.001
         self.epsilon = 1.0
-        self.epsilon_decay = 0.998
+        self.epsilon_decay = 0.999
         self.epsilon_minimum = 0.05
         self.batch_size = 64
         self.train_start = self.batch_size
+        self.target_update = 8
 
         # Replay memory
         self.memory_size = 100000
@@ -78,7 +79,7 @@ class DQNAgent(Node):
         self.model = self.build_model()
         self.target_model = self.build_model()
         self.update_target_model()
-        self.update_target_model_start = 2000
+        self.update_target_model_start = 128
 
         print(os.path.dirname(os.path.realpath(__file__)))
         models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
@@ -142,7 +143,7 @@ class DQNAgent(Node):
         success_count = 0
 
         self.summary_file.write(
-            "episode, reward, n_steps, epsilon, success_count, memory length\n")
+            "episode, reward, duration, n_steps, epsilon, success_count, memory length\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
             global_step += 1
@@ -153,13 +154,13 @@ class DQNAgent(Node):
             done = False
             init = True
             score = 0
-            sum_step_time = 0
 
             # Reset DQN environment
             time.sleep(1.0)
 
+            episode_start = time.time()
+
             while not done:
-                step_start = time.time()
                 local_step += 1
 
                 # Aciton based on the current state
@@ -207,9 +208,11 @@ class DQNAgent(Node):
 
                     if done:
                         # Update neural network
-                        self.update_target_model()
+                        if global_step % self.target_update == 0:
+                            print("updating target network!")
+                            self.update_target_model()
 
-                        average_step_time = sum_step_time / local_step
+                        episode_duration = time.time() - episode_start
 
                         print(
                             "Episode:", episode,
@@ -217,9 +220,9 @@ class DQNAgent(Node):
                             "n_steps:", local_step,
                             "memory length:", len(self.memory),
                             "epsilon:", self.epsilon,
-                            "average step_time: ", average_step_time)
-                        self.summary_file.write("{}, {}, {}, {}, {}, {}\n".format(
-                            episode, score, local_step, self.epsilon, success_count, len(self.memory)))
+                            "episode duration: ", episode_duration)
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(
+                            episode, score, episode_duration, local_step, self.epsilon, success_count, len(self.memory)))
 
                         param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate',
                                       'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
@@ -229,7 +232,6 @@ class DQNAgent(Node):
                         param_dictionary = dict(zip(param_keys, param_values))
 
                 # print("step time: {:4f}".format(time.time() - step_start))
-                sum_step_time += (time.time() - step_start)
                 # While loop rate
                 time.sleep(0.01)
 
@@ -276,7 +278,6 @@ class DQNAgent(Node):
             return int(random.randrange(self.action_size)), True
         else:
             state = numpy.asarray(state)
-            #q_value = self.model.predict(state.reshape(1, len(state)))
             q_value = (self.model(state.reshape(1, len(state)))).numpy()
             return int(numpy.argmax(q_value[0])), False
 

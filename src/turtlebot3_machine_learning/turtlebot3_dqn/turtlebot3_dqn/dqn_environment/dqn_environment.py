@@ -55,7 +55,6 @@ class DQNEnvironment(Node):
         self.init_goal_distance = 1.0
         self.scan_ranges = []
         self.min_obstacle_distance = 10.0
-        self.min_obstacle_angle = 10.0
 
         self.local_step = 0
 
@@ -125,16 +124,18 @@ class DQNEnvironment(Node):
         self.goal_angle = goal_angle
 
     def scan_callback(self, msg):
+        for i in range(len(msg.ranges)):
+            if msg.ranges[i] > 3.5:  # max range is specified in model.sdf
+                print('range was cropped: ', msg.ranges[i])
+                msg.ranges[i] = 3.5
         self.scan_ranges = msg.ranges
         self.min_obstacle_distance = min(self.scan_ranges)
-        self.min_obstacle_angle = numpy.argmin(self.scan_ranges)
 
     def get_state(self):
         state = list()
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
-        state.append(float(self.min_obstacle_distance))
-        state.append(float(self.min_obstacle_angle))
+        state.append(float(self.scan_ranges))
         self.local_step += 1
 
         # Succeed
@@ -186,7 +187,7 @@ class DQNEnvironment(Node):
         response.reward = self.get_reward(action)
         # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
         print("step: {}, R: {:.3f}, A: {}".format(
-            self.local_step, response.reward, action))#, response.state[0], response.state[1], response.state[2], response.state[3]))
+            self.local_step, response.reward, action))  # , response.state[0], response.state[1], response.state[2], response.state[3]))
         response.done = self.done
 
         if self.done is True:
