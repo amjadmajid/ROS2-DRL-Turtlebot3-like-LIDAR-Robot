@@ -17,6 +17,7 @@
 # Authors: Ryan Shim, Gilbert
 
 import math
+from typing import List
 import numpy
 
 from geometry_msgs.msg import Pose
@@ -128,16 +129,14 @@ class DQNEnvironment(Node):
     def scan_callback(self, msg):
         for i in range(len(msg.ranges)):
             if msg.ranges[i] > 3.5:  # max range is specified in model.sdf
-                print('range was cropped: ', msg.ranges[i])
                 msg.ranges[i] = 3.5
         self.scan_ranges = msg.ranges
         self.min_obstacle_distance = min(self.scan_ranges)
 
     def get_state(self):
-        state = list()
+        state = self.scan_ranges.tolist()
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
-        state.append(float(self.scan_ranges))
         self.local_step += 1
 
         # Succeed

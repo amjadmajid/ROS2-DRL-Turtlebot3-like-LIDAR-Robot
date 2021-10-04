@@ -1,0 +1,1 @@
+{"stage": 3, "epsilon": 0.06078571710153414, "epsilon_decay": 0.999, "epsilon_minimum": 0.05, "batch_size": 64, "learning_rate": 0.001, "discount_factor": 0.99, "episode_size": 50000, "action_size": 5, "state_size": 22, "update_target_model_start": 128, "memory_size": 100000}

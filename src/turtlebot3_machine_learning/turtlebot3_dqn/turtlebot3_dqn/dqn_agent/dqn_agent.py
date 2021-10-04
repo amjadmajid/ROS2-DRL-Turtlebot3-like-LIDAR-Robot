@@ -88,7 +88,7 @@ class DQNAgent(Node):
         #models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Load saved models if needed
-        self.load_model = 'dqn_4'  # change to false to not load model
+        self.load_model = False  # change to false to not load model
         self.load_episode = 2800 if self.load_model else 0
         if self.load_model:
             self.model_dir = os.path.join(models_dir, self.load_model)
