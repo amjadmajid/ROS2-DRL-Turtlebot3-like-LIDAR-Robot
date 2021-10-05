@@ -16,14 +16,15 @@
 #
 # Authors: Ryan Shim, Gilbert
 
-import collections
+import numpy as np
+from keras.models import Model
+from keras.layers import Dense, Input
+from keras.layers.merge import Concatenate
+from keras.optimizers import Adam
+import keras.backend as K
 import pickle
-import tensorflow
+import tensorflow as tf
 from keras import backend as K
-from keras.layers import Activation
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.models import Sequential
 from keras.models import load_model
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.python.client import device_lib
@@ -33,6 +34,8 @@ import os
 import random
 import sys
 import time
+from .ddpg import Critic, Actor
+from .replaybuffer import ReplayBuffer
 
 import rclpy
 from rclpy.node import Node
@@ -44,14 +47,13 @@ class DQNAgent(Node):
     def __init__(self, stage):
         super().__init__('dqn_agent')
 
-        """************************************************************
-        ** Initialise variables
-        ************************************************************"""
-        # Stage
+        # ===================================================================== #
+        #                       parameter initalization                         #
+        # ===================================================================== #
         self.stage = int(stage)
 
         # State size and action size
-        self.state_size = 22
+        self.state_size = 24
         self.action_size = 5
         self.episode_size = 50000
 
@@ -62,30 +64,53 @@ class DQNAgent(Node):
         self.epsilon_decay = 0.999
         self.epsilon_minimum = 0.05
         self.batch_size = 64
-        self.train_start = self.batch_size
         self.target_update = 8
 
         # Replay memory
         self.memory_size = 100000
-        self.memory = collections.deque(maxlen=self.memory_size)
+        self.memory = ReplayBuffer(self.memory_size)
 
-        # GPU initalization
+        # ===================================================================== #
+        #                          GPU initalization                            #
+        # ===================================================================== #
         print("GPU INITALIZATION")
-        gpu_devices = tensorflow.config.experimental.list_physical_devices(
+        gpu_devices = tf.config.experimental.list_physical_devices(
             'GPU')
         print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
 
-        # Build model and target model
-        self.model = self.build_model()
-        self.target_model = self.build_model()
+        # ===================================================================== #
+        #                              Actor Model                              #
+        # ===================================================================== #
+
+        self.actor_model = Actor(self.state_size)
+        self.actor_model.build_model()
+        self.target_actor_model = Actor(self.state_size)
+        self.target_actor_model.build_model()
+
+        # ===================================================================== #
+        #                              Critic Model                             #
+        # ===================================================================== #
+        self.critic_model = Critic(self.state_size, self.action_size)
+        self.critic_model.build_model()
+        self.target_critic_model = Critic(self.state_size, self.action_size)
+        self.target_critic_model.build_model()
+
+        # where we will feed de/dC (from critic)
+        self.actor_critic_grad = tf.placeholder(
+            tf.float32, [None, self.state_size])
+
         self.update_target_model()
         self.update_target_model_start = 128
+
+        # ===================================================================== #
+        #                             Model loading                             #
+        # ===================================================================== #
 
         print(os.path.dirname(os.path.realpath(__file__)))
         models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
                                                                            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
 
-        #models_dir = '/media/tomas/JURAJ\'S USB'
+        # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Load saved models if needed
         self.load_model = False  # change to false to not load model
@@ -138,22 +163,86 @@ class DQNAgent(Node):
     ** Callback functions and relevant functions
     *******************************************************************************"""
 
+    def save_progress(self, episode):
+        print("saving data for episode: ", episode)
+        # Store weights state
+        self.model_file = os.path.join(
+            self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+        self.model.save(self.model_file)
+        # Store parameters state
+        param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate',
+                      'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
+        param_values = [self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
+                        discount_factor, self.episode_size, self.action_size, self.state_size, self.update_target_model_start, self.memory_size]
+        param_dictionary = dict(zip(param_keys, param_values))
+        with open(os.path.join(
+                self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
+            json.dump(param_dictionary, outfile)
+        # Store replay buffer state
+        with open(os.path.join(
+                self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
+            pickle.dump(self.memory, f, pickle.HIGHEST_PROTOCOL)
+
+    # CHANGE  [[state1, action1,etc], [state2,action2,etc], [state3,action3,etc]]  INTO  [[state1, state2, state3],[action1, action2, action3],etc]
+    def stack_samples(samples):
+        array = np.array(samples)
+        current_states = np.stack(array[:, 0]).reshape((array.shape[0], -1))
+        actions = np.stack(array[:, 1]).reshape((array.shape[0], -1))
+        rewards = np.stack(array[:, 2]).reshape((array.shape[0], -1))
+        new_states = np.stack(array[:, 3]).reshape((array.shape[0], -1))
+        dones = np.stack(array[:, 4]).reshape((array.shape[0], -1))
+        return current_states, actions, rewards, new_states, dones
+
+    def train(self):
+        if len(self.memory) < self.batch_size:  # batch_size:
+            return
+        mini_batch = random.sample(self.memory, self.batch_size)
+        print("samples is %s", mini_batch)
+        print("samples shape is %s", mini_batch.shape)
+
+        current_states, actions, rewards, new_states, dones = self.stack_samples(
+            mini_batch)
+        # forward pass to target actor
+        target_actions = self.target_actor_model.forward_pass(new_states)
+        # forward pass to target critic
+        future_rewards = self.target_critic_model.forward_pass(new_states, target_actions)
+
+        rewards = rewards + self.gamma * future_rewards * (1 - dones)
+
+        # Train the critic model
+        self.critic_model.fit([current_states, actions], rewards, verbose=0)
+
+        # 5, train actor based on weights
+        predicted_actions = self.actor_model.predict(current_states)
+        grads = self.sess.run(self.critic_grads, feed_dict={
+            self.critic_state_input:  current_states,
+            self.critic_action_input: predicted_actions
+        })[0]
+
+        self.sess.run(self.optimize, feed_dict={
+            self.actor_state_input: current_states,
+            self.actor_critic_grad: grads
+        })
+        # print("grads*weights is %s", grads)
+
     def process(self):
-        global_step = int(self.load_episode)
         success_count = 0
 
         self.summary_file.write(
             "episode, reward, duration, n_steps, epsilon, success_count, memory length\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
-            global_step += 1
             local_step = 0
 
-            state = list()
+            state = game_start_reset()
             next_state = list()
             done = False
             init = True
             score = 0
+
+            step_reward = [0, 0]
+            step_Q = [0, 0]
+            step = 0
 
             # Reset DQN environment
             time.sleep(1.0)
@@ -163,13 +252,9 @@ class DQNAgent(Node):
             while not done:
                 local_step += 1
 
-                # Aciton based on the current state
-                was_random = False
-                if local_step == 1:
-                    action = 2  # Move forward
-                else:
-                    state = next_state
-                    action, was_random = self.get_action(state)
+                # Action based on the current state
+                action = self.actor_model.get_action(state, self.epsilon)
+                print("chosen action: ", action)
 
                 # Send action and receive next state and reward
                 req = Dqn.Request()
@@ -183,32 +268,25 @@ class DQNAgent(Node):
                     rclpy.spin_once(self)
                     if future.done():
                         if future.result() is not None:
-                            # Next state and reward
                             next_state = future.result().state
                             reward = future.result().reward
                             done = future.result().done
                             score += reward
-                            if score > 100:
-                                success_count += 1
                             init = False
                         else:
                             self.get_logger().error(
                                 'Exception while calling service: {0}'.format(future.exception()))
                         break
 
-                # Save <s, a, r, s'> samples
                 if local_step > 1:
                     self.append_sample(state, action, reward, next_state, done)
 
-                    # Train model
-                    if global_step > self.update_target_model_start:
-                        self.train_model(True)
-                    elif global_step > self.train_start:
-                        self.train_model()
+                    self.train()  # TODO: every 5 steps? like example
 
                     if done:
-                        # Update neural network
-                        if global_step % self.target_update == 0:
+                        # TODO: should target model only start after a certain amount of episodes?
+                        # and (episode > self.update_target_model_start):
+                        if (episode % self.target_update == 0):
                             print("updating target network!")
                             self.update_target_model()
 
@@ -224,65 +302,19 @@ class DQNAgent(Node):
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(
                             episode, score, episode_duration, local_step, self.epsilon, success_count, len(self.memory)))
 
-                        param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate',
-                                      'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
-
-                        param_values = [self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
-                                        discount_factor, self.episode_size, self.action_size, self. state_size, self.update_target_model_start, self.memory_size]
-                        param_dictionary = dict(zip(param_keys, param_values))
-
-                # print("step time: {:4f}".format(time.time() - step_start))
-                # While loop rate
-                time.sleep(0.01)
+                state = next_state
+                time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 25 episodes
             if (episode % 200 == 0) or (episode == 1):
-                print("saving data for episode: ", episode)
-                self.model_file = os.path.join(
-                    self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
-                self.model.save(self.model_file)
-                with open(os.path.join(
-                        self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
-                    json.dump(param_dictionary, outfile)
-                with open(os.path.join(
-                        self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
-                    pickle.dump(self.memory, f, pickle.HIGHEST_PROTOCOL)
+                self.save_progress(episode)
 
             # Epsilon
             if self.epsilon > self.epsilon_minimum:
                 self.epsilon *= self.epsilon_decay
 
-    def build_model(self):
-        model = Sequential()
-        model.add(Dense(
-            64,
-            input_shape=(self.state_size,),
-            activation='relu',
-            kernel_initializer='lecun_uniform'))
-        model.add(Dense(64, activation='relu',
-                  kernel_initializer='lecun_uniform'))
-        model.add(Dropout(0.2))
-        model.add(Dense(self.action_size, kernel_initializer='lecun_uniform'))
-        model.add(Activation('linear'))
-        model.compile(loss='mse', optimizer=RMSprop(
-            lr=self.learning_rate, rho=0.9, epsilon=1e-06))
-        model.summary()
-
-        return model
-
-    def update_target_model(self):
-        self.target_model.set_weights(self.model.get_weights())
-
-    def get_action(self, state):
-        if numpy.random.rand() <= self.epsilon:
-            return int(random.randrange(self.action_size)), True
-        else:
-            state = numpy.asarray(state)
-            q_value = (self.model(state.reshape(1, len(state)))).numpy()
-            return int(numpy.argmax(q_value[0])), False
-
-    def append_sample(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+    # def update_target_model(self, model, target_model):
+    #     target_model.set_weights(model.get_weights())
 
     def train_model(self, target_train_start=False):
         # train_start_time = time.time()
@@ -297,14 +329,9 @@ class DQNAgent(Node):
             done = numpy.asarray(mini_batch[i][4])
 
             q_value = (self.model(state.reshape(1, len(state)))).numpy()
-            self.max_q_value = numpy.max(q_value)
 
-            if not target_train_start:
-                target_value = (self.model(
-                    next_state.reshape(1, len(next_state)))).numpy()
-            else:
-                target_value = (self.target_model(
-                    next_state.reshape(1, len(next_state)))).numpy()
+            target_value = (self.target_model(
+                next_state.reshape(1, len(next_state)))).numpy()
             if done:
                 next_q_value = reward
             else:
@@ -325,7 +352,7 @@ class DQNAgent(Node):
                     [[reward] * self.action_size]), axis=0)
         self.model.fit(x_batch, y_batch,
                        batch_size=self.batch_size, epochs=1, verbose=0)
-        # print("total train time: {}".format(time.time() - train_start_time))
+        #print("total train time: {}".format(time.time() - train_start_time))
 
 
 def main(args=sys.argv[1]):
