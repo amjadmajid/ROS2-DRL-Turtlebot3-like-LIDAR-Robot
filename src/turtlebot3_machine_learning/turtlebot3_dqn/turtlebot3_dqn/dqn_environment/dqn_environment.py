@@ -174,10 +174,16 @@ class DQNEnvironment(Node):
 
         return state
 
-    def reset(self):
-        return self.state
-
     def dqn_com_callback(self, request, response):
+        if request.action == None:
+            self.init_goal_distance = math.sqrt(
+                (self.goal_pose_x-self.last_pose_x)**2
+                + (self.goal_pose_y-self.last_pose_y)**2)
+            response.state = self.get_state()
+            response.reward = 0
+            response.done = False
+            return response
+
         action = request.action
         twist = Twist()
         twist.linear.x = 0.3
@@ -187,19 +193,13 @@ class DQNEnvironment(Node):
         response.state = self.get_state()
         response.reward = self.get_reward(action)
         # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
-        print("step: {}, R: {:.3f}, A: {}".format(
-            self.local_step, response.reward, action))  # , response.state[0], response.state[1], response.state[2], response.state[3]))
+        print("step: {}, R: {:.3f}, A: {}".format(self.local_step, response.reward, action))
         response.done = self.done
 
         if self.done is True:
             self.done = False
             self.succeed = False
             self.fail = False
-
-        if request.init is True:
-            self.init_goal_distance = math.sqrt(
-                (self.goal_pose_x-self.last_pose_x)**2
-                + (self.goal_pose_y-self.last_pose_y)**2)
 
         return response
 

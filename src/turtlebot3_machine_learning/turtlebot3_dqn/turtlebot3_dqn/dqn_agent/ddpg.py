@@ -40,9 +40,6 @@ class Actor:
         # TODO: use predict on batch?
         return self.model(states)
 
-    def train_actor(self):
-        print("test")
-
     def get_action(self, state, epsilon):
         action = self.model(state.reshape(1, len(state)))
         if numpy.random.random() < epsilon:
@@ -54,51 +51,9 @@ class Actor:
             action[0][1] = action[0][1]
             return action
 
-    def train_critic_actor(self, samples):
-
-        states, actions, rewards, states_new, dones = stack_samples(
-            samples)
-        target_actions = self.target_actor_model.predict(states_new)
-        future_rewards = self.target_critic_model.predict(
-            [states_new, target_actions])
-        rewards = rewards + self.gamma * future_rewards * (1 - dones)
-
-        # print("cur_states is %s", cur_states)
-
-        # evaluation = self.critic_model.fit([cur_states, actions], rewards, verbose=0, sample_weight=_sample_weight)
-        evaluation = self.critic_model.fit(
-            [states, actions], rewards, verbose=0)
-        # print('\nhistory dict:', evaluation.history)
-
-        # 5, train actor based on weights
-        predicted_actions = self.actor_model.predict(states)
-        grads = self.sess.run(self.critic_grads, feed_dict={
-            self.critic_state_input:  states,
-            self.critic_action_input: predicted_actions
-        })[0]
-
-        self.sess.run(self.optimize, feed_dict={
-            self.actor_state_input: states,
-            self.actor_critic_grad: grads
-        })
-        # print("grads*weights is %s", grads)
-
     def read_Q_values(self, cur_states, actions):
         critic_values = self.critic_model.predict([cur_states, actions])
         return critic_values
-
-    def train(self):
-        batch_size = self.batch_size
-        if len(self.memory) < batch_size:  # batch_size:
-            return
-        samples = random.sample(self.memory, batch_size)
-        # samples = self.memory.sample(1, batch_size)
-        self.samples = samples
-        # print("samples is %s", samples)
-        # print("samples [1] is %s", samples[1])
-        print("length of memory is %s", len(self.memory))
-        # print("samples shape is %s", samples.shape)
-        self._train_critic_actor(samples)
 
     # ========================================================================= #
     #                         Target Model Updating                             #
@@ -153,5 +108,3 @@ class Critic:
 
     def forward_pass(self, states, actions):
         return self.model([states, actions])
-
-    def train_critic(self):

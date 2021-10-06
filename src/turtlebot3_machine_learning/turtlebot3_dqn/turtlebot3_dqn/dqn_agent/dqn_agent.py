@@ -17,15 +17,15 @@
 # Authors: Ryan Shim, Gilbert
 
 import numpy as np
-from keras.models import Model
-from keras.layers import Dense, Input
-from keras.layers.merge import Concatenate
-from keras.optimizers import Adam
-import keras.backend as K
+import tensorflow.keras
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+import tensorflow.keras.backend as K
 import pickle
 import tensorflow as tf
-from keras import backend as K
-from keras.models import load_model
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.python.client import device_lib
 import json
@@ -57,7 +57,7 @@ class DQNAgent(Node):
         self.action_size = 5
         self.episode_size = 50000
 
-        # DQN hyperparameter
+        # DQN hyperparameters
         self.discount_factor = 0.99
         self.learning_rate = 0.001
         self.epsilon = 1.0
@@ -65,6 +65,9 @@ class DQNAgent(Node):
         self.epsilon_minimum = 0.05
         self.batch_size = 64
         self.target_update = 8
+
+        # DDPG hyperparameters
+        self.tau = 0.005
 
         # Replay memory
         self.memory_size = 100000
@@ -79,28 +82,20 @@ class DQNAgent(Node):
         print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
 
         # ===================================================================== #
-        #                              Actor Model                              #
+        #                        Models initialization                          #
         # ===================================================================== #
 
-        self.actor_model = Actor(self.state_size)
-        self.actor_model.build_model()
-        self.target_actor_model = Actor(self.state_size)
-        self.target_actor_model.build_model()
+        self.actor = Actor(self.state_size)
+        self.critic = Critic(self.state_size, self.action_size)
+        self.target_actor = Actor(self.state_size)
+        self.target_critic = Critic(self.state_size, self.action_size)
 
-        # ===================================================================== #
-        #                              Critic Model                             #
-        # ===================================================================== #
-        self.critic_model = Critic(self.state_size, self.action_size)
-        self.critic_model.build_model()
-        self.target_critic_model = Critic(self.state_size, self.action_size)
-        self.target_critic_model.build_model()
+        self.actor.build_model()
+        self.critic.build_model()
+        self.target_actor.build_model()
+        self.target_critic.build_model()
 
-        # where we will feed de/dC (from critic)
-        self.actor_critic_grad = tf.placeholder(
-            tf.float32, [None, self.state_size])
-
-        self.update_target_model()
-        self.update_target_model_start = 128
+        self.update_network_paramters(tau=1)
 
         # ===================================================================== #
         #                             Model loading                             #
@@ -121,7 +116,7 @@ class DQNAgent(Node):
             self.model_file = os.path.join(self.model_dir,
                                            'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
             print("continuing agent model from file: %s" % self.model_file)
-            self.model.set_weights(load_model(self.model_file).get_weights())
+            self.model.set_weights(`load_model`(self.model_file).get_weights())
             # load hyperparameters
             with open(os.path.join(self.model_dir,
                                    'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.json')) as outfile:
@@ -163,6 +158,22 @@ class DQNAgent(Node):
     ** Callback functions and relevant functions
     *******************************************************************************"""
 
+    def update_network_parameters(self, tau=None):
+        if tau is None:
+            tau = self.tau
+
+        weights = []
+        targets = self.target_actor.model.weights
+        for i, weight in enumerate(self.actor.model.weights):
+            weights.append(weight * tau + targets[i]*(1-tau))
+        self.target_actor.model.set_weights(weights)
+
+        weights = []
+        targets = self.target_critic.model.weights
+        for i, weight in enumerate(self.critic.model.weights):
+            weights.append(weight * tau + targets[i]*(1-tau))
+        self.target_critic.model.set_weights(weights)
+
     def save_progress(self, episode):
         print("saving data for episode: ", episode)
         # Store weights state
@@ -202,28 +213,54 @@ class DQNAgent(Node):
 
         current_states, actions, rewards, new_states, dones = self.stack_samples(
             mini_batch)
-        # forward pass to target actor
-        target_actions = self.target_actor_model.forward_pass(new_states)
-        # forward pass to target critic
-        future_rewards = self.target_critic_model.forward_pass(new_states, target_actions)
-
-        rewards = rewards + self.gamma * future_rewards * (1 - dones)
 
         # Train the critic model
-        self.critic_model.fit([current_states, actions], rewards, verbose=0)
+        with tf.GradientTape() as tape:
+            target_actions = self.target_actor.forward_pass(new_states)
+            future_rewards = self.target_critic.forward_pass(new_states, target_actions)
+            actual_rewards = self.critic.forward_pass(current_states, actions)
+            target = rewards + self.discount_factor * future_rewards * (1 - dones)
+            critic_loss = tensorflow.keras.losses.MSE(target, actual_rewards)
+            #self.critic_model.fit([current_states, actions], target, verbose=0)
 
-        # 5, train actor based on weights
-        predicted_actions = self.actor_model.predict(current_states)
-        grads = self.sess.run(self.critic_grads, feed_dict={
-            self.critic_state_input:  current_states,
-            self.critic_action_input: predicted_actions
-        })[0]
+        critic_network_gradient = tape.gradient(critic_loss,
+                                                self.critic.model.trainable_variables)
+        self.critic.model.optimizer.apply_gradients(zip(
+            critic_network_gradient, self.critic.model.trainable_variables))
 
-        self.sess.run(self.optimize, feed_dict={
-            self.actor_state_input: current_states,
-            self.actor_critic_grad: grads
-        })
-        # print("grads*weights is %s", grads)
+        # Train the actor model
+        with tf.GradientTape() as tape:
+            new_policy_actions = self.actor.forward_pass(current_states)
+            actor_loss = -self.critic.forward_pass(current_states, new_policy_actions)
+            actor_loss = tf.math.reduce_mean(actor_loss)
+
+        actor_network_gradient = tape.gradient(actor_loss,
+                                               self.actor.model.trainable_variables)
+        self.actor.model.optimizer.apply_gradients(zip(
+            actor_network_gradient, self.actor.model.trainable_variables))
+
+        # TODO: should updates happen periodically?
+        self.update_network_parameters()
+
+    def step(self, action):
+        req = Dqn.Request()
+        req.action = action
+        req.init = False  # TODO: unsued, modify service?
+
+        while not self.dqn_com_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        future = self.dqn_com_client.call_async(req)
+
+        while rclpy.ok():
+            rclpy.spin_once(self)
+            if future.done():
+                if future.result() is not None:
+                    res = future.result()
+                    return res.state, res.reward, res.done
+                else:
+                    self.get_logger().error(
+                        'Exception while calling service: {0}'.format(future.exception()))
+                    print("ERROR getting dqn service response!")
 
     def process(self):
         success_count = 0
@@ -232,77 +269,34 @@ class DQNAgent(Node):
             "episode, reward, duration, n_steps, epsilon, success_count, memory length\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
-            local_step = 0
-
-            state = game_start_reset()
+            state, _, _ = self.step(None)
             next_state = list()
             done = False
-            init = True
-            score = 0
-
-            step_reward = [0, 0]
-            step_Q = [0, 0]
             step = 0
-
-            # Reset DQN environment
+            score = 0
             time.sleep(1.0)
-
             episode_start = time.time()
 
             while not done:
-                local_step += 1
-
-                # Action based on the current state
-                action = self.actor_model.get_action(state, self.epsilon)
-                print("chosen action: ", action)
-
                 # Send action and receive next state and reward
-                req = Dqn.Request()
-                req.action = action
-                req.init = init
-                while not self.dqn_com_client.wait_for_service(timeout_sec=1.0):
-                    self.get_logger().info('service not available, waiting again...')
-                future = self.dqn_com_client.call_async(req)
+                action = self.actor.get_action(state, self.epsilon)
+                next_state, reward, done = self.step(action)
+                score += reward
 
-                while rclpy.ok():
-                    rclpy.spin_once(self)
-                    if future.done():
-                        if future.result() is not None:
-                            next_state = future.result().state
-                            reward = future.result().reward
-                            done = future.result().done
-                            score += reward
-                            init = False
-                        else:
-                            self.get_logger().error(
-                                'Exception while calling service: {0}'.format(future.exception()))
-                        break
-
-                if local_step > 1:
-                    self.append_sample(state, action, reward, next_state, done)
-
+                if step > 1:
+                    self.memory.append_sample(state, action, reward, next_state, done)
                     self.train()  # TODO: every 5 steps? like example
 
                     if done:
-                        # TODO: should target model only start after a certain amount of episodes?
-                        # and (episode > self.update_target_model_start):
-                        if (episode % self.target_update == 0):
-                            print("updating target network!")
-                            self.update_target_model()
-
                         episode_duration = time.time() - episode_start
+                        print("Episode: %d score: %d n_steps: %d memory length: %d epsilon: %d episode duration: %d",
+                              episode, score, step, len(self.memory), self.epsilon, episode_duration)
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                            episode, score, episode_duration, step, self.epsilon, success_count, len(self.memory)))
 
-                        print(
-                            "Episode:", episode,
-                            "score:", score,
-                            "n_steps:", local_step,
-                            "memory length:", len(self.memory),
-                            "epsilon:", self.epsilon,
-                            "episode duration: ", episode_duration)
-                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(
-                            episode, score, episode_duration, local_step, self.epsilon, success_count, len(self.memory)))
-
+                # Prepare for next step
                 state = next_state
+                step += 1
                 time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 25 episodes
@@ -312,47 +306,6 @@ class DQNAgent(Node):
             # Epsilon
             if self.epsilon > self.epsilon_minimum:
                 self.epsilon *= self.epsilon_decay
-
-    # def update_target_model(self, model, target_model):
-    #     target_model.set_weights(model.get_weights())
-
-    def train_model(self, target_train_start=False):
-        # train_start_time = time.time()
-        mini_batch = random.sample(self.memory, self.batch_size)
-        x_batch = numpy.empty((0, self.state_size), dtype=numpy.float64)
-        y_batch = numpy.empty((0, self.action_size), dtype=numpy.float64)
-        for i in range(self.batch_size):
-            state = numpy.asarray(mini_batch[i][0])
-            action = numpy.asarray(mini_batch[i][1])
-            reward = numpy.asarray(mini_batch[i][2])
-            next_state = numpy.asarray(mini_batch[i][3])
-            done = numpy.asarray(mini_batch[i][4])
-
-            q_value = (self.model(state.reshape(1, len(state)))).numpy()
-
-            target_value = (self.target_model(
-                next_state.reshape(1, len(next_state)))).numpy()
-            if done:
-                next_q_value = reward
-            else:
-                next_q_value = reward + self.discount_factor * \
-                    numpy.amax(target_value)
-
-            x_batch = numpy.append(
-                x_batch, numpy.array([state.copy()]), axis=0)
-
-            y_sample = q_value.copy()
-            y_sample[0][action] = next_q_value
-            y_batch = numpy.append(y_batch, numpy.array([y_sample[0]]), axis=0)
-
-            if done:
-                x_batch = numpy.append(
-                    x_batch, numpy.array([next_state.copy()]), axis=0)
-                y_batch = numpy.append(y_batch, numpy.array(
-                    [[reward] * self.action_size]), axis=0)
-        self.model.fit(x_batch, y_batch,
-                       batch_size=self.batch_size, epochs=1, verbose=0)
-        #print("total train time: {}".format(time.time() - train_start_time))
 
 
 def main(args=sys.argv[1]):
