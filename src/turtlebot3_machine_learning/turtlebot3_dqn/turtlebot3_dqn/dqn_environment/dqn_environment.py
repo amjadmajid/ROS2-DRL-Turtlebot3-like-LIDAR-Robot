@@ -33,9 +33,9 @@ from std_srvs.srv import Empty
 from turtlebot3_msgs.srv import Ddpg
 
 
-class DQNEnvironment(Node):
+class DDPGEnvironment(Node):
     def __init__(self):
-        super().__init__('dqn_environment')
+        super().__init__('ddpg_environment')
 
         """************************************************************
         ** Initialise variables
@@ -91,8 +91,8 @@ class DQNEnvironment(Node):
         self.task_fail_client = self.create_client(Empty, 'task_fail')
 
         # Initialise servers
-        self.dqn_com_server = self.create_service(
-            Ddpg, 'ddpg_com', self.dqn_com_callback)
+        self.ddpg_com_server = self.create_service(
+            Ddpg, 'ddpg_com', self.ddpg_com_callback)
 
     """*******************************************************************************
     ** Callback functions and relevant functions
@@ -203,7 +203,7 @@ class DQNEnvironment(Node):
             reward -= 100  # -10
         return reward
 
-    def dqn_com_callback(self, request, response):
+    def ddpg_com_callback(self, request, response):
         if len(request.action) == 0:
             self.init_goal_distance = math.sqrt(
                 (self.goal_pose_x-self.last_pose_x)**2
@@ -265,10 +265,10 @@ class DQNEnvironment(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    dqn_environment = DQNEnvironment()
-    rclpy.spin(dqn_environment)
+    ddpg_environment = DDPGEnvironment()
+    rclpy.spin(ddpg_environment)
 
-    dqn_environment.destroy()
+    ddpg_environment.destroy()
     rclpy.shutdown()
 
 

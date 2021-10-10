@@ -43,9 +43,9 @@ import rclpy
 from rclpy.node import Node
 
 
-class DQNAgent(Node):
+class DDPGAgent(Node):
     def __init__(self, stage):
-        super().__init__('dqn_agent')
+        super().__init__('ddpg_agent')
 
         # ===================================================================== #
         #                       parameter initalization                         #
@@ -57,7 +57,7 @@ class DQNAgent(Node):
         self.action_num = 2
         self.episode_size = 50000
 
-        # DQN hyperparameters
+        # DDPG hyperparameters
         self.discount_factor = 0.99
         self.learning_rate = 0.001
         self.epsilon = 1.0
@@ -128,10 +128,10 @@ class DQNAgent(Node):
             print("continuing agent model from dir: %s" % self.model_dir)
         else:  # make new dir
             i = 0
-            self.model_dir = os.path.join(models_dir, "dqn_%s" % i)
+            self.model_dir = os.path.join(models_dir, "ddpg_%s" % i)
             while(os.path.exists(self.model_dir)):
                 i += 1
-                self.model_dir = os.path.join(models_dir, "dqn_%s" % i)
+                self.model_dir = os.path.join(models_dir, "ddpg_%s" % i)
             print("making new model dir: %s" % self.model_dir)
             os.mkdir(self.model_dir)
 
@@ -145,7 +145,7 @@ class DQNAgent(Node):
         ** Initialise ROS clients
         ************************************************************"""
         # Initialise clients
-        self.dqn_com_client = self.create_client(Ddpg, 'ddpg_com')
+        self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
 
         """************************************************************
         ** Start process
@@ -248,9 +248,9 @@ class DQNAgent(Node):
         req = Ddpg.Request()
         req.action = action
 
-        while not self.dqn_com_client.wait_for_service(timeout_sec=1.0):
+        while not self.ddpg_com_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
-        future = self.dqn_com_client.call_async(req)
+        future = self.ddpg_com_client.call_async(req)
 
         while rclpy.ok():
             rclpy.spin_once(self)
@@ -261,7 +261,7 @@ class DQNAgent(Node):
                 else:
                     self.get_logger().error(
                         'Exception while calling service: {0}'.format(future.exception()))
-                    print("ERROR getting dqn service response!")
+                    print("ERROR getting ddpg service response!")
 
     def process(self):
         success_count = 0
@@ -311,10 +311,10 @@ class DQNAgent(Node):
 
 def main(args=sys.argv[1]):
     rclpy.init(args=args)
-    dqn_agent = DQNAgent(args)
-    rclpy.spin(dqn_agent)
+    ddpg_agent = DDPGAgent(args)
+    rclpy.spin(ddpg_agent)
 
-    dqn_agent.destroy()
+    ddpg_agent.destroy()
     rclpy.shutdown()
 
 
