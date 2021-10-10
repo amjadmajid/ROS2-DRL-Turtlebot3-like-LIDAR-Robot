@@ -46,9 +46,9 @@ class DQNEnvironment(Node):
         self.last_pose_y = 0.0
         self.last_pose_theta = 0.0
 
-        self.action_size = 5
+        self.action_num = 2
         self.done = False
-        self.fail = False
+        self.collision = False
         self.succeed = False
 
         self.time_penalty = -0.1
@@ -133,10 +133,12 @@ class DQNEnvironment(Node):
         self.scan_ranges = msg.ranges
         self.min_obstacle_distance = min(self.scan_ranges)
 
-    def get_state(self):
+    def get_state(self, action_linear, action_angular):
         state = self.scan_ranges.tolist()
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
+        state.append(float(action_linear))
+        state.append(float(action_angular))
         self.local_step += 1
 
         # Succeed
@@ -154,7 +156,7 @@ class DQNEnvironment(Node):
         # Fail
         if self.min_obstacle_distance < 0.13:  # unit: m
             print("Collision! :(")
-            self.fail = True
+            self.collision = True
             self.done = True
             self.cmd_vel_pub.publish(Twist())  # robot stop
             self.local_step = 0
@@ -174,36 +176,7 @@ class DQNEnvironment(Node):
 
         return state
 
-    def dqn_com_callback(self, request, response):
-        if request.action == None:
-            self.init_goal_distance = math.sqrt(
-                (self.goal_pose_x-self.last_pose_x)**2
-                + (self.goal_pose_y-self.last_pose_y)**2)
-            response.state = self.get_state()
-            response.reward = 0
-            response.done = False
-            return response
-
-        action = request.action
-        twist = Twist()
-        twist.linear.x = 0.3
-        twist.angular.z = ((self.action_size - 1)/2 - action) * 1.5
-        self.cmd_vel_pub.publish(twist)
-
-        response.state = self.get_state()
-        response.reward = self.get_reward(action)
-        # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
-        print("step: {}, R: {:.3f}, A: {}".format(self.local_step, response.reward, action))
-        response.done = self.done
-
-        if self.done is True:
-            self.done = False
-            self.succeed = False
-            self.fail = False
-
-        return response
-
-    def get_reward(self, action):
+    def get_reward(self, action_linear, action_angular):
         # yaw_reward will be between -1 and 1
         yaw_reward = 1 - 2*math.sqrt(math.fabs(self.goal_angle / math.pi))
 
@@ -216,14 +189,51 @@ class DQNEnvironment(Node):
         else:
             obstacle_reward = 0
 
-        reward = yaw_reward + distance_reward + obstacle_reward + self.time_penalty
+        if action_linear < 0.2:
+            linear_reward = -2
+        else:
+            linear_reward = 0
+
+        reward = yaw_reward + distance_reward + obstacle_reward + self.time_penalty + linear_reward
 
         # + for succeed, - for fail
         if self.succeed:
             reward += 50  # 5
-        elif self.fail:
+        elif self.collision:
             reward -= 100  # -10
         return reward
+
+    def dqn_com_callback(self, request, response):
+        if request.action == None:
+            self.init_goal_distance = math.sqrt(
+                (self.goal_pose_x-self.last_pose_x)**2
+                + (self.goal_pose_y-self.last_pose_y)**2)
+            response.state = self.get_state(0, 0)
+            response.reward = 0
+            response.done = False
+            return response
+
+        action = request.action
+        action_linear = action[0][0]
+        action_angular = action[0][1]
+
+        twist = Twist()
+        twist.linear.x = action_linear
+        twist.angular.z = action_angular
+        self.cmd_vel_pub.publish(twist)
+
+        response.state = self.get_state(action_linear, action_angular)
+        response.reward = self.get_reward(action_linear, action_angular)
+        # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
+        print("step: {}, R: {:.3f}, A: {}".format(self.local_step, response.reward, action))
+        response.done = self.done
+
+        if self.done is True:
+            self.done = False
+            self.succeed = False
+            self.collision = False
+
+        return response
 
     """*******************************************************************************
     ** Below should be replaced when porting for ROS 2 Python tf_conversions is done.

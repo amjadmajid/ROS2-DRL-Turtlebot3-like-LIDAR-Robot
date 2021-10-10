@@ -54,7 +54,7 @@ class DQNAgent(Node):
 
         # State size and action size
         self.state_size = 24
-        self.action_size = 5
+        self.action_num = 2
         self.episode_size = 50000
 
         # DQN hyperparameters
@@ -86,25 +86,23 @@ class DQNAgent(Node):
         # ===================================================================== #
 
         self.actor = Actor(self.state_size)
-        self.critic = Critic(self.state_size, self.action_size)
+        self.critic = Critic(self.state_size, self.action_num)
         self.target_actor = Actor(self.state_size)
-        self.target_critic = Critic(self.state_size, self.action_size)
+        self.target_critic = Critic(self.state_size, self.action_num)
 
         self.actor.build_model()
         self.critic.build_model()
         self.target_actor.build_model()
         self.target_critic.build_model()
 
-        self.update_network_paramters(tau=1)
+        self.update_network_parameters(1)
 
         # ===================================================================== #
         #                             Model loading                             #
         # ===================================================================== #
 
-        print(os.path.dirname(os.path.realpath(__file__)))
         models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
                                                                            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
-
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Load saved models if needed
@@ -116,7 +114,7 @@ class DQNAgent(Node):
             self.model_file = os.path.join(self.model_dir,
                                            'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
             print("continuing agent model from file: %s" % self.model_file)
-            self.model.set_weights(`load_model`(self.model_file).get_weights())
+            self.model.set_weights(load_model(self.model_file).get_weights())
             # load hyperparameters
             with open(os.path.join(self.model_dir,
                                    'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.json')) as outfile:
@@ -162,12 +160,14 @@ class DQNAgent(Node):
         if tau is None:
             tau = self.tau
 
+        # update target actor
         weights = []
         targets = self.target_actor.model.weights
         for i, weight in enumerate(self.actor.model.weights):
             weights.append(weight * tau + targets[i]*(1-tau))
         self.target_actor.model.set_weights(weights)
 
+        # update target critic
         weights = []
         targets = self.target_critic.model.weights
         for i, weight in enumerate(self.critic.model.weights):
@@ -180,21 +180,23 @@ class DQNAgent(Node):
         self.model_file = os.path.join(
             self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
         self.model.save(self.model_file)
+
         # Store parameters state
         param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate',
-                      'discount_factor', 'episode_size', 'action_size',  'state_size', 'update_target_model_start', 'memory_size']
+                      'discount_factor', 'episode_size', 'action_num',  'state_size', 'update_target_model_start', 'memory_size']
         param_values = [self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
-                        discount_factor, self.episode_size, self.action_size, self.state_size, self.update_target_model_start, self.memory_size]
+                        discount_factor, self.episode_size, self.action_num, self.state_size, self.update_target_model_start, self.memory_size]
         param_dictionary = dict(zip(param_keys, param_values))
         with open(os.path.join(
                 self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
             json.dump(param_dictionary, outfile)
+
         # Store replay buffer state
         with open(os.path.join(
                 self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
             pickle.dump(self.memory, f, pickle.HIGHEST_PROTOCOL)
 
-    # CHANGE  [[state1, action1,etc], [state2,action2,etc], [state3,action3,etc]]  INTO  [[state1, state2, state3],[action1, action2, action3],etc]
+    # this changes  [[state1, action1,etc], [state2,action2,etc], [state3,action3,etc]]  into  [[state1, state2, state3],[action1, action2, action3],etc]
     def stack_samples(samples):
         array = np.array(samples)
         current_states = np.stack(array[:, 0]).reshape((array.shape[0], -1))

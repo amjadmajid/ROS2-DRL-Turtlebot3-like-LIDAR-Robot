@@ -30,7 +30,7 @@ class Actor:
         speed = Dense(1, activation='sigmoid')(h3)
 
         output = Concatenate()([delta_theta, speed])
-        model = Model(input=state_input, output=output)
+        model = Model(inputs=state_input, outputs=output)
         adam = Adam(lr=0.0001)
         model.compile(loss="mse", optimizer=adam)
         model.summary()
@@ -99,7 +99,7 @@ class Critic:
         merged_h1 = Dense(500, activation='relu')(merged)
         merged_h2 = Dense(500, activation='relu')(merged_h1)
         output = Dense(1, activation='linear')(merged_h2)
-        model = Model(input=[state_input, action_input], output=output)
+        model = Model(inputs=[state_input, action_input], outputs=output)
 
         adam = Adam(lr=0.0001)
         model.compile(loss="mse", optimizer=adam)
