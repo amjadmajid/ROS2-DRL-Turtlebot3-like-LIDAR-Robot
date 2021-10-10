@@ -37,10 +37,10 @@ import time
 from .ddpg import Critic, Actor
 from .replaybuffer import ReplayBuffer
 
+from turtlebot3_msgs.srv import Ddpg
+
 import rclpy
 from rclpy.node import Node
-
-from turtlebot3_msgs.srv import Dqn
 
 
 class DQNAgent(Node):
@@ -145,7 +145,7 @@ class DQNAgent(Node):
         ** Initialise ROS clients
         ************************************************************"""
         # Initialise clients
-        self.dqn_com_client = self.create_client(Dqn, 'dqn_com')
+        self.dqn_com_client = self.create_client(Ddpg, 'ddpg_com')
 
         """************************************************************
         ** Start process
@@ -223,7 +223,7 @@ class DQNAgent(Node):
             actual_rewards = self.critic.forward_pass(current_states, actions)
             target = rewards + self.discount_factor * future_rewards * (1 - dones)
             critic_loss = tensorflow.keras.losses.MSE(target, actual_rewards)
-            #self.critic_model.fit([current_states, actions], target, verbose=0)
+            # self.critic_model.fit([current_states, actions], target, verbose=0)
 
         critic_network_gradient = tape.gradient(critic_loss,
                                                 self.critic.model.trainable_variables)
@@ -245,9 +245,8 @@ class DQNAgent(Node):
         self.update_network_parameters()
 
     def step(self, action):
-        req = Dqn.Request()
+        req = Ddpg.Request()
         req.action = action
-        req.init = False  # TODO: unsued, modify service?
 
         while not self.dqn_com_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
@@ -271,7 +270,7 @@ class DQNAgent(Node):
             "episode, reward, duration, n_steps, epsilon, success_count, memory length\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
-            state, _, _ = self.step(None)
+            state, _, _ = self.step([])
             next_state = list()
             done = False
             step = 0

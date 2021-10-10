@@ -30,7 +30,7 @@ from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
 from std_srvs.srv import Empty
 
-from turtlebot3_msgs.srv import Dqn
+from turtlebot3_msgs.srv import Ddpg
 
 
 class DQNEnvironment(Node):
@@ -92,7 +92,7 @@ class DQNEnvironment(Node):
 
         # Initialise servers
         self.dqn_com_server = self.create_service(
-            Dqn, 'dqn_com', self.dqn_com_callback)
+            Ddpg, 'ddpg_com', self.dqn_com_callback)
 
     """*******************************************************************************
     ** Callback functions and relevant functions
@@ -204,7 +204,7 @@ class DQNEnvironment(Node):
         return reward
 
     def dqn_com_callback(self, request, response):
-        if request.action == None:
+        if len(request.action) == 0:
             self.init_goal_distance = math.sqrt(
                 (self.goal_pose_x-self.last_pose_x)**2
                 + (self.goal_pose_y-self.last_pose_y)**2)
