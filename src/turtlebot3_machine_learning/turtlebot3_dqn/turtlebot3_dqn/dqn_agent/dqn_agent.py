@@ -136,15 +136,15 @@ class DDPGAgent(Node):
             print("making new model dir: %s" % self.model_dir)
             os.mkdir(self.model_dir)
 
-        # Determine summary file name
-        self.timestr = time.strftime("%Y%m%d-%H%M%S")
-        summary_path = os.path.join(self.model_dir,
-                                    self.timestr + '.txt')
-        self.summary_file = open(summary_path, 'w+')
+            # Determine summary file name
+            self.timestr = time.strftime("%Y%m%d-%H%M%S")
+            summary_path = os.path.join(self.model_dir,
+                                        self.timestr + '.txt')
+            self.summary_file = open(summary_path, 'w+')
 
-        # ===================================================================== #
-        #                             Start Process                             #
-        # ===================================================================== #
+            # ===================================================================== #
+            #                             Start Process                             #
+            # ===================================================================== #
 
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
         self.process()
@@ -171,15 +171,27 @@ class DDPGAgent(Node):
     def save_progress(self, episode):
         print("saving data for episode: ", episode)
         # Store weights state
-        self.model_file = os.path.join(
-            self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
-        self.model.save(self.model_file)
+        self.actor_model_file = os.path.join(
+            self.model_dir, 'am_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+        self.actor.model.save_weights(self.actor_model_file)
+
+        self.actor_target_file = os.path.join(
+            self.model_dir, 'at_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+        self.target_actor.model.save_weights(self.actor_target_file)
+
+        self.critic_model_file = os.path.join(
+            self.model_dir, 'cm_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+        self.critic.model.save_weights(self.critic_model_file)
+
+        self.critic_target_file = os.path.join(
+            self.model_dir, 'ct_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
+        self.target_critic.model.save_weights(self.critic_target_file)
 
         # Store parameters state
         param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate',
-                      'discount_factor', 'episode_size', 'action_num',  'state_size', 'update_target_model_start', 'memory_size']
+                      'discount_factor', 'episode_size', 'action_num',  'state_size', 'target_update_interval', 'memory_size', 'tau']
         param_values = [self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
-                        discount_factor, self.episode_size, self.action_num, self.state_size, self.update_target_model_start, self.memory_size]
+                        discount_factor, self.episode_size, self.action_num, self.state_size, self.target_update_interval, self.memory_size, self.tau]
         param_dictionary = dict(zip(param_keys, param_values))
         with open(os.path.join(
                 self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
@@ -190,17 +202,8 @@ class DDPGAgent(Node):
                 self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
             pickle.dump(self.memory, f, pickle.HIGHEST_PROTOCOL)
 
-    # this changes  [[state1, action1,etc], [state2,action2,etc], [state3,action3,etc]]  into  [[state1, state2, state3],[action1, action2, action3],etc]
-    def stack_samples(samples):
-        array = np.array(samples)
-        current_states = np.stack(array[:, 0]).reshape((array.shape[0], -1))
-        actions = np.stack(array[:, 1]).reshape((array.shape[0], -1))
-        rewards = np.stack(array[:, 2]).reshape((array.shape[0], -1))
-        new_states = np.stack(array[:, 3]).reshape((array.shape[0], -1))
-        dones = np.stack(array[:, 4]).reshape((array.shape[0], -1))
-        return current_states, actions, rewards, new_states, dones
-
     # TODO: use this to speed up performance?
+    # TODO: pause gazebo during graph construction by this decorator
     @tf.function
     def update_weights(self, current_states, actions, rewards, new_states, dones):
         # Train the critic model
@@ -232,7 +235,7 @@ class DDPGAgent(Node):
 
     def train(self):
         if self.memory.get_length() < self.batch_size:  # batch_size:
-            return
+            return 0, 0
 
         mini_batch = self.memory.get_sample(self.batch_size)
         current_states, actions, rewards, new_states, dones = zip(*mini_batch)
@@ -288,8 +291,8 @@ class DDPGAgent(Node):
                     self.memory.append_sample(state, action, reward, next_state, done)
                     train_start = time.time()
                     critic_loss, actor_loss = self.train()  # TODO: alternate experience gathering and training?
-                    print("critic_loss: %f, actor_loss: %f, train time: %f ",
-                          critic_loss, actor_loss, time.time() - train_start)
+                    # print("critic_loss: {}, actor_loss: {}, train time: {}".format(
+                    #       critic_loss, actor_loss, time.time() - train_start))
                     if episode % self.target_update_interval == 0:
                         self.update_network_parameters(self.tau)
 
@@ -304,11 +307,11 @@ class DDPGAgent(Node):
                 state = next_state
                 step += 1
                 print("step time: ", time.time() - step_start)
-                time.sleep(0.01)  # While loop rate
+                # time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 25 episodes
-            # if (episode % 200 == 0) or (episode == 1):
-                # self.save_progress(episode)
+            if (episode % 5 == 0) or (episode == 1):
+                self.save_progress(episode)
 
                 # Epsilon
             if self.epsilon > self.epsilon_minimum:
