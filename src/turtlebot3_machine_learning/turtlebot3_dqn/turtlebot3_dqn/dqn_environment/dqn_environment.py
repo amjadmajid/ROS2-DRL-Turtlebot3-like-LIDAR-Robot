@@ -17,20 +17,20 @@
 # Authors: Ryan Shim, Gilbert
 
 import math
-from typing import List
 import numpy
+from numpy.core.numeric import Infinity
 
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+from turtlebot3_msgs.srv import Ddpg
+from std_srvs.srv import Empty
+
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from rclpy.qos import qos_profile_sensor_data
-from sensor_msgs.msg import LaserScan
-from std_srvs.srv import Empty
-
-from turtlebot3_msgs.srv import Ddpg
 
 
 class DDPGEnvironment(Node):
@@ -54,10 +54,10 @@ class DDPGEnvironment(Node):
         self.time_penalty = -0.1
 
         self.goal_angle = 0.0
-        self.goal_distance = 1.0
-        self.init_goal_distance = 1.0
+        self.goal_distance = Infinity
+        self.init_goal_distance = Infinity
         self.scan_ranges = []
-        self.min_obstacle_distance = 10.0
+        self.min_obstacle_distance = 3.5
 
         self.local_step = 0
 
@@ -225,7 +225,8 @@ class DDPGEnvironment(Node):
         response.state = self.get_state(action_linear, action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
         # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
-        print("step: {}, R: {:.3f}, A: {}".format(self.local_step, response.reward, action))
+        print("step: {}, GD: {:.3f}, A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(
+            self.local_step, self.goal_distance, response.reward, action[0], action[1], self.min_obstacle_distance))
         response.done = self.done
 
         if self.done is True:

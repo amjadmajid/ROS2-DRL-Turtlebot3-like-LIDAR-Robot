@@ -4,21 +4,23 @@ import collections
 import math
 import time
 
+from tensorflow.python.ops.gen_array_ops import expand_dims
+
 
 class ReplayBuffer:
-    memory = 0
+    buffer = 0
 
-    def __init__(self, memory_size):
-        self.memory = collections.deque(maxlen=memory_size)
+    def __init__(self, buffer_size):
+        self.buffer = collections.deque(maxlen=buffer_size)
 
     def append_sample(self, state, action, reward, next_state, done):
-        if self.memory == 0:
+        if self.buffer == 0:
             print("error: appending to uninitialized replay buffer!")
             return
-        self.memory.append((state, action, reward, next_state, done))
+        self.buffer.append([state, action, reward, next_state, done])
 
     def get_sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
+        return random.sample(self.buffer, batch_size)
 
     def get_length(self):
-        return len(self.memory)
+        return len(self.buffer)
