@@ -124,7 +124,7 @@ class DDPGAgent(Node):
             with open(os.path.join(self.model_dir,
                                    'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.pkl'), 'rb') as f:
                 self.memory = pickle.load(f)
-            print("memory length:", len(self.memory))
+            print("memory length:", self.memory.get_length())
             print("continuing agent model from dir: %s" % self.model_dir)
         else:  # make new dir
             i = 0
@@ -197,55 +197,74 @@ class DDPGAgent(Node):
             pickle.dump(self.memory, f, pickle.HIGHEST_PROTOCOL)
 
     # this changes  [[state1, action1,etc], [state2,action2,etc], [state3,action3,etc]]  into  [[state1, state2, state3],[action1, action2, action3],etc]
-    def stack_samples(samples):
-        array = np.array(samples)
-        current_states = np.stack(array[:, 0]).reshape((array.shape[0], -1))
-        actions = np.stack(array[:, 1]).reshape((array.shape[0], -1))
-        rewards = np.stack(array[:, 2]).reshape((array.shape[0], -1))
-        new_states = np.stack(array[:, 3]).reshape((array.shape[0], -1))
-        dones = np.stack(array[:, 4]).reshape((array.shape[0], -1))
-        return current_states, actions, rewards, new_states, dones
+    # def stack_samples(samples):
+    #     array = np.array(samples)
+    #     current_states = np.stack(array[:, 0]).reshape((array.shape[0], -1))
+    #     actions = np.stack(array[:, 1]).reshape((array.shape[0], -1))
+    #     rewards = np.stack(array[:, 2]).reshape((array.shape[0], -1))
+    #     new_states = np.stack(array[:, 3]).reshape((array.shape[0], -1))
+    #     dones = np.stack(array[:, 4]).reshape((array.shape[0], -1))
+    #     return current_states, actions, rewards, new_states, dones
 
     def train(self):
-        if len(self.memory) < self.batch_size:  # batch_size:
+        if self.memory.get_length() < self.batch_size:  # batch_size:
             return
-        mini_batch = random.sample(self.memory, self.batch_size)
-        print("samples is %s", mini_batch)
-        print("samples shape is %s", mini_batch.shape)
+        mini_batch = self.memory.get_sample(self.batch_size)
+        # current_states, actions, rewards, new_states, dones = self.stack_samples(
+        #     mini_batch)
+        # TODO: use stack instead of slower for loop?
+        print("new batch: ", mini_batch[0])
+        print("\n")
+        for i in range(len(mini_batch)):
+            current_states = mini_batch[i][0]
+            current_states = numpy.asarray(current_states, numpy.float32)
+            current_states = current_states.reshape(1, len(current_states))
+            current_states = tf.convert_to_tensor(current_states, numpy.float32)
 
-        current_states, actions, rewards, new_states, dones = self.stack_samples(
-            mini_batch)
+            actions = mini_batch[i][1]
+            actions = numpy.asarray(actions, numpy.float32)
+            actions = actions.reshape(1, len(actions))
+            actions = tf.convert_to_tensor(actions, numpy.float32)
 
-        # Train the critic model
-        with tf.GradientTape() as tape:
-            target_actions = self.target_actor.forward_pass(new_states)
-            future_rewards = self.target_critic.forward_pass(new_states, target_actions)
-            actual_rewards = self.critic.forward_pass(current_states, actions)
-            target = rewards + self.discount_factor * future_rewards * (1 - dones)
-            critic_loss = tensorflow.keras.losses.MSE(target, actual_rewards)
-            # self.critic_model.fit([current_states, actions], target, verbose=0)
+            rewards = mini_batch[i][2]
 
-        critic_network_gradient = tape.gradient(critic_loss,
-                                                self.critic.model.trainable_variables)
-        self.critic.model.optimizer.apply_gradients(zip(
-            critic_network_gradient, self.critic.model.trainable_variables))
+            new_states = mini_batch[i][3]
+            new_states = numpy.asarray(new_states, numpy.float32)
+            new_states = new_states.reshape(1, len(new_states))
+            new_states = tf.convert_to_tensor(new_states, numpy.float32)
 
-        # Train the actor model
-        with tf.GradientTape() as tape:
-            new_policy_actions = self.actor.forward_pass(current_states)
-            actor_loss = -self.critic.forward_pass(current_states, new_policy_actions)
-            actor_loss = tf.math.reduce_mean(actor_loss)
+            dones = mini_batch[i][4]
+            # Train the critic model
+            with tf.GradientTape() as tape:
+                target_actions = self.target_actor.forward_pass(new_states)
+                future_rewards = self.target_critic.forward_pass(new_states, target_actions)
+                actual_rewards = self.critic.forward_pass(current_states, actions)
+                target = rewards + self.discount_factor * future_rewards * (1 - dones)
+                critic_loss = tensorflow.keras.losses.MSE(target, actual_rewards)
+                # self.critic_model.fit([current_states, actions], target, verbose=0)
 
-        actor_network_gradient = tape.gradient(actor_loss,
-                                               self.actor.model.trainable_variables)
-        self.actor.model.optimizer.apply_gradients(zip(
-            actor_network_gradient, self.actor.model.trainable_variables))
+            critic_network_gradient = tape.gradient(critic_loss,
+                                                    self.critic.model.trainable_variables)
+            self.critic.model.optimizer.apply_gradients(zip(
+                critic_network_gradient, self.critic.model.trainable_variables))
 
-        # TODO: should updates happen periodically?
-        self.update_network_parameters()
+            # Train the actor model
+            with tf.GradientTape() as tape:
+                new_policy_actions = self.actor.forward_pass(current_states)
+                actor_loss = -self.critic.forward_pass(current_states, new_policy_actions)
+                actor_loss = tf.math.reduce_mean(actor_loss)
+
+            actor_network_gradient = tape.gradient(actor_loss,
+                                                   self.actor.model.trainable_variables)
+            self.actor.model.optimizer.apply_gradients(zip(
+                actor_network_gradient, self.actor.model.trainable_variables))
+
+            # TODO: should updates happen periodically?
+            self.update_network_parameters()
 
     def step(self, action):
         req = Ddpg.Request()
+        print("step action: ", action, type(action))
         req.action = action
 
         while not self.ddpg_com_client.wait_for_service(timeout_sec=1.0):
@@ -280,6 +299,7 @@ class DDPGAgent(Node):
 
             while not done:
                 # Send action and receive next state and reward
+                print("state: ", state)
                 action = self.actor.get_action(state, self.epsilon)
                 next_state, reward, done = self.step(action)
                 score += reward
@@ -291,9 +311,9 @@ class DDPGAgent(Node):
                     if done:
                         episode_duration = time.time() - episode_start
                         print("Episode: %d score: %d n_steps: %d memory length: %d epsilon: %d episode duration: %d",
-                              episode, score, step, len(self.memory), self.epsilon, episode_duration)
+                              episode, score, step, self.memory.get_length(), self.epsilon, episode_duration)
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, score, episode_duration, step, self.epsilon, success_count, len(self.memory)))
+                            episode, score, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))
 
                 # Prepare for next step
                 state = next_state

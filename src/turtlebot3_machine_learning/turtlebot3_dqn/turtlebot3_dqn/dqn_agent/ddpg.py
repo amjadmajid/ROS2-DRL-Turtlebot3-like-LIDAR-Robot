@@ -41,15 +41,20 @@ class Actor:
         return self.model(states)
 
     def get_action(self, state, epsilon):
-        action = self.model(state.reshape(1, len(state)))
+        state_np = numpy.asarray(state, numpy.float32)
+        state_np = state_np.reshape(1, len(state_np))
+        state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
+        print("tensor: ", state_tensor)
+        action = self.model(state_tensor)
+        print("action: ", action)
+        action = action.numpy()
+        action = action.tolist()
+        print("action list: ", action)
+        action = action[0]
         if numpy.random.random() < epsilon:
-            action[0][0] = action[0][0] + (numpy.random.random()-0.5)*0.4
-            action[0][1] = action[0][1] + numpy.random.random()*0.4
-            return action
-        else:
-            action[0][0] = action[0][0]
-            action[0][1] = action[0][1]
-            return action
+            action[0] += (numpy.random.random()-0.5)*0.4
+            action[1] += numpy.random.random()*0.4
+        return action
 
     def read_Q_values(self, cur_states, actions):
         critic_values = self.critic_model.predict([cur_states, actions])

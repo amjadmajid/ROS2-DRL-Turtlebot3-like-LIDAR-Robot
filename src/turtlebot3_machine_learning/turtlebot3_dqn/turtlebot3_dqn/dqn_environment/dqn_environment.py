@@ -201,7 +201,7 @@ class DDPGEnvironment(Node):
             reward += 50  # 5
         elif self.collision:
             reward -= 100  # -10
-        return reward
+        return float(reward)
 
     def ddpg_com_callback(self, request, response):
         if len(request.action) == 0:
@@ -209,13 +209,13 @@ class DDPGEnvironment(Node):
                 (self.goal_pose_x-self.last_pose_x)**2
                 + (self.goal_pose_y-self.last_pose_y)**2)
             response.state = self.get_state(0, 0)
-            response.reward = 0
+            response.reward = 0.0
             response.done = False
             return response
 
         action = request.action
-        action_linear = action[0][0]
-        action_angular = action[0][1]
+        action_linear = action[0]
+        action_angular = action[1]
 
         twist = Twist()
         twist.linear.x = action_linear

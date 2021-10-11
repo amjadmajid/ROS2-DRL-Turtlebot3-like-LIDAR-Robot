@@ -16,3 +16,9 @@ class ReplayBuffer:
             print("error: appending to uninitialized replay buffer!")
             return
         self.memory.append((state, action, reward, next_state, done))
+
+    def get_sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+
+    def get_length(self):
+        return len(self.memory)
