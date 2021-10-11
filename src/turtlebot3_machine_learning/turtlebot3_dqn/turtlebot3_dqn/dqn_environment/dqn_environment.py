@@ -165,7 +165,7 @@ class DDPGEnvironment(Node):
                 self.get_logger().info('service not available, waiting again...')
             self.task_fail_client.call_async(req)
 
-        if self.local_step == 1000:
+        if self.local_step == 500:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
