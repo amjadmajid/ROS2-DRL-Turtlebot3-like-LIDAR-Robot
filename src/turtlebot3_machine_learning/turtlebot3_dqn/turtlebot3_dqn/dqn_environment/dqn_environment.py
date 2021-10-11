@@ -189,18 +189,20 @@ class DDPGEnvironment(Node):
         else:
             obstacle_reward = 0
 
-        if action_linear < 0.2:
+        if action_linear < (0.2 * 0.26):
             linear_reward = -2
         else:
             linear_reward = 0
 
-        reward = yaw_reward + distance_reward + obstacle_reward + self.time_penalty + linear_reward
+        reward = yaw_reward + distance_reward + obstacle_reward + linear_reward + self.time_penalty
+        print("R_angle: {:.3f}, R_dist: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}".format(
+            yaw_reward, distance_reward, obstacle_reward, linear_reward))
 
         # + for succeed, - for fail
         if self.succeed:
-            reward += 50  # 5
+            reward += 50
         elif self.collision:
-            reward -= 100  # -10
+            reward -= 100
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
@@ -214,7 +216,7 @@ class DDPGEnvironment(Node):
             return response
 
         action = request.action
-        action_linear = action[0]
+        action_linear = action[0] * 0.26
         action_angular = action[1]
 
         twist = Twist()
