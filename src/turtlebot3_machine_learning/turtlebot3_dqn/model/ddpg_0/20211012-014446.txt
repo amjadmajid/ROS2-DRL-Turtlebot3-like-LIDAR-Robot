@@ -1,2 +1,0 @@
-episode, reward, duration, n_steps, epsilon, success_count, memory length
-1, -4.899046394973993, 14.33638882637024, 131, 1.0, 0, 130

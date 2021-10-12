@@ -50,7 +50,7 @@ class Actor:
         action = action[0]
         if numpy.random.random() < epsilon:
             action[0] += (numpy.random.random()-0.5)*0.4
-            action[1] += numpy.random.random()*0.4
+            action[1] += (numpy.random.random()-0.5)*0.4
         return action
 
     # ========================================================================= #

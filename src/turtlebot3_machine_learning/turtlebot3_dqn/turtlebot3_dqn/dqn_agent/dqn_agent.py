@@ -298,8 +298,8 @@ class DDPGAgent(Node):
 
                     if done:
                         episode_duration = time.time() - episode_start
-                        print("Episode: %d score: %d n_steps: %d memory length: %d epsilon: %d episode duration: %d",
-                              episode, score, step, self.memory.get_length(), self.epsilon, episode_duration)
+                        print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
+                              episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
                             episode, score, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))
 
@@ -310,7 +310,7 @@ class DDPGAgent(Node):
                 # time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 25 episodes
-            if (episode % 5 == 0) or (episode == 1):
+            if (episode % 100 == 0) or (episode == 1):
                 self.save_progress(episode)
 
                 # Epsilon

@@ -70,29 +70,16 @@ class DDPGEnvironment(Node):
         self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel', qos)
 
         # Initialise subscribers
-        self.goal_pose_sub = self.create_subscription(
-            Pose,
-            'goal_pose',
-            self.goal_pose_callback,
-            qos)
-        self.odom_sub = self.create_subscription(
-            Odometry,
-            'odom',
-            self.odom_callback,
-            qos)
-        self.scan_sub = self.create_subscription(
-            LaserScan,
-            'scan',
-            self.scan_callback,
-            qos_profile=qos_profile_sensor_data)
+        self.goal_pose_sub = self.create_subscription(Pose, 'goal_pose', self.goal_pose_callback, qos)
+        self.odom_sub = self.create_subscription(Odometry, 'odom', self.odom_callback, qos)
+        self.scan_sub = self.create_subscription(LaserScan, 'scan', self.scan_callback, qos_profile=qos_profile_sensor_data)
 
         # Initialise client
         self.task_succeed_client = self.create_client(Empty, 'task_succeed')
         self.task_fail_client = self.create_client(Empty, 'task_fail')
 
         # Initialise servers
-        self.ddpg_com_server = self.create_service(
-            Ddpg, 'ddpg_com', self.ddpg_com_callback)
+        self.ddpg_com_server = self.create_service(Ddpg, 'ddpg_com', self.ddpg_com_callback)
 
     """*******************************************************************************
     ** Callback functions and relevant functions
@@ -227,8 +214,8 @@ class DDPGEnvironment(Node):
         response.state = self.get_state(action_linear, action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
         # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
-        print("step: {}, GD: {:.3f}, A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(
-            self.local_step, self.goal_distance, response.reward, action[0], action[1], self.min_obstacle_distance))
+        print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(
+            self.local_step, self.goal_distance, math.degrees(self.goal_angle), response.reward, action[0], action[1], self.min_obstacle_distance))
         response.done = self.done
 
         if self.done is True:
