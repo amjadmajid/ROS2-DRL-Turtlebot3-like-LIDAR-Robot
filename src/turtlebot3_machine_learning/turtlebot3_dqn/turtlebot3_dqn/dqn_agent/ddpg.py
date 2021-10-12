@@ -17,8 +17,9 @@ import matplotlib.pyplot as plt
 
 class Actor:
 
-    def __init__(self, state_size):
+    def __init__(self, state_size, name):
         self.state_size = state_size
+        self.name = name
 
     def build_model(self):
         state_input = Input(shape=self.state_size)
@@ -82,9 +83,10 @@ class Actor:
 
 class Critic:
 
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, name):
         self.state_size = state_size
         self.action_size = action_size
+        self.name = name
 
     def build_model(self):
         state_input = Input(shape=self.state_size)

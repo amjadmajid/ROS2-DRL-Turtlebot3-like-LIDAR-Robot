@@ -16,27 +16,24 @@
 #
 # Authors: Ryan Shim, Gilbert
 
-import numpy as np
+import numpy
+import os
+import sys
+import time
+
+import tensorflow as tf
 import tensorflow.keras
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
-import tensorflow.keras.backend as K
-import pickle
-import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.python.client import device_lib
-import json
-import numpy
-import os
-import random
-import sys
-import time
+
 from .ddpg import Critic, Actor
 from .replaybuffer import ReplayBuffer
-
+from . import storagemanager as sm
 from turtlebot3_msgs.srv import Ddpg
 
 import rclpy
@@ -85,10 +82,10 @@ class DDPGAgent(Node):
         #                        Models initialization                          #
         # ===================================================================== #
 
-        self.actor = Actor(self.state_size)
-        self.critic = Critic(self.state_size, self.action_num)
-        self.target_actor = Actor(self.state_size)
-        self.target_critic = Critic(self.state_size, self.action_num)
+        self.actor = Actor(self.state_size, "actor")
+        self.critic = Critic(self.state_size, self.action_num, "critic")
+        self.target_actor = Actor(self.state_size, "target_actor")
+        self.target_critic = Critic(self.state_size, self.action_num, "target_critic")
 
         self.actor.build_model()
         self.critic.build_model()
@@ -102,49 +99,27 @@ class DDPGAgent(Node):
         #                             Model loading                             #
         # ===================================================================== #
 
-        models_dir = (os.path.dirname(os.path.realpath(__file__))).replace('install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
-                                                                           'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
+        models_directory = (os.path.dirname(os.path.realpath(__file__))).replace(
+            'install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
+            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
-        # Load saved models if needed
-        self.load_model = False  # change to false to not load model
-        self.load_episode = 2800 if self.load_model else 0
-        if self.load_model:
-            self.model_dir = os.path.join(models_dir, self.load_model)
-            # load weights
-            self.model_file = os.path.join(self.model_dir,
-                                           'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.h5')
-            print("continuing agent model from file: %s" % self.model_file)
-            self.model.set_weights(load_model(self.model_file).get_weights())
-            # load hyperparameters
-            with open(os.path.join(self.model_dir,
-                                   'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.json')) as outfile:
-                param = json.load(outfile)
-                self.epsilon = param.get('epsilon')
-            # load replay memory buffer
-            with open(os.path.join(self.model_dir,
-                                   'stage'+str(self.stage)+'_episode'+str(self.load_episode)+'.pkl'), 'rb') as f:
-                self.memory = pickle.load(f)
-            print("memory length:", self.memory.get_length())
-            print("continuing agent model from dir: %s" % self.model_dir)
-        else:  # make new dir
-            i = 0
-            self.model_dir = os.path.join(models_dir, "ddpg_%s" % i)
-            while(os.path.exists(self.model_dir)):
-                i += 1
-                self.model_dir = os.path.join(models_dir, "ddpg_%s" % i)
-            print("making new model dir: %s" % self.model_dir)
-            os.mkdir(self.model_dir)
+        # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
+        self.load_session = 'ddpg_8'  # example: 'ddpg_0'
+        self.load_episode = 1 if self.load_session else 0
 
-            # Determine summary file name
-            self.timestr = time.strftime("%Y%m%d-%H%M%S")
-            summary_path = os.path.join(self.model_dir,
-                                        self.timestr + '.txt')
-            self.summary_file = open(summary_path, 'w+')
+        if self.load_session:
+            self.session_dir = os.path.join(models_directory, self.load_session)
+            sm.load_session(self, self.session_dir, self.load_episode)
+        else:  # New train session
+            self.session_dir = sm.new_model_dir(models_directory)
 
-            # ===================================================================== #
-            #                             Start Process                             #
-            # ===================================================================== #
+        # Determine summary file name
+        self.summary_file = open(os.path.join(self.session_dir, time.strftime("%Y%m%d-%H%M%S") + '.txt'), 'w+')
+
+        # ===================================================================== #
+        #                             Start Process                             #
+        # ===================================================================== #
 
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
         self.process()
@@ -168,43 +143,9 @@ class DDPGAgent(Node):
             weights.append(new_weight * tau + target_weights[i]*(1-tau))
         self.target_critic.model.set_weights(weights)
 
-    def save_progress(self, episode):
-        print("saving data for episode: ", episode)
-        # Store weights state
-        self.actor_model_file = os.path.join(
-            self.model_dir, 'am_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
-        self.actor.model.save_weights(self.actor_model_file)
-
-        self.actor_target_file = os.path.join(
-            self.model_dir, 'at_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
-        self.target_actor.model.save_weights(self.actor_target_file)
-
-        self.critic_model_file = os.path.join(
-            self.model_dir, 'cm_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
-        self.critic.model.save_weights(self.critic_model_file)
-
-        self.critic_target_file = os.path.join(
-            self.model_dir, 'ct_stage'+str(self.stage)+'_episode'+str(episode)+'.h5')
-        self.target_critic.model.save_weights(self.critic_target_file)
-
-        # Store parameters state
-        param_keys = ['stage', 'epsilon', 'epsilon_decay', 'epsilon_minimum', 'batch_size', 'learning_rate',
-                      'discount_factor', 'episode_size', 'action_num',  'state_size', 'target_update_interval', 'memory_size', 'tau']
-        param_values = [self.stage, self.epsilon, self.epsilon_decay, self.epsilon_minimum, self.batch_size, self.learning_rate, self.
-                        discount_factor, self.episode_size, self.action_num, self.state_size, self.target_update_interval, self.memory_size, self.tau]
-        param_dictionary = dict(zip(param_keys, param_values))
-        with open(os.path.join(
-                self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
-            json.dump(param_dictionary, outfile)
-
-        # Store replay buffer state
-        with open(os.path.join(
-                self.model_dir, 'stage'+str(self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
-            pickle.dump(self.memory, f, pickle.HIGHEST_PROTOCOL)
-
     # TODO: use this to speed up performance?
     # TODO: pause gazebo during graph construction by this decorator
-    @tf.function
+    @ tf.function
     def update_weights(self, current_states, actions, rewards, new_states, dones):
         # Train the critic model
         with tf.GradientTape() as tape:
@@ -311,7 +252,7 @@ class DDPGAgent(Node):
 
             # Update result and save model every 25 episodes
             if (episode % 100 == 0) or (episode == 1):
-                self.save_progress(episode)
+                sm.save_session(self, self.session_dir, episode)
 
                 # Epsilon
             if self.epsilon > self.epsilon_minimum:
