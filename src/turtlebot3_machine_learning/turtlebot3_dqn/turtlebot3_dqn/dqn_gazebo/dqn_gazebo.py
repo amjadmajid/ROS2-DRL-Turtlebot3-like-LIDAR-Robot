@@ -136,7 +136,6 @@ class DQNGazebo(Node):
         req = Empty.Request()
         while not self.reset_simulation_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
-
         self.reset_simulation_client.call_async(req)
 
     def delete_entity(self):
@@ -144,7 +143,6 @@ class DQNGazebo(Node):
         req.name = self.entity_name
         while not self.delete_entity_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
-
         self.delete_entity_client.call_async(req)
 
     def spawn_entity(self):
@@ -157,7 +155,6 @@ class DQNGazebo(Node):
         req.initial_pose = goal_pose
         while not self.spawn_entity_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
-
         self.spawn_entity_client.call_async(req)
 
 

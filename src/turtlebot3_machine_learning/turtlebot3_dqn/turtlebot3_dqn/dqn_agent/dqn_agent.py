@@ -35,6 +35,7 @@ from .ddpg import Critic, Actor
 from .replaybuffer import ReplayBuffer
 from . import storagemanager as sm
 from turtlebot3_msgs.srv import Ddpg
+from std_srvs.srv import Empty
 
 import rclpy
 from rclpy.node import Node
@@ -54,7 +55,7 @@ class DDPGAgent(Node):
         self.action_num = 2
         self.episode_size = 50000
 
-        # DDPG hyperparameters
+        # General hyperparameters
         self.discount_factor = 0.99
         self.learning_rate = 0.001
         self.epsilon = 1.0
@@ -69,6 +70,8 @@ class DDPGAgent(Node):
         # Replay memory
         self.memory_size = 100000
         self.memory = ReplayBuffer(self.memory_size)
+
+        self.graph_build = False
 
         # ===================================================================== #
         #                          GPU initalization                            #
@@ -105,7 +108,7 @@ class DDPGAgent(Node):
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
-        self.load_session = 'ddpg_8'  # example: 'ddpg_0'
+        self.load_session = False  # example: 'ddpg_0'
         self.load_episode = 1 if self.load_session else 0
 
         if self.load_session:
@@ -122,11 +125,27 @@ class DDPGAgent(Node):
         # ===================================================================== #
 
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
+        self.pause_simulation_client = self.create_client(Empty, '/pause_physics')
+        self.unpause_simulation_client = self.create_client(Empty, '/unpause_physics')
         self.process()
 
     # ===================================================================== #
     #                           Class functions                             #
     # ===================================================================== #
+
+    def pause_physics(self):
+        req = Empty.Request()
+        while not self.pause_simulation_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        print("pausing simulation!")
+        self.pause_simulation_client.call_async(req)
+
+    def unpause_physics(self):
+        req = Empty.Request()
+        while not self.unpause_simulation_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        print("unpausing simulation!")
+        self.unpause_simulation_client.call_async(req)
 
     def update_network_parameters(self, tau):
         # update target actor
@@ -178,6 +197,10 @@ class DDPGAgent(Node):
         if self.memory.get_length() < self.batch_size:  # batch_size:
             return 0, 0
 
+        # If we have entered train step for the first time the graph construction will take a few seconds. Thus we pause simulation.
+        if self.graph_build == False:
+            self.pause_physics()
+
         mini_batch = self.memory.get_sample(self.batch_size)
         current_states, actions, rewards, new_states, dones = zip(*mini_batch)
         c_l, a_l = self.update_weights(tf.convert_to_tensor(current_states, numpy.float32),
@@ -185,6 +208,11 @@ class DDPGAgent(Node):
                                        tf.convert_to_tensor(rewards, numpy.float32),
                                        tf.convert_to_tensor(new_states, numpy.float32),
                                        tf.convert_to_tensor(dones, numpy.float32))
+
+        if self.graph_build == False:
+            self.unpause_physics()
+            self.graph_build = True
+
         return c_l, a_l
 
     def step(self, action):
