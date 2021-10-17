@@ -172,21 +172,20 @@ class DDPGAgent(Node):
 
         # OUNoise
         # TODO: allow backwards linear movement?
-        # noise = self.actor_noise.get_noise(step)
-        # noise_lin = noise[0] * ACTION_LINEAR_MAX/2
-        # noise_ang = noise[1] * ACTION_ANGULAR_MAX
+        noise = self.actor_noise.get_noise(step)
+        noise_lin = noise[0] * ACTION_LINEAR_MAX/2
+        noise_ang = noise[1] * ACTION_ANGULAR_MAX
 
         # normal noise
         # if numpy.random.random() < self.epsilon:
-        noise_lin = (numpy.random.random()-0.5)*0.4 * self.epsilon
-        noise_ang = (numpy.random.random()-0.5) * 4 * self.epsilon
+        # noise_lin = (numpy.random.random()-0.5)*0.4 * self.epsilon
+        # noise_ang = (numpy.random.random()-0.5) * 4 * self.epsilon
 
         linear = numpy.clip(linear + noise_lin, 0, ACTION_LINEAR_MAX)
         angular = numpy.clip(angular + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
         return [linear, angular]
 
     def update_network_parameters(self, tau):
-        print(f"updating target networks, tau: {tau}")
         # update target actor
         weights = []
         target_weights = self.target_actor.model.weights
