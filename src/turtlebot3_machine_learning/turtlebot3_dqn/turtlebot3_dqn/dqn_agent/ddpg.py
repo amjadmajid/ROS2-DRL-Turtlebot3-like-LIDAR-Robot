@@ -21,19 +21,19 @@ class Actor:
         self.state_size = state_size
         self.name = name
 
-    def build_model(self):
-        state_input = Input(shape=self.state_size)
+    def build_model(self, learn_rate):
+        state_input = Input(shape=self.state_size, name='main_input')
         h1 = Dense(500, activation='relu')(state_input)
         h2 = Dense(500, activation='relu')(h1)
         h3 = Dense(500, activation='relu')(h2)
-        # tanh keeps output in range [-1, 1]
-        delta_theta = Dense(1, activation='tanh')(h3)
         # sigmoid keeps output in range [0, 1]
-        speed = Dense(1, activation='sigmoid')(h3)
+        linear_vel = Dense(1, activation='sigmoid', name='linear_vel')(h3)
+        # tanh keeps output in range [-1, 1]
+        angular_vel = Dense(1, activation='tanh', name='ang_vel')(h3)
 
-        output = Concatenate()([delta_theta, speed])
+        output = Concatenate()([linear_vel, angular_vel])
         model = Model(inputs=state_input, outputs=output)
-        adam = Adam(lr=0.0001)
+        adam = Adam(lr=learn_rate)
         model.compile(loss="mse", optimizer=adam)
         model.summary()
         self.model = model
@@ -76,7 +76,7 @@ class Critic:
         self.action_size = action_size
         self.name = name
 
-    def build_model(self):
+    def build_model(self, learn_rate):
         state_input = Input(shape=self.state_size)
         state_h1 = Dense(500, activation='relu')(state_input)
 
@@ -89,7 +89,7 @@ class Critic:
         output_q_value = Dense(1, activation='linear')(merged_h2)
         model = Model(inputs=[state_input, action_input], outputs=output_q_value)
 
-        adam = Adam(lr=0.0001)
+        adam = Adam(lr=learn_rate)
         model.compile(loss="mse", optimizer=adam)
         model.summary()
         self.model = model
