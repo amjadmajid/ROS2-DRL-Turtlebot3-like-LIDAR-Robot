@@ -45,6 +45,9 @@ from rclpy.node import Node
 ACTION_LINEAR_MAX = 0.22
 ACTION_ANGULAR_MAX = 2.0
 
+INDEX_LIN = 0
+INDEX_ANG = 1
+
 
 class DDPGAgent(Node):
     def __init__(self, stage):
@@ -56,7 +59,7 @@ class DDPGAgent(Node):
         self.stage = int(stage)
 
         # State size and action size
-        self.state_size = 24
+        self.state_size = 14
         self.action_num = 2
         self.episode_size = 50000
 
@@ -66,11 +69,11 @@ class DDPGAgent(Node):
         self.epsilon = 1.0
         self.epsilon_decay = 0.999
         self.epsilon_minimum = 0.05
-        self.batch_size = 64
-        self.target_update_interval = 8  # in episodes
+        self.batch_size = 128
+        # self.target_update_interval = 5  # in episodes
 
         # DDPG hyperparameters
-        self.tau = 0.01
+        self.tau = 0.001
 
         # Replay memory
         self.memory_size = 100000
@@ -95,13 +98,13 @@ class DDPGAgent(Node):
         self.target_actor = Actor(self.state_size, "target_actor")
         self.target_critic = Critic(self.state_size, self.action_num, "target_critic")
 
-        self.actor.build_model()
-        self.critic.build_model()
-        self.target_actor.build_model()
-        self.target_critic.build_model()
+        self.actor.build_model(self.learning_rate)
+        self.critic.build_model(self.learning_rate)
+        self.target_actor.build_model(self.learning_rate)
+        self.target_critic.build_model(self.learning_rate)
 
         # TODO: initalize same weights between model and target model?
-        self.update_network_parameters(self.tau)
+        self.update_network_parameters(1)
 
         # ===================================================================== #
         #                             Model loading                             #
@@ -129,7 +132,7 @@ class DDPGAgent(Node):
         #                             Start Process                             #
         # ===================================================================== #
 
-        self.actor_noise = OUNoise(self.action_num)
+        self.actor_noise = OUNoise(self.action_num, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
         self.pause_simulation_client = self.create_client(Empty, '/pause_physics')
         self.unpause_simulation_client = self.create_client(Empty, '/unpause_physics')
@@ -159,30 +162,31 @@ class DDPGAgent(Node):
         state_np = state_np.reshape(1, len(state_np))
         state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
         action = self.actor.forward_pass(state_tensor)
-        print("raw action: {}", action)
         action = action.numpy()
         action = action.tolist()
         action = action[0]
+        linear = action[INDEX_LIN] * ACTION_LINEAR_MAX
+        angular = action[INDEX_ANG] * ACTION_ANGULAR_MAX
         noise_lin = 0
         noise_ang = 0
 
         # OUNoise
         # TODO: allow backwards linear movement?
         # noise = self.actor_noise.get_noise(step)
-        # noise_lin = noise[0] * ACTION_LINEAR_MAX
+        # noise_lin = noise[0] * ACTION_LINEAR_MAX/2
         # noise_ang = noise[1] * ACTION_ANGULAR_MAX
 
         # normal noise
-        if numpy.random.random() < self.epsilon:
-            noise_lin = (numpy.random.random()-0.5)*0.1
-            noise_ang = (numpy.random.random()-0.5)
-        print(f"linear: {action[0]:.3f}, angular: {action[1]:.3f}, noise_lin: {noise_lin:.3f}, noise_ang: {noise_ang:.3f}")
+        # if numpy.random.random() < self.epsilon:
+        noise_lin = (numpy.random.random()-0.5)*0.4 * self.epsilon
+        noise_ang = (numpy.random.random()-0.5) * 4 * self.epsilon
 
-        action[0] = numpy.clip(action[0] + noise_lin, 0, ACTION_LINEAR_MAX)
-        action[1] = numpy.clip(action[1] + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
-        return action
+        linear = numpy.clip(linear + noise_lin, 0, ACTION_LINEAR_MAX)
+        angular = numpy.clip(angular + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
+        return [linear, angular]
 
     def update_network_parameters(self, tau):
+        print(f"updating target networks, tau: {tau}")
         # update target actor
         weights = []
         target_weights = self.target_actor.model.weights
@@ -205,24 +209,19 @@ class DDPGAgent(Node):
             future_rewards = self.target_critic.forward_pass(new_states, target_actions)
             target = rewards + self.discount_factor * future_rewards * (1 - dones)
             actual_rewards = self.critic.forward_pass(current_states, actions)
+            print("max Q: ", tf.math.reduce_max(actual_rewards))
             critic_loss = tensorflow.keras.losses.MSE(target, actual_rewards)
-
         # Update critic weights
-        critic_network_gradient = tape.gradient(critic_loss,
-                                                self.critic.model.trainable_variables)
-        self.critic.model.optimizer.apply_gradients(zip(
-            critic_network_gradient, self.critic.model.trainable_variables))
+        critic_network_gradient = tape.gradient(critic_loss, self.critic.model.trainable_variables)
+        self.critic.model.optimizer.apply_gradients(zip(critic_network_gradient, self.critic.model.trainable_variables))
 
         # Train the actor model
         with tf.GradientTape() as tape:
             new_policy_actions = self.actor.forward_pass(current_states)
-            actor_loss = tf.math.reduce_mean(-self.critic.forward_pass(current_states,
-                                                                       new_policy_actions))
-            # Update actor weights
-        actor_network_gradient = tape.gradient(actor_loss,
-                                               self.actor.model.trainable_variables)
-        self.actor.model.optimizer.apply_gradients(zip(
-            actor_network_gradient, self.actor.model.trainable_variables))
+            actor_loss = -1*tf.math.reduce_mean(self.critic.forward_pass(current_states, new_policy_actions))
+        # Update actor weights
+        actor_network_gradient = tape.gradient(actor_loss, self.actor.model.trainable_variables)
+        self.actor.model.optimizer.apply_gradients(zip(actor_network_gradient, self.actor.model.trainable_variables))
 
         return critic_loss, actor_loss
 
@@ -245,6 +244,9 @@ class DDPGAgent(Node):
         if self.graph_build == False:
             self.unpause_physics()
             self.graph_build = True
+
+        # Soft update all target networks
+        self.update_network_parameters(self.tau)
 
         return c_l, a_l
 
@@ -294,13 +296,9 @@ class DDPGAgent(Node):
                     train_start = time.time()
                     critic_loss, actor_loss = self.train()  # TODO: alternate experience gathering and training?
                     train_time = (time.time() - train_start)
-                    # print(critic_loss)
-                    print("critic_loss: {}, actor_loss: {act#or_loss:.3f}, train time: {train_time:.3f}")
-
-                    if episode % self.target_update_interval == 0:
-                        self.update_network_parameters(self.tau)
 
                     if done:
+
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
@@ -313,7 +311,7 @@ class DDPGAgent(Node):
                 # print("step time: ", time.time() - step_start)
                 # time.sleep(0.01)  # While loop rate
 
-            # Update result and save model every 25 episodes
+            # Update result and save model every 100 episodes
             if (episode % 100 == 0) or (episode == 1):
                 sm.save_session(self, self.session_dir, episode)
 

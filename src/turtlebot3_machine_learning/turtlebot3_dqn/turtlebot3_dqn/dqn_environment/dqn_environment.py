@@ -26,11 +26,13 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from turtlebot3_msgs.srv import Ddpg
 from std_srvs.srv import Empty
-
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from rclpy.qos import qos_profile_sensor_data
+
+INDEX_LIN = 0
+INDEX_ANG = 1
 
 
 class DDPGEnvironment(Node):
@@ -141,7 +143,7 @@ class DDPGEnvironment(Node):
             self.task_succeed_client.call_async(req)
 
         # Fail
-        if self.min_obstacle_distance < 0.13:  # unit: m
+        if self.min_obstacle_distance < 0.136:  # unit: m
             print("Collision! :(")
             self.collision = True
             self.done = True
@@ -166,9 +168,11 @@ class DDPGEnvironment(Node):
     def get_reward(self, action_linear, action_angular):
         # yaw_reward will be between -1 and 1
         yaw_reward = 1 - 2*math.sqrt(math.fabs(self.goal_angle / math.pi))
+        # now between -3 and 3
+        yaw_reward = yaw_reward * 3
 
-        distance_reward = (2 * self.init_goal_distance) / \
-            (self.init_goal_distance + self.goal_distance) - 1
+        distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
+        distance_reward = distance_reward * 3
 
         # Reward for avoiding obstacles
         if self.min_obstacle_distance < 0.25:
@@ -177,7 +181,7 @@ class DDPGEnvironment(Node):
             obstacle_reward = 0
 
         # TODO: scaling reward for speed?
-        if action_linear < (0.15):
+        if action_linear < 0.11:
             linear_reward = -2
         else:
             linear_reward = 0
@@ -188,9 +192,9 @@ class DDPGEnvironment(Node):
 
         # + for succeed, - for fail
         if self.succeed:
-            reward += 50
+            reward += 500
         elif self.collision:
-            reward -= 100
+            reward -= 1000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
@@ -204,8 +208,8 @@ class DDPGEnvironment(Node):
             return response
 
         action = request.action
-        action_linear = action[0]
-        action_angular = action[1]
+        action_linear = action[INDEX_LIN]
+        action_angular = action[INDEX_ANG]
 
         twist = Twist()
         twist.linear.x = action_linear
