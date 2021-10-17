@@ -272,7 +272,7 @@ class DDPGAgent(Node):
         success_count = 0
 
         self.summary_file.write(
-            "episode, reward, duration, n_steps, noise_sigma, success_count, memory length\n")
+            "episode, reward, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
             state, _, _ = self.step([])
@@ -282,11 +282,18 @@ class DDPGAgent(Node):
             score = 0
             time.sleep(1.0)
             episode_start = time.time()
+            sum_critic_loss = 0
+            sum_actor_loss = 0
 
             while not done:
                 step_start = time.time()
                 # Send action and receive next state and reward
-                action = self.get_action(state, step)
+                if numpy.random.random() < self.epsilon:
+                    # take a random action
+                    action = [(numpy.random.random() * ACTION_LINEAR_MAX),
+                              ((numpy.random.random() - 0.5) * 2 * ACTION_ANGULAR_MAX)]
+                else:
+                    action = self.get_action(state, step)
                 next_state, reward, done = self.step(action)
                 score += reward
 
@@ -294,15 +301,18 @@ class DDPGAgent(Node):
                     self.memory.append_sample(state, action, reward, next_state, done)
                     train_start = time.time()
                     critic_loss, actor_loss = self.train()  # TODO: alternate experience gathering and training?
+                    sum_critic_loss += critic_loss
+                    sum_actor_loss += actor_loss
                     train_time = (time.time() - train_start)
 
                     if done:
-
+                        avg_critic_loss = sum_critic_loss / step
+                        avg_actor_loss = sum_actor_loss / step
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
-                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, score, episode_duration, step, self.actor_noise.sigma, success_count, self.memory.get_length()))
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                            episode, score, episode_duration, step, self.epislon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step
                 state = next_state
