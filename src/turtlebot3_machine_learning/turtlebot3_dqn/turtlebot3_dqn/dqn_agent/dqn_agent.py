@@ -63,9 +63,9 @@ class DDPGAgent(Node):
         # General hyperparameters
         self.discount_factor = 0.99
         self.learning_rate = 0.001
-        # self.epsilon = 1.0
-        # self.epsilon_decay = 0.999
-        # self.epsilon_minimum = 0.05
+        self.epsilon = 1.0
+        self.epsilon_decay = 0.999
+        self.epsilon_minimum = 0.05
         self.batch_size = 64
         self.target_update_interval = 8  # in episodes
 
@@ -159,20 +159,27 @@ class DDPGAgent(Node):
         state_np = state_np.reshape(1, len(state_np))
         state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
         action = self.actor.forward_pass(state_tensor)
+        print("raw action: {}", action)
         action = action.numpy()
         action = action.tolist()
         action = action[0]
-        print(f"action before noise, linear: {action[0]}, angular: {action[1]}")
-        noise = self.actor_noise.get_noise(step)
-        # TODO: allow backwards linear movement?
-        noise_lin = noise[0] * ACTION_LINEAR_MAX
-        noise_ang = noise[1] * ACTION_ANGULAR_MAX
-        action[0] = numpy.clip(action[0] + noise_lin, -ACTION_LINEAR_MAX, ACTION_LINEAR_MAX)
-        action[1] = numpy.clip(action[1] + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
+        noise_lin = 0
+        noise_ang = 0
 
-        # if numpy.random.random() < epsilon:
-        #     action[0] += (numpy.random.random()-0.5)*0.4
-        #     action[1] += (numpy.random.random()-0.5)*0.4
+        # OUNoise
+        # TODO: allow backwards linear movement?
+        # noise = self.actor_noise.get_noise(step)
+        # noise_lin = noise[0] * ACTION_LINEAR_MAX
+        # noise_ang = noise[1] * ACTION_ANGULAR_MAX
+
+        # normal noise
+        if numpy.random.random() < self.epsilon:
+            noise_lin = (numpy.random.random()-0.5)*0.1
+            noise_ang = (numpy.random.random()-0.5)
+        print(f"linear: {action[0]:.3f}, angular: {action[1]:.3f}, noise_lin: {noise_lin:.3f}, noise_ang: {noise_ang:.3f}")
+
+        action[0] = numpy.clip(action[0] + noise_lin, 0, ACTION_LINEAR_MAX)
+        action[1] = numpy.clip(action[1] + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
         return action
 
     def update_network_parameters(self, tau):
@@ -190,8 +197,6 @@ class DDPGAgent(Node):
             weights.append(new_weight * tau + target_weights[i]*(1-tau))
         self.target_critic.model.set_weights(weights)
 
-    # TODO: use this to speed up performance?
-    # TODO: pause gazebo during graph construction by this decorator
     @ tf.function
     def update_weights(self, current_states, actions, rewards, new_states, dones):
         # Train the critic model
@@ -288,15 +293,17 @@ class DDPGAgent(Node):
                     self.memory.append_sample(state, action, reward, next_state, done)
                     train_start = time.time()
                     critic_loss, actor_loss = self.train()  # TODO: alternate experience gathering and training?
-                    # print("critic_loss: {}, actor_loss: {}, train time: {}".format(
-                    #       critic_loss, actor_loss, time.time() - train_start))
+                    train_time = (time.time() - train_start)
+                    # print(critic_loss)
+                    print("critic_loss: {}, actor_loss: {act#or_loss:.3f}, train time: {train_time:.3f}")
+
                     if episode % self.target_update_interval == 0:
                         self.update_network_parameters(self.tau)
 
                     if done:
                         episode_duration = time.time() - episode_start
-                        print("Episode: {} score: {} n_steps: {} memory length: {} sigma: {} episode duration: {}".format(
-                              episode, score, step, self.memory.get_length(), self.actor_noise.sigma, episode_duration))
+                        print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
+                              episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
                             episode, score, episode_duration, step, self.actor_noise.sigma, success_count, self.memory.get_length()))
 
@@ -310,9 +317,9 @@ class DDPGAgent(Node):
             if (episode % 100 == 0) or (episode == 1):
                 sm.save_session(self, self.session_dir, episode)
 
-                # Epsilon
-            # if self.epsilon > self.epsilon_minimum:
-            #     self.epsilon *= self.epsilon_decay
+            # Epsilon
+            if self.epsilon > self.epsilon_minimum:
+                self.epsilon *= self.epsilon_decay
 
 
 def main(args=sys.argv[1]):
