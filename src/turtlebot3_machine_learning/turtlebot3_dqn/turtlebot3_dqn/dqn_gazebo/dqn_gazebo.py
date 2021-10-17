@@ -39,11 +39,6 @@ class DQNGazebo(Node):
         # Stage
         self.stage = int(stage)
 
-        # Entity 'goal'
-        # self.entity_dir_path = os.path.dirname(os.path.realpath(__file__))
-        # self.entity_dir_path = self.entity_dir_path.replace(
-        #     'turtlebot3_machine_learning/turtlebot3_dqn/turtlebot3_dqn/dqn_gazebo',
-        #     'turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_dqn_world/goal_box')
         self.entity_dir_path = '/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_gazebo/share/turtlebot3_gazebo/models/turtlebot3_dqn_world/goal_box/'
         self.entity_path = os.path.join(self.entity_dir_path, 'model.sdf')
         self.entity = open(self.entity_path, 'r').read()

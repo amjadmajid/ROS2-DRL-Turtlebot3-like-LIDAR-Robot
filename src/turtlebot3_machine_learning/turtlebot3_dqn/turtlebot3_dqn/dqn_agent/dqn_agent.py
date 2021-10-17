@@ -34,11 +34,16 @@ from tensorflow.python.client import device_lib
 from .ddpg import Critic, Actor
 from .replaybuffer import ReplayBuffer
 from . import storagemanager as sm
+from .ounoise import OUNoise
+
 from turtlebot3_msgs.srv import Ddpg
 from std_srvs.srv import Empty
 
 import rclpy
 from rclpy.node import Node
+
+ACTION_LINEAR_MAX = 0.22
+ACTION_ANGULAR_MAX = 2.0
 
 
 class DDPGAgent(Node):
@@ -58,9 +63,9 @@ class DDPGAgent(Node):
         # General hyperparameters
         self.discount_factor = 0.99
         self.learning_rate = 0.001
-        self.epsilon = 1.0
-        self.epsilon_decay = 0.999
-        self.epsilon_minimum = 0.05
+        # self.epsilon = 1.0
+        # self.epsilon_decay = 0.999
+        # self.epsilon_minimum = 0.05
         self.batch_size = 64
         self.target_update_interval = 8  # in episodes
 
@@ -124,6 +129,7 @@ class DDPGAgent(Node):
         #                             Start Process                             #
         # ===================================================================== #
 
+        self.actor_noise = OUNoise(self.action_num)
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
         self.pause_simulation_client = self.create_client(Empty, '/pause_physics')
         self.unpause_simulation_client = self.create_client(Empty, '/unpause_physics')
@@ -133,6 +139,7 @@ class DDPGAgent(Node):
     #                           Class functions                             #
     # ===================================================================== #
 
+    # TODO: move this elsewhere
     def pause_physics(self):
         req = Empty.Request()
         while not self.pause_simulation_client.wait_for_service(timeout_sec=1.0):
@@ -146,6 +153,27 @@ class DDPGAgent(Node):
             self.get_logger().info('service not available, waiting again...')
         print("unpausing simulation!")
         self.unpause_simulation_client.call_async(req)
+
+    def get_action(self, state, step):
+        state_np = numpy.asarray(state, numpy.float32)
+        state_np = state_np.reshape(1, len(state_np))
+        state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
+        action = self.actor.forward_pass(state_tensor)
+        action = action.numpy()
+        action = action.tolist()
+        action = action[0]
+        print(f"action before noise, linear: {action[0]}, angular: {action[1]}")
+        noise = self.actor_noise.get_noise(step)
+        # TODO: allow backwards linear movement?
+        noise_lin = noise[0] * ACTION_LINEAR_MAX
+        noise_ang = noise[1] * ACTION_ANGULAR_MAX
+        action[0] = numpy.clip(action[0] + noise_lin, -ACTION_LINEAR_MAX, ACTION_LINEAR_MAX)
+        action[1] = numpy.clip(action[1] + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
+
+        # if numpy.random.random() < epsilon:
+        #     action[0] += (numpy.random.random()-0.5)*0.4
+        #     action[1] += (numpy.random.random()-0.5)*0.4
+        return action
 
     def update_network_parameters(self, tau):
         # update target actor
@@ -238,7 +266,7 @@ class DDPGAgent(Node):
         success_count = 0
 
         self.summary_file.write(
-            "episode, reward, duration, n_steps, epsilon, success_count, memory length\n")
+            "episode, reward, duration, n_steps, noise_sigma, success_count, memory length\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
             state, _, _ = self.step([])
@@ -252,7 +280,7 @@ class DDPGAgent(Node):
             while not done:
                 step_start = time.time()
                 # Send action and receive next state and reward
-                action = self.actor.get_action(state, self.epsilon)
+                action = self.get_action(state, step)
                 next_state, reward, done = self.step(action)
                 score += reward
 
@@ -267,15 +295,15 @@ class DDPGAgent(Node):
 
                     if done:
                         episode_duration = time.time() - episode_start
-                        print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
-                              episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
+                        print("Episode: {} score: {} n_steps: {} memory length: {} sigma: {} episode duration: {}".format(
+                              episode, score, step, self.memory.get_length(), self.actor_noise.sigma, episode_duration))
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, score, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))
+                            episode, score, episode_duration, step, self.actor_noise.sigma, success_count, self.memory.get_length()))
 
                 # Prepare for next step
                 state = next_state
                 step += 1
-                print("step time: ", time.time() - step_start)
+                # print("step time: ", time.time() - step_start)
                 # time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 25 episodes
@@ -283,8 +311,8 @@ class DDPGAgent(Node):
                 sm.save_session(self, self.session_dir, episode)
 
                 # Epsilon
-            if self.epsilon > self.epsilon_minimum:
-                self.epsilon *= self.epsilon_decay
+            # if self.epsilon > self.epsilon_minimum:
+            #     self.epsilon *= self.epsilon_decay
 
 
 def main(args=sys.argv[1]):

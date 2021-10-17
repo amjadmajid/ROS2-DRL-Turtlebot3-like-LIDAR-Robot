@@ -26,8 +26,9 @@ class Actor:
         h1 = Dense(500, activation='relu')(state_input)
         h2 = Dense(500, activation='relu')(h1)
         h3 = Dense(500, activation='relu')(h2)
+        # tanh keeps output in range [-1, 1]
         delta_theta = Dense(1, activation='tanh')(h3)
-        # sigmoid makes the output to be range [0, 1]
+        # sigmoid keeps output in range [0, 1]
         speed = Dense(1, activation='sigmoid')(h3)
 
         output = Concatenate()([delta_theta, speed])
@@ -40,19 +41,6 @@ class Actor:
     def forward_pass(self, states):
         # TODO: use predict on batch?
         return self.model(states)
-
-    def get_action(self, state, epsilon):
-        state_np = numpy.asarray(state, numpy.float32)
-        state_np = state_np.reshape(1, len(state_np))
-        state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
-        action = self.model(state_tensor)
-        action = action.numpy()
-        action = action.tolist()
-        action = action[0]
-        if numpy.random.random() < epsilon:
-            action[0] += (numpy.random.random()-0.5)*0.4
-            action[1] += (numpy.random.random()-0.5)*0.4
-        return action
 
     # ========================================================================= #
     #                         Target Model Updating                             #
@@ -98,8 +86,8 @@ class Critic:
         merged = Concatenate()([state_h1, action_h1])
         merged_h1 = Dense(500, activation='relu')(merged)
         merged_h2 = Dense(500, activation='relu')(merged_h1)
-        output = Dense(1, activation='linear')(merged_h2)
-        model = Model(inputs=[state_input, action_input], outputs=output)
+        output_q_value = Dense(1, activation='linear')(merged_h2)
+        model = Model(inputs=[state_input, action_input], outputs=output_q_value)
 
         adam = Adam(lr=0.0001)
         model.compile(loss="mse", optimizer=adam)

@@ -176,7 +176,8 @@ class DDPGEnvironment(Node):
         else:
             obstacle_reward = 0
 
-        if action_linear < (0.2 * 0.26):
+        # TODO: scaling reward for speed?
+        if action_linear < (0.15):
             linear_reward = -2
         else:
             linear_reward = 0
@@ -203,7 +204,7 @@ class DDPGEnvironment(Node):
             return response
 
         action = request.action
-        action_linear = action[0] * 0.26
+        action_linear = action[0]
         action_angular = action[1]
 
         twist = Twist()
@@ -215,7 +216,7 @@ class DDPGEnvironment(Node):
         response.reward = self.get_reward(action_linear, action_angular)
         # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
         print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(
-            self.local_step, self.goal_distance, math.degrees(self.goal_angle), response.reward, action[0], action[1], self.min_obstacle_distance))
+            self.local_step, self.goal_distance, math.degrees(self.goal_angle), action[0], action[1], response.reward, self.min_obstacle_distance))
         response.done = self.done
 
         if self.done is True:
