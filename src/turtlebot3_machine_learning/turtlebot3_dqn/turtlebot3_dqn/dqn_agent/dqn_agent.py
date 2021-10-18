@@ -162,6 +162,7 @@ class DDPGAgent(Node):
         state_np = state_np.reshape(1, len(state_np))
         state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
         action = self.actor.forward_pass(state_tensor)
+        print("action: ", action)
         action = action.numpy()
         action = action.tolist()
         action = action[0]
@@ -172,14 +173,14 @@ class DDPGAgent(Node):
 
         # OUNoise
         # TODO: allow backwards linear movement?
-        noise = self.actor_noise.get_noise(step)
-        noise_lin = noise[0] * ACTION_LINEAR_MAX/2
-        noise_ang = noise[1] * ACTION_ANGULAR_MAX
+        # noise = self.actor_noise.get_noise(step)
+        # noise_lin = noise[0] * ACTION_LINEAR_MAX/2
+        # noise_ang = noise[1] * ACTION_ANGULAR_MAX
 
         # normal noise
         # if numpy.random.random() < self.epsilon:
-        # noise_lin = (numpy.random.random()-0.5)*0.4 * self.epsilon
-        # noise_ang = (numpy.random.random()-0.5) * 4 * self.epsilon
+        noise_lin = (numpy.random.random()-0.5)*0.4 * self.epsilon
+        noise_ang = (numpy.random.random()-0.5) * 4 * self.epsilon
 
         linear = numpy.clip(linear + noise_lin, 0, ACTION_LINEAR_MAX)
         angular = numpy.clip(angular + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
@@ -287,12 +288,7 @@ class DDPGAgent(Node):
             while not done:
                 step_start = time.time()
                 # Send action and receive next state and reward
-                if numpy.random.random() < self.epsilon:
-                    # take a random action
-                    action = [(numpy.random.random() * ACTION_LINEAR_MAX),
-                              ((numpy.random.random() - 0.5) * 2 * ACTION_ANGULAR_MAX)]
-                else:
-                    action = self.get_action(state, step)
+                action = self.get_action(state, step)
                 next_state, reward, done = self.step(action)
                 score += reward
 
@@ -300,18 +296,18 @@ class DDPGAgent(Node):
                     self.memory.append_sample(state, action, reward, next_state, done)
                     train_start = time.time()
                     critic_loss, actor_loss = self.train()  # TODO: alternate experience gathering and training?
-                    sum_critic_loss += critic_loss
-                    sum_actor_loss += actor_loss
+                    # sum_critic_loss += critic_loss
+                    # sum_actor_loss += actor_loss
                     train_time = (time.time() - train_start)
 
                     if done:
-                        avg_critic_loss = sum_critic_loss / step
-                        avg_actor_loss = sum_actor_loss / step
+                        # avg_critic_loss = sum_critic_loss / step
+                        # avg_actor_loss = sum_actor_loss / step
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, score, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                            episode, score, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))  # , avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step
                 state = next_state

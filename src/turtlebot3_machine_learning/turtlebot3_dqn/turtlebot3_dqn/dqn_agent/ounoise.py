@@ -25,5 +25,5 @@ class OUNoise(object):
         ou_state = self.evolve_state()
         decaying = float(float(t) / self.decay_period)
         self.sigma = max(self.sigma - (self.max_sigma - self.min_sigma) * min(1.0, decaying), self.min_sigma)
-        print(f"get_noise returns: {ou_state}")
+        # print(f"get_noise returns: {ou_state}")
         return ou_state
