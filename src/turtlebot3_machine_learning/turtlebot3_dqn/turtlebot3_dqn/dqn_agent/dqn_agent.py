@@ -208,7 +208,6 @@ class DDPGAgent(Node):
             future_rewards = self.target_critic.forward_pass(new_states, target_actions)
             target = rewards + self.discount_factor * future_rewards * (1 - dones)
             actual_rewards = self.critic.forward_pass(current_states, actions)
-            print("max Q: ", tf.math.reduce_max(actual_rewards))
             critic_loss = tensorflow.keras.losses.MSE(target, actual_rewards)
         # Update critic weights
         critic_network_gradient = tape.gradient(critic_loss, self.critic.model.trainable_variables)
@@ -312,7 +311,7 @@ class DDPGAgent(Node):
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, score, episode_duration, step, self.epislon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                            episode, score, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step
                 state = next_state
