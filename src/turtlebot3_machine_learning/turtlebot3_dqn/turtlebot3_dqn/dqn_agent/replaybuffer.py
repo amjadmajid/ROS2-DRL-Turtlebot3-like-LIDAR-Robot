@@ -1,26 +1,35 @@
 import numpy as np
 import random
-import collections
-import math
-import time
+from collections import deque
 
 from tensorflow.python.ops.gen_array_ops import expand_dims
 
 
 class ReplayBuffer:
-    buffer = 0
+    def __init__(self, size):
+        self.buffer = deque(maxlen=size)
+        self.maxSize = size
+        self.len = 0
 
-    def __init__(self, buffer_size):
-        self.buffer = collections.deque(maxlen=buffer_size)
+    def sample(self, count):
+        batch = []
+        count = min(count, self.len)
+        batch = random.sample(self.buffer, count)
 
-    def append_sample(self, state, action, reward, next_state, done):
-        if self.buffer == 0:
-            print("error: appending to uninitialized replay buffer!")
-            return
-        self.buffer.append([state, action, reward, next_state, done])
+        s_array = np.float32([array[0] for array in batch])
+        a_array = np.float32([array[1] for array in batch])
+        r_array = np.float32([array[2] for array in batch])
+        new_s_array = np.float32([array[3] for array in batch])
+        done_array = np.float32([array[4] for array in batch])
 
-    def get_sample(self, batch_size):
-        return random.sample(self.buffer, batch_size)
+        return s_array, a_array, r_array, new_s_array, done_array
 
     def get_length(self):
-        return len(self.buffer)
+        return self.len
+
+    def add_sample(self, s, a, r, new_s, done):
+        transition = (s, a, r, new_s, done)
+        self.len += 1
+        if self.len > self.maxSize:
+            self.len = self.maxSize
+        self.buffer.append(transition)

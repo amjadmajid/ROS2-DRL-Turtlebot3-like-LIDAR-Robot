@@ -16,20 +16,15 @@
 #
 # Authors: Ryan Shim, Gilbert
 
+import copy
 import numpy
 import os
 import sys
 import time
 
-import tensorflow as tf
-import tensorflow.keras
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import backend as K
-from tensorflow.keras.models import load_model
-from tensorflow.keras.optimizers import RMSprop
-from tensorflow.python.client import device_lib
+import torch.nn as nn
+import torch.nn.functional as F
+import torch
 
 from .ddpg import Critic, Actor
 from .replaybuffer import ReplayBuffer
@@ -60,7 +55,7 @@ class DDPGAgent(Node):
 
         # State size and action size
         self.state_size = 14
-        self.action_num = 2
+        self.action_size = 2
         self.episode_size = 50000
 
         # General hyperparameters
@@ -69,7 +64,7 @@ class DDPGAgent(Node):
         self.epsilon = 1.0
         self.epsilon_decay = 0.999
         self.epsilon_minimum = 0.05
-        self.batch_size = 128
+        self.batch_size = 256
         # self.target_update_interval = 5  # in episodes
 
         # DDPG hyperparameters
@@ -84,24 +79,22 @@ class DDPGAgent(Node):
         # ===================================================================== #
         #                          GPU initalization                            #
         # ===================================================================== #
-        print("GPU INITALIZATION")
-        gpu_devices = tf.config.experimental.list_physical_devices(
-            'GPU')
-        print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
+        # print("GPU INITALIZATION")
+        # gpu_devices = tf.config.experimental.list_physical_devices(
+        #     'GPU')
+        # print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
 
         # ===================================================================== #
         #                        Models initialization                          #
         # ===================================================================== #
 
-        self.actor = Actor(self.state_size, "actor")
-        self.critic = Critic(self.state_size, self.action_num, "critic")
-        self.target_actor = Actor(self.state_size, "target_actor")
-        self.target_critic = Critic(self.state_size, self.action_num, "target_critic")
+        self.actor = Actor("actor", self.state_size, self.action_size, ACTION_LINEAR_MAX, ACTION_ANGULAR_MAX)
+        self.target_actor = Actor("target_actor", self.state_size, self.action_size, ACTION_LINEAR_MAX, ACTION_ANGULAR_MAX)
+        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), self.learning_rate)
 
-        self.actor.build_model(self.learning_rate)
-        self.critic.build_model(self.learning_rate)
-        self.target_actor.build_model(self.learning_rate)
-        self.target_critic.build_model(self.learning_rate)
+        self.critic = Critic("critic", self.state_size, self.action_size)
+        self.target_critic = Critic("target_critic", self.state_size, self.action_size)
+        self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), self.learning_rate)
 
         # TODO: initalize same weights between model and target model?
         self.update_network_parameters(1)
@@ -132,7 +125,7 @@ class DDPGAgent(Node):
         #                             Start Process                             #
         # ===================================================================== #
 
-        self.actor_noise = OUNoise(self.action_num, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
+        self.actor_noise = OUNoise(self.action_size, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
         self.pause_simulation_client = self.create_client(Empty, '/pause_physics')
         self.unpause_simulation_client = self.create_client(Empty, '/unpause_physics')
@@ -158,6 +151,17 @@ class DDPGAgent(Node):
         self.unpause_simulation_client.call_async(req)
 
     def get_action(self, state, step):
+
+        state = torch.from_numpy(state)
+        action = self.actor.forward(state).detach()
+        action = action.data.numpy()
+        N = copy.deepcopy(self.actor_noise.get_noise(t=step))
+        N[0] = N[0]*ACTION_LINEAR_MAX/2
+        N[1] = N[1]*ACTION_ANGULAR_MAX
+        action[0] = numpy.clip(action[0] + N[0], 0., ACTION_LINEAR_MAX)
+        action[1] = numpy.clip(action[1] + N[1], -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
+        return action
+
         state_np = numpy.asarray(state, numpy.float32)
         state_np = state_np.reshape(1, len(state_np))
         state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
@@ -187,67 +191,53 @@ class DDPGAgent(Node):
         return [linear, angular]
 
     def update_network_parameters(self, tau):
+
         # update target actor
-        weights = []
-        target_weights = self.target_actor.model.weights
-        for i, new_weight in enumerate(self.actor.model.weights):
-            weights.append(new_weight * tau + target_weights[i]*(1-tau))
-        self.target_actor.model.set_weights(weights)
+        for target_param, param in zip(self.target_actor.parameters(), self.actor.parameters()):
+            target_param.data.copy_(target_param.data*(1.0 - tau) + param.data*tau)
 
         # update target critic
-        weights = []
-        target_weights = self.target_critic.model.weights
-        for i, new_weight in enumerate(self.critic.model.weights):
-            weights.append(new_weight * tau + target_weights[i]*(1-tau))
-        self.target_critic.model.set_weights(weights)
-
-    @ tf.function
-    def update_weights(self, current_states, actions, rewards, new_states, dones):
-        # Train the critic model
-        with tf.GradientTape() as tape:
-            target_actions = self.target_actor.forward_pass(new_states)
-            future_rewards = self.target_critic.forward_pass(new_states, target_actions)
-            target = rewards + self.discount_factor * future_rewards * (1 - dones)
-            actual_rewards = self.critic.forward_pass(current_states, actions)
-            critic_loss = tensorflow.keras.losses.MSE(target, actual_rewards)
-        # Update critic weights
-        critic_network_gradient = tape.gradient(critic_loss, self.critic.model.trainable_variables)
-        self.critic.model.optimizer.apply_gradients(zip(critic_network_gradient, self.critic.model.trainable_variables))
-
-        # Train the actor model
-        with tf.GradientTape() as tape:
-            new_policy_actions = self.actor.forward_pass(current_states)
-            actor_loss = -1*tf.math.reduce_mean(self.critic.forward_pass(current_states, new_policy_actions))
-        # Update actor weights
-        actor_network_gradient = tape.gradient(actor_loss, self.actor.model.trainable_variables)
-        self.actor.model.optimizer.apply_gradients(zip(actor_network_gradient, self.actor.model.trainable_variables))
-
-        return critic_loss, actor_loss
+        for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
+            target_param.data.copy_(target_param.data*(1.0 - tau) + param.data*tau)
 
     def train(self):
         if self.memory.get_length() < self.batch_size:  # batch_size:
             return 0, 0
 
-        # If we have entered train step for the first time the graph construction will take a few seconds. Thus we pause simulation.
-        if self.graph_build == False:
-            self.pause_physics()
+        s_sample, a_sample, r_sample, new_s_sample, done_sample = self.memory.sample(self.batch_size)
 
-        mini_batch = self.memory.get_sample(self.batch_size)
-        current_states, actions, rewards, new_states, dones = zip(*mini_batch)
-        c_l, a_l = self.update_weights(tf.convert_to_tensor(current_states, numpy.float32),
-                                       tf.convert_to_tensor(actions, numpy.float32),
-                                       tf.convert_to_tensor(rewards, numpy.float32),
-                                       tf.convert_to_tensor(new_states, numpy.float32),
-                                       tf.convert_to_tensor(dones, numpy.float32))
+        s_sample = torch.from_numpy(s_sample)
+        a_sample = torch.from_numpy(a_sample)
+        r_sample = torch.from_numpy(r_sample)
+        new_s_sample = torch.from_numpy(new_s_sample)
+        done_sample = torch.from_numpy(done_sample)
 
-        if self.graph_build == False:
-            self.unpause_physics()
-            self.graph_build = True
+        # optimize critic
+        a_target = self.target_actor.forward(new_s_sample).detach()
+        next_value = torch.squeeze(self.target_critic.forward(new_s_sample, a_target).detach())
+        # y_exp = r _ gamma*Q'(s', P'(s'))
+        y_expected = r_sample + (1 - done_sample)*self.discount_factor*next_value
+        # y_pred = Q(s,a)
+        y_predicted = torch.squeeze(self.critic.forward(s_sample, a_sample))
+        self.qvalue = y_predicted.detach()
+        # self.pub_qvalue.publish(torch.max(self.qvalue))
+        print(self.qvalue, torch.max(self.qvalue))
+
+        loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
+        self.critic_optimizer.zero_grad()
+        loss_critic.backward()
+        self.critic_optimizer.step()
+
+        # optimize actor
+        pred_a_sample = self.actor.forward(s_sample)
+        loss_actor = -1*torch.sum(self.critic.forward(s_sample, pred_a_sample))
+
+        self.actor_optimizer.zero_grad()
+        loss_actor.backward()
+        self.actor_optimizer.step()
 
         # Soft update all target networks
         self.update_network_parameters(self.tau)
-
-        return c_l, a_l
 
     def step(self, action):
         req = Ddpg.Request()
@@ -293,7 +283,7 @@ class DDPGAgent(Node):
                 score += reward
 
                 if step > 1:
-                    self.memory.append_sample(state, action, reward, next_state, done)
+                    self.memory.add_sample(state, action, reward, next_state, done)
                     train_start = time.time()
                     critic_loss, actor_loss = self.train()  # TODO: alternate experience gathering and training?
                     # sum_critic_loss += critic_loss

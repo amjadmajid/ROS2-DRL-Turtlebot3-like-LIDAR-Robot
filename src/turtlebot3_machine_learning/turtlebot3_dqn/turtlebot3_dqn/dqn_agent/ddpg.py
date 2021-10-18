@@ -7,6 +7,10 @@ import keras.backend as K
 import tensorflow as tf
 import random
 
+import torch
+import torch.nn.functional as F
+import torch.nn as nn
+
 import os.path
 import timeit
 import csv
@@ -16,32 +20,40 @@ import matplotlib.pyplot as plt
 
 
 class Actor:
-
-    def __init__(self, state_size, name):
+    def __init__(self, name, state_size, action_size, action_limit_v, action_limit_w,):
+        super(Actor, self).__init__()
         self.state_size = state_size
         self.name = name
 
-    def build_model(self, learn_rate):
-        state_input = Input(shape=self.state_size, name='main_input')
-        h1 = Dense(500, activation='relu')(state_input)
-        h2 = Dense(500, activation='relu')(h1)
-        h3 = Dense(500, activation='relu')(h2)
-        # sigmoid keeps output in range [0, 1]
-        linear_vel = Dense(1, activation='sigmoid', name='linear_vel')(h3)
-        # tanh keeps output in range [-1, 1]
-        angular_vel = Dense(1, activation='tanh', name='ang_vel')(h3)
+        self.action_limit_v = action_limit_v
+        self.action_limit_w = action_limit_w
 
-        output = Concatenate()([linear_vel, angular_vel])
-        model = Model(inputs=state_input, outputs=output)
-        adam = Adam(lr=learn_rate)
-        model.compile(loss="mse", optimizer=adam)
-        model.summary()
-        self.model = model
+        self.fa1 = nn.Linear(state_size, 250)
+        nn.init.xavier_uniform_(self.fa1.weight)
+        self.fa1.bias.data.fill_(0.01)
+        # self.fa1.weight.data = fanin_init(self.fa1.weight.data.size())
+
+        self.fa2 = nn.Linear(250, 250)
+        nn.init.xavier_uniform_(self.fa2.weight)
+        self.fa2.bias.data.fill_(0.01)
+        # self.fa2.weight.data = fanin_init(self.fa2.weight.data.size())
+
+        self.fa3 = nn.Linear(250, action_size)
+        nn.init.xavier_uniform_(self.fa3.weight)
+        self.fa3.bias.data.fill_(0.01)
+        # self.fa3.weight.data.uniform_(-EPS,EPS)
 
     def forward_pass(self, states):
-        # TODO: use predict on batch?
-        return self.model(states)
-
+        x = torch.relu(self.fa1(states))
+        x = torch.relu(self.fa2(x))
+        action = self.fa3(x)
+        if states.shape <= torch.Size([self.state_size]):
+            action[0] = torch.sigmoid(action[0])*self.action_limit_v
+            action[1] = torch.tanh(action[1])*self.action_limit_w
+        else:
+            action[:, 0] = torch.sigmoid(action[:, 0])*self.action_limit_v
+            action[:, 1] = torch.tanh(action[:, 1])*self.action_limit_w
+        return action
     # ========================================================================= #
     #                         Target Model Updating                             #
     # ========================================================================= #
@@ -69,30 +81,38 @@ class Actor:
         self._update_critic_target()
 
 
-class Critic:
+class Critic(nn.Module):
 
-    def __init__(self, state_size, action_size, name):
+    def __init__(self, name, state_size, action_size):
+        super(Critic, self).__init__()
         self.state_size = state_size
         self.action_size = action_size
         self.name = name
 
-    def build_model(self, learn_rate):
-        state_input = Input(shape=self.state_size)
-        state_h1 = Dense(500, activation='relu')(state_input)
+        self.fc1 = nn.Linear(state_size, 125)
+        nn.init.xavier_uniform_(self.fc1.weight)
+        self.fc1.bias.data.fill_(0.01)
+        # self.fc1.weight.data = fanin_init(self.fc1.weight.data.size())
 
-        action_input = Input(shape=self.action_size)
-        action_h1 = Dense(500)(action_input)
+        self.fa1 = nn.Linear(action_size, 125)
+        nn.init.xavier_uniform_(self.fa1.weight)
+        self.fa1.bias.data.fill_(0.01)
+        # self.fa1.weight.data = fanin_init(self.fa1.weight.data.size())
 
-        merged = Concatenate()([state_h1, action_h1])
-        merged_h1 = Dense(500, activation='relu')(merged)
-        merged_h2 = Dense(500, activation='relu')(merged_h1)
-        output_q_value = Dense(1, activation='linear')(merged_h2)
-        model = Model(inputs=[state_input, action_input], outputs=output_q_value)
+        self.fca1 = nn.Linear(250, 250)
+        nn.init.xavier_uniform_(self.fca1.weight)
+        self.fca1.bias.data.fill_(0.01)
+        # self.fca1.weight.data = fanin_init(self.fca1.weight.data.size())
 
-        adam = Adam(lr=learn_rate)
-        model.compile(loss="mse", optimizer=adam)
-        model.summary()
-        self.model = model
+        self.fca2 = nn.Linear(250, 1)
+        nn.init.xavier_uniform_(self.fca2.weight)
+        self.fca2.bias.data.fill_(0.01)
+        # self.fca2.weight.data.uniform_(-EPS, EPS)
 
     def forward_pass(self, states, actions):
-        return self.model([states, actions])
+        xs = torch.relu(self.fc1(states))
+        xa = torch.relu(self.fa1(actions))
+        x = torch.cat((xs, xa), dim=1)
+        x = torch.relu(self.fca1(x))
+        vs = self.fca2(x)
+        return vs

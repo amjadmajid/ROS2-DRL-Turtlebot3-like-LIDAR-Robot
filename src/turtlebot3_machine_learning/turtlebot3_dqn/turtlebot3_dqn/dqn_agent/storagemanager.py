@@ -1,8 +1,8 @@
-import json
-from tensorflow.keras.models import load_model
 import os
 import pickle
 import json
+
+import torch
 
 
 def new_model_dir(models_dir):
@@ -17,9 +17,9 @@ def new_model_dir(models_dir):
 
 
 def network_save_weights(network, model_dir, stage, episode):
-    filepath = os.path.join(model_dir, str(network.name) + '_stage'+str(stage)+'_episode'+str(episode)+'.h5')
+    filepath = os.path.join(model_dir, str(network.name) + '_stage'+str(stage)+'_episode'+str(episode)+'.pt')
     print(f"saving {network.name} model for episode: {episode}")
-    network.model.save_weights(filepath)
+    torch.save(network.state_dict(), filepath)
 
 
 def save_session(ddpg_self, session_dir, episode):
@@ -45,9 +45,9 @@ def save_session(ddpg_self, session_dir, episode):
 
 
 def network_load_weights(network, model_dir, stage, episode):
-    filepath = os.path.join(model_dir, str(network.name) + '_stage'+str(stage)+'_episode'+str(episode)+'.h5')
+    filepath = os.path.join(model_dir, str(network.name) + '_stage'+str(stage)+'_episode'+str(episode)+'.pt')
     print(f"loading: {network.name} model from file: {filepath}")
-    network.model.set_weights(load_model(filepath).get_weights())
+    network.load_state_dict(torch.load(filepath))
 
 
 def load_session(ddpg_self, session_dir, load_episode):
