@@ -27,7 +27,7 @@ def save_session(ddpg_self, session_dir, episode):
     network_save_weights(ddpg_self.actor, session_dir, ddpg_self.stage, episode)
     network_save_weights(ddpg_self.critic, session_dir, ddpg_self.stage, episode)
     network_save_weights(ddpg_self.target_actor, session_dir, ddpg_self.stage, episode)
-    network_save_weights(ddpg_self.target_actor, session_dir, ddpg_self.stage, episode)
+    network_save_weights(ddpg_self.target_critic, session_dir, ddpg_self.stage, episode)
 
     # Store parameters state
     param_keys = ['stage', 'noise_sigma', 'epsilon', 'batch_size', 'learning_rate',
