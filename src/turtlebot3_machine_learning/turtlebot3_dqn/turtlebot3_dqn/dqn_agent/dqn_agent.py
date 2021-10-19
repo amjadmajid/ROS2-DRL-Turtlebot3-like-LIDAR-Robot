@@ -54,7 +54,7 @@ class DDPGAgent(Node):
         self.stage = int(stage)
 
         # State size and action size
-        self.state_size = 14
+        self.state_size = 24
         self.action_size = 2
         self.episode_size = 50000
 
@@ -75,6 +75,10 @@ class DDPGAgent(Node):
         self.memory = ReplayBuffer(self.memory_size)
 
         self.graph_build = False
+
+        # metrics
+        self.loss_critic_sum = 0.0
+        self.loss_actor_sum = 0.0
 
         # ===================================================================== #
         #                          GPU initalization                            #
@@ -112,7 +116,7 @@ class DDPGAgent(Node):
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
-        self.load_session = 'ddpg_6_copy'  # example: 'ddpg_0'
+        self.load_session = False  # example: 'ddpg_0'
         self.load_episode = 1400 if self.load_session else 0
 
         if self.load_session:
@@ -231,6 +235,7 @@ class DDPGAgent(Node):
         # print(torch.max(self.qvalue))
 
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
+        self.loss_critic_sum += loss_critic
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
         self.critic_optimizer.step()
@@ -238,6 +243,7 @@ class DDPGAgent(Node):
         # optimize actor
         pred_a_sample = self.actor.forward(s_sample)
         loss_actor = -1*torch.sum(self.critic.forward(s_sample, pred_a_sample))
+        self.loss_actor_sum += loss_actor
 
         self.actor_optimizer.zero_grad()
         loss_actor.backward()
@@ -270,7 +276,7 @@ class DDPGAgent(Node):
         success_count = 0
 
         self.summary_file.write(
-            "episode, reward, duration, n_steps, epsilon, success_count, memory length\n")
+            "episode, reward, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
             past_action = [0., 0.]
@@ -281,8 +287,8 @@ class DDPGAgent(Node):
             reward_sum = 0.0
             time.sleep(1.0)
             episode_start = time.time()
-            sum_critic_loss = 0.0
-            sum_actor_loss = 0.0
+            self.loss_critic_sum = 0.0
+            self.loss_actor_sum = 0.0
 
             while not done:
                 step_start = time.time()
@@ -294,20 +300,16 @@ class DDPGAgent(Node):
 
                 if step > 1:
                     self.memory.add_sample(state, action, reward, next_state, done)
-                    train_start = time.time()
                     self.train()  # TODO: alternate experience gathering and training?
-                    # sum_critic_loss += critic_loss
-                    # sum_actor_loss += actor_loss
-                    train_time = (time.time() - train_start)
 
                     if done:
-                        # avg_critic_loss = sum_critic_loss / step
-                        # avg_actor_loss = sum_actor_loss / step
+                        avg_critic_loss = self.loss_critic_sum / step
+                        avg_actor_loss = self.loss_actor_sum / step
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, reward_sum, step, self.memory.get_length(), self.epsilon, episode_duration))
-                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, reward_sum, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))  # , avg_critic_loss, avg_actor_loss))
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                            episode, reward_sum, episode_duration, step, self.epsilon, success_count, self.memory.get_length()), avg_critic_loss, avg_actor_loss)  # , avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step
                 state = next_state
@@ -316,7 +318,7 @@ class DDPGAgent(Node):
                 # time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 100 episodes
-            if (episode % 100 == 0) or (episode == 1):
+            if (episode % 200 == 0) or (episode == 1):
                 sm.save_session(self, self.session_dir, episode)
 
             # Epsilon
