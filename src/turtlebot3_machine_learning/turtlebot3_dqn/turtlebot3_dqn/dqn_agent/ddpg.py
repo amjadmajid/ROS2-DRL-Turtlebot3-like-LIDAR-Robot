@@ -27,7 +27,7 @@ class Actor(nn.Module):
         self.fa3.bias.data.fill_(0.01)
         # self.fa3.weight.data.uniform_(-EPS,EPS)
 
-    def forward_pass(self, states):
+    def forward(self, states):
         x = torch.relu(self.fa1(states))
         x = torch.relu(self.fa2(x))
         action = self.fa3(x)
@@ -71,7 +71,7 @@ class Critic(nn.Module):
         self.fca2.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
 
-    def forward_pass(self, states, actions):
+    def forward(self, states, actions):
         xs = torch.relu(self.fc1(states))
         xa = torch.relu(self.fa1(actions))
         x = torch.cat((xs, xa), dim=1)

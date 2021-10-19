@@ -151,15 +151,22 @@ class DDPGAgent(Node):
         self.unpause_simulation_client.call_async(req)
 
     def get_action(self, state, step):
-
+        state = numpy.asarray(state, numpy.float32)
         state = torch.from_numpy(state)
         action = self.actor.forward(state).detach()
         action = action.data.numpy()
+        # TODO: check types
+        print(type(action))
+        print(action)
+        action = action.tolist()
+        print(type(action))
+        print(action)
         N = copy.deepcopy(self.actor_noise.get_noise(t=step))
         N[0] = N[0]*ACTION_LINEAR_MAX/2
         N[1] = N[1]*ACTION_ANGULAR_MAX
         action[0] = numpy.clip(action[0] + N[0], 0., ACTION_LINEAR_MAX)
         action[1] = numpy.clip(action[1] + N[1], -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
+        action[1] = 0.0
         return action
 
         state_np = numpy.asarray(state, numpy.float32)
@@ -263,10 +270,10 @@ class DDPGAgent(Node):
         success_count = 0
 
         self.summary_file.write(
-            "episode, reward, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
+            "episode, reward, duration, n_steps, epsilon, success_count, memory length\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
-            past_action = numpy.zeros(self.action_size)
+            past_action = [0., 0.]
             state, _, _ = self.step([], past_action)
             next_state = list()
             done = False
@@ -288,7 +295,7 @@ class DDPGAgent(Node):
                 if step > 1:
                     self.memory.add_sample(state, action, reward, next_state, done)
                     train_start = time.time()
-                    critic_loss, actor_loss = self.train()  # TODO: alternate experience gathering and training?
+                    self.train()  # TODO: alternate experience gathering and training?
                     # sum_critic_loss += critic_loss
                     # sum_actor_loss += actor_loss
                     train_time = (time.time() - train_start)
@@ -299,7 +306,7 @@ class DDPGAgent(Node):
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, reward_sum, step, self.memory.get_length(), self.epsilon, episode_duration))
-                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
                             episode, reward_sum, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))  # , avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step

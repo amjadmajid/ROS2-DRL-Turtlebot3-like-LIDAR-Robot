@@ -134,16 +134,19 @@ class DDPGEnvironment(Node):
         for i in range(len(msg.ranges)):
             if msg.ranges[i] > 3.5:  # max range is specified in model.sdf
                 msg.ranges[i] = 3.5
+            # else:
+            #     msg.ranges[i] = msg.ranges[i] / 3.5
         self.scan_ranges = msg.ranges
         self.min_obstacle_distance = min(self.scan_ranges)
+        print("min", self.min_obstacle_distance)
         self.received = True
 
-    def get_state(self, past_action_linear, past_action_angular):
+    def get_state(self, previous_action_linear, previous_action_angular):
         state = self.scan_ranges.tolist()
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
-        state.append(float(past_action_linear))
-        state.append(float(past_action_angular))
+        state.append(float(previous_action_linear))
+        state.append(float(previous_action_angular))
         self.local_step += 1
 
         # Succeed
@@ -154,8 +157,8 @@ class DDPGEnvironment(Node):
             self.stop_reset_robot(True)
 
         # Fail
-        if self.min_obstacle_distance < 0.136:  # unit: m
-            print("Collision! :(")
+        if self.min_obstacle_distance < 0.136 and self.local_step > 5:  # unit: m
+            print("Collision! :( step: %d, %d", self.local_step, self.min_obstacle_distance)
             self.collision = True
             self.done = True
             self.stop_reset_robot(False)
@@ -173,12 +176,15 @@ class DDPGEnvironment(Node):
 
     def get_reward(self, action_linear, action_angular):
         # yaw_reward will be between -1 and 1
-        yaw_reward = 1 - 2*math.sqrt(math.fabs(self.goal_angle / math.pi))
+        # yaw_reward = 1 - 2*math.sqrt(math.fabs(self.goal_angle / math.pi))
+        yaw_reward = math.pi - abs(self.goal_angle)
         # now between -3 and 3
-        yaw_reward = yaw_reward * 3
+        # if action_angular < 1:
+        #     yaw_reward += 100
 
-        distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
-        distance_reward = distance_reward * 3
+        # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
+        # distance_reward = distance_reward * 3
+        distance_reward = 0
 
         # Reward for avoiding obstacles
         if self.min_obstacle_distance < 0.25:
@@ -223,16 +229,15 @@ class DDPGEnvironment(Node):
         self.cmd_vel_pub.publish(twist)
 
         # TODO: should there be some kind of delay here to balance laser update rate and vel publish
-        time.sleep(0.01)
-        self.received = False
-        while self.received == False:
-            rclpy.spin_once(self)
+        # self.received = False
+        # while rclpy.ok():
+        #     while self.received == False:
+        #         rclpy.spin_(self)
+        #         print("waiting for laser")
 
-        past_action = request.past_action
-
-        past_action_linear = request.past_action[INDEX_LIN]
-        past_action_angular = request.past_action[INDEX_ANG]
-        response.state = self.get_state(past_action_linear, past_action_angular)
+        previous_action_linear = request.previous_action[INDEX_LIN]
+        previous_action_angular = request.previous_action[INDEX_ANG]
+        response.state = self.get_state(previous_action_linear, previous_action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
         # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
         print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(
