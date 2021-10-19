@@ -79,7 +79,9 @@ class DDPGAgent(Node):
         # ===================================================================== #
         #                          GPU initalization                            #
         # ===================================================================== #
-        # print("GPU INITALIZATION")
+        print("GPU INITALIZATION")
+        print("gpu torch available: ", torch.cuda.is_available())
+        print("device name: ", torch.cuda.get_device_name(0))
         # gpu_devices = tf.config.experimental.list_physical_devices(
         #     'GPU')
         # print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
@@ -156,8 +158,8 @@ class DDPGAgent(Node):
         action = self.actor.forward(state).detach()
         action = action.data.numpy()
         # TODO: check types
-        print(type(action))
-        print(action)
+        # print(type(action))
+        # print(action)
         action = action.tolist()
         print(type(action))
         print(action)
@@ -227,7 +229,7 @@ class DDPGAgent(Node):
         y_predicted = torch.squeeze(self.critic.forward(s_sample, a_sample))
         self.qvalue = y_predicted.detach()
         # self.pub_qvalue.publish(torch.max(self.qvalue))
-        print(self.qvalue, torch.max(self.qvalue))
+        print(torch.max(self.qvalue))
 
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
         self.critic_optimizer.zero_grad()
