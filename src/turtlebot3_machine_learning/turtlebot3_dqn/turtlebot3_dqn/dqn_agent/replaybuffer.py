@@ -2,8 +2,6 @@ import numpy as np
 import random
 from collections import deque
 
-from tensorflow.python.ops.gen_array_ops import expand_dims
-
 
 class ReplayBuffer:
     def __init__(self, size):
