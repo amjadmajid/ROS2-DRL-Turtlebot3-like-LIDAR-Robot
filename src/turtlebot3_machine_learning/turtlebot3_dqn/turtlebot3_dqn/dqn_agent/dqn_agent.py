@@ -315,7 +315,7 @@ class DDPGAgent(Node):
                 # time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 100 episodes
-            if (episode % 100 == 0) or (episode == 1):
+            if (episode % 10 == 0) or (episode == 1):
                 sm.save_session(self, self.session_dir, episode)
 
             # Epsilon
