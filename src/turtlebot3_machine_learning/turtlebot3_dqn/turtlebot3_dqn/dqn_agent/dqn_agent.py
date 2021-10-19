@@ -99,6 +99,7 @@ class DDPGAgent(Node):
         # TODO: initalize same weights between model and target model?
         self.update_network_parameters(1)
 
+        self.actor_noise = OUNoise(self.action_size, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
         # ===================================================================== #
         #                             Model loading                             #
         # ===================================================================== #
@@ -109,7 +110,7 @@ class DDPGAgent(Node):
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
-        self.load_session = False  # example: 'ddpg_0'
+        self.load_session = 'ddpg_6'  # example: 'ddpg_0'
         self.load_episode = 1 if self.load_session else 0
 
         if self.load_session:
@@ -125,7 +126,6 @@ class DDPGAgent(Node):
         #                             Start Process                             #
         # ===================================================================== #
 
-        self.actor_noise = OUNoise(self.action_size, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
         self.pause_simulation_client = self.create_client(Empty, '/pause_physics')
         self.unpause_simulation_client = self.create_client(Empty, '/unpause_physics')
