@@ -85,7 +85,8 @@ class DDPGAgent(Node):
         # ===================================================================== #
         print("GPU INITALIZATION")
         print("gpu torch available: ", torch.cuda.is_available())
-        print("device name: ", torch.cuda.get_device_name(0))
+        if (torch.cuda.is_available()):
+            print("device name: ", torch.cuda.get_device_name(0))
         # gpu_devices = tf.config.experimental.list_physical_devices(
         #     'GPU')
         # print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
@@ -309,7 +310,7 @@ class DDPGAgent(Node):
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, reward_sum, step, self.memory.get_length(), self.epsilon, episode_duration))
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, reward_sum, episode_duration, step, self.epsilon, success_count, self.memory.get_length()), avg_critic_loss, avg_actor_loss)  # , avg_critic_loss, avg_actor_loss))
+                            episode, reward_sum, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step
                 state = next_state
