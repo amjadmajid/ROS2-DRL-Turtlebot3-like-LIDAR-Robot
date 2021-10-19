@@ -17,6 +17,7 @@
 # Authors: Ryan Shim, Gilbert
 
 import math
+import time
 import numpy
 from numpy.core.numeric import Infinity
 
@@ -48,12 +49,10 @@ class DDPGEnvironment(Node):
         self.last_pose_y = 0.0
         self.last_pose_theta = 0.0
 
-        self.action_num = 2
+        self.action_size = 2
         self.done = False
         self.collision = False
         self.succeed = False
-
-        self.time_penalty = -0.1
 
         self.goal_angle = 0.0
         self.goal_distance = Infinity
@@ -61,7 +60,10 @@ class DDPGEnvironment(Node):
         self.scan_ranges = []
         self.min_obstacle_distance = 3.5
 
+        self.time_penalty = -0.1
+
         self.local_step = 0
+        self.received = False
 
         """************************************************************
         ** Initialise ROS publishers and subscribers
@@ -115,19 +117,33 @@ class DDPGEnvironment(Node):
         self.goal_distance = goal_distance
         self.goal_angle = goal_angle
 
+    def stop_reset_robot(self, success):
+        self.cmd_vel_pub.publish(Twist())  # robot stop
+        self.local_step = 0
+        req = Empty.Request()
+        if success:
+            while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
+                self.get_logger().info('service not available, waiting again...')
+            self.task_succeed_client.call_async(req)
+        else:
+            while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
+                self.get_logger().info('service not available, waiting again...')
+            self.task_fail_client.call_async(req)
+
     def scan_callback(self, msg):
         for i in range(len(msg.ranges)):
             if msg.ranges[i] > 3.5:  # max range is specified in model.sdf
                 msg.ranges[i] = 3.5
         self.scan_ranges = msg.ranges
         self.min_obstacle_distance = min(self.scan_ranges)
+        self.received = True
 
-    def get_state(self, action_linear, action_angular):
+    def get_state(self, past_action_linear, past_action_angular):
         state = self.scan_ranges.tolist()
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
-        state.append(float(action_linear))
-        state.append(float(action_angular))
+        state.append(float(past_action_linear))
+        state.append(float(past_action_angular))
         self.local_step += 1
 
         # Succeed
@@ -135,24 +151,14 @@ class DDPGEnvironment(Node):
             print("Goal! :)")
             self.succeed = True
             self.done = True
-            self.cmd_vel_pub.publish(Twist())  # robot stop
-            self.local_step = 0
-            req = Empty.Request()
-            while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
-                self.get_logger().info('service not available, waiting again...')
-            self.task_succeed_client.call_async(req)
+            self.stop_reset_robot(True)
 
         # Fail
         if self.min_obstacle_distance < 0.136:  # unit: m
             print("Collision! :(")
             self.collision = True
             self.done = True
-            self.cmd_vel_pub.publish(Twist())  # robot stop
-            self.local_step = 0
-            req = Empty.Request()
-            while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
-                self.get_logger().info('service not available, waiting again...')
-            self.task_fail_client.call_async(req)
+            self.stop_reset_robot(False)
 
         if self.local_step == 500:
             print("Time out! :(")
@@ -216,7 +222,17 @@ class DDPGEnvironment(Node):
         twist.angular.z = action_angular
         self.cmd_vel_pub.publish(twist)
 
-        response.state = self.get_state(action_linear, action_angular)
+        # TODO: should there be some kind of delay here to balance laser update rate and vel publish
+        time.sleep(0.01)
+        self.received = False
+        while self.received == False:
+            rclpy.spin_once(self)
+
+        past_action = request.past_action
+
+        past_action_linear = request.past_action[INDEX_LIN]
+        past_action_angular = request.past_action[INDEX_ANG]
+        response.state = self.get_state(past_action_linear, past_action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
         # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
         print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(

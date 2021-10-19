@@ -239,9 +239,10 @@ class DDPGAgent(Node):
         # Soft update all target networks
         self.update_network_parameters(self.tau)
 
-    def step(self, action):
+    def step(self, action, previous_action):
         req = Ddpg.Request()
         req.action = action
+        req.previous_action = previous_action
 
         while not self.ddpg_com_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
@@ -265,22 +266,24 @@ class DDPGAgent(Node):
             "episode, reward, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
-            state, _, _ = self.step([])
+            past_action = numpy.zeros(self.action_size)
+            state, _, _ = self.step([], past_action)
             next_state = list()
             done = False
             step = 0
-            score = 0
+            reward_sum = 0.0
             time.sleep(1.0)
             episode_start = time.time()
-            sum_critic_loss = 0
-            sum_actor_loss = 0
+            sum_critic_loss = 0.0
+            sum_actor_loss = 0.0
 
             while not done:
                 step_start = time.time()
                 # Send action and receive next state and reward
                 action = self.get_action(state, step)
-                next_state, reward, done = self.step(action)
-                score += reward
+                next_state, reward, done = self.step(action, past_action)
+                past_action = copy.deepcopy(action)
+                reward_sum += reward
 
                 if step > 1:
                     self.memory.add_sample(state, action, reward, next_state, done)
@@ -295,9 +298,9 @@ class DDPGAgent(Node):
                         # avg_actor_loss = sum_actor_loss / step
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
-                              episode, score, step, self.memory.get_length(), self.epsilon, episode_duration))
+                              episode, reward_sum, step, self.memory.get_length(), self.epsilon, episode_duration))
                         self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, score, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))  # , avg_critic_loss, avg_actor_loss))
+                            episode, reward_sum, episode_duration, step, self.epsilon, success_count, self.memory.get_length()))  # , avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step
                 state = next_state
