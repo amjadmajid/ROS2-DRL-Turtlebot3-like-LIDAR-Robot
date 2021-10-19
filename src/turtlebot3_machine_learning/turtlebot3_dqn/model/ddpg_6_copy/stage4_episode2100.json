@@ -1,0 +1,1 @@
+{"stage": 4, "noise_sigma": 0.1, "epsilon": 0.12294130915148117, "batch_size": 256, "learning_rate": 0.001, "discount_factor": 0.99, "episode_size": 50000, "action_size": 2, "state_size": 14, "memory_size": 100000, "tau": 0.001}
