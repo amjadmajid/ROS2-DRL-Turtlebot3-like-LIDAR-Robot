@@ -121,11 +121,12 @@ class DQNGazebo(Node):
             self.goal_pose_y = random.randrange(-15, 16) / 10.0
         else:
             goal_pose_list = [[1.0, 0.0], [2.0, -1.5], [0.0, -2.0], [2.0, 2.0], [0.8, 2.0],
-                              [-1.9, 1.9], [-1.9, 0.2], [-1.9, -0.5], [-2.0, -2.0], [-0.5, -1.0]]
-            index = random.randrange(0, 10)
+                              [-1.9, 1.9], [-1.9, 0.2], [-1.9, -0.5], [-2.0, -2.0], [-0.5, -1.0],
+                              [1.2, -1.0]]
+            index = random.randrange(0, len(goal_pose_list))
             self.goal_pose_x = goal_pose_list[index][0]
             self.goal_pose_y = goal_pose_list[index][1]
-            print("Goal pose: ", self.goal_pose_x, self.goal_pose_y)
+            # print("Goal pose: ", self.goal_pose_x, self.goal_pose_y)
 
     def reset_simulation(self):
         req = Empty.Request()
