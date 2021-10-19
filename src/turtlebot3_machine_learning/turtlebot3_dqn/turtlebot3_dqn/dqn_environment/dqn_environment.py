@@ -60,7 +60,7 @@ class DDPGEnvironment(Node):
         self.scan_ranges = []
         self.min_obstacle_distance = 3.5
 
-        self.time_penalty = -0.1
+        self.time_penalty = -1
 
         self.local_step = 0
         self.received = False
@@ -181,21 +181,21 @@ class DDPGEnvironment(Node):
         # if action_angular < 1:
         #     yaw_reward += 100
 
-        # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
+        distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
         # distance_reward = distance_reward * 3
         distance_reward = 0
 
         # Reward for avoiding obstacles
         if self.min_obstacle_distance < 0.25:
-            obstacle_reward = -2
+            obstacle_reward = -3
         else:
             obstacle_reward = 0
 
         # TODO: scaling reward for speed?
-        if action_linear < 0.11:
-            linear_reward = -2
-        else:
-            linear_reward = 0
+        # if action_linear < 0.11:
+            # linear_reward = -2
+        # else:
+        linear_reward = 0
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_reward + self.time_penalty
         print("R_angle: {:.3f}, R_dist: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}".format(
@@ -205,7 +205,7 @@ class DDPGEnvironment(Node):
         if self.succeed:
             reward += 500
         elif self.collision:
-            reward -= 1000
+            reward -= 1500
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
