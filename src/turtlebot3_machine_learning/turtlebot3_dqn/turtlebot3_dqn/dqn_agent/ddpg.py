@@ -12,17 +12,17 @@ class Actor(nn.Module):
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
 
-        self.fa1 = nn.Linear(state_size, 250)
+        self.fa1 = nn.Linear(state_size, 512)
         nn.init.xavier_uniform_(self.fa1.weight)
         self.fa1.bias.data.fill_(0.01)
         # self.fa1.weight.data = fanin_init(self.fa1.weight.data.size())
 
-        self.fa2 = nn.Linear(250, 250)
+        self.fa2 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fa2.weight)
         self.fa2.bias.data.fill_(0.01)
         # self.fa2.weight.data = fanin_init(self.fa2.weight.data.size())
 
-        self.fa3 = nn.Linear(250, action_size)
+        self.fa3 = nn.Linear(512, action_size)
         nn.init.xavier_uniform_(self.fa3.weight)
         self.fa3.bias.data.fill_(0.01)
         # self.fa3.weight.data.uniform_(-EPS,EPS)
@@ -51,22 +51,22 @@ class Critic(nn.Module):
         self.action_size = action_size
         self.name = name
 
-        self.fc1 = nn.Linear(state_size, 125)
+        self.fc1 = nn.Linear(state_size, 256)
         nn.init.xavier_uniform_(self.fc1.weight)
         self.fc1.bias.data.fill_(0.01)
         # self.fc1.weight.data = fanin_init(self.fc1.weight.data.size())
 
-        self.fa1 = nn.Linear(action_size, 125)
+        self.fa1 = nn.Linear(action_size, 256)
         nn.init.xavier_uniform_(self.fa1.weight)
         self.fa1.bias.data.fill_(0.01)
         # self.fa1.weight.data = fanin_init(self.fa1.weight.data.size())
 
-        self.fca1 = nn.Linear(250, 250)
+        self.fca1 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fca1.weight)
         self.fca1.bias.data.fill_(0.01)
         # self.fca1.weight.data = fanin_init(self.fca1.weight.data.size())
 
-        self.fca2 = nn.Linear(250, 1)
+        self.fca2 = nn.Linear(512, 1)
         nn.init.xavier_uniform_(self.fca2.weight)
         self.fca2.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)

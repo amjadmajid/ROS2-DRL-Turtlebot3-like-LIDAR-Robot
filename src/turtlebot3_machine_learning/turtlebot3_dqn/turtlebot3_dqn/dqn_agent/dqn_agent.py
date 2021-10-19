@@ -166,7 +166,6 @@ class DDPGAgent(Node):
         N[1] = N[1]*ACTION_ANGULAR_MAX
         action[0] = numpy.clip(action[0] + N[0], 0., ACTION_LINEAR_MAX)
         action[1] = numpy.clip(action[1] + N[1], -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
-        action[1] = 0.0
         return action
 
         state_np = numpy.asarray(state, numpy.float32)
