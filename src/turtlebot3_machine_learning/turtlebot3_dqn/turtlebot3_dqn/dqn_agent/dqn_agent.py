@@ -112,8 +112,8 @@ class DDPGAgent(Node):
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
-        self.load_session = 'ddpg_6'  # example: 'ddpg_0'
-        self.load_episode = 1 if self.load_session else 0
+        self.load_session = 'ddpg_6_copy'  # example: 'ddpg_0'
+        self.load_episode = 200 if self.load_session else 0
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)
@@ -161,8 +161,7 @@ class DDPGAgent(Node):
         # print(type(action))
         # print(action)
         action = action.tolist()
-        print(type(action))
-        print(action)
+        # print(action)
         N = copy.deepcopy(self.actor_noise.get_noise(t=step))
         N[0] = N[0]*ACTION_LINEAR_MAX/2
         N[1] = N[1]*ACTION_ANGULAR_MAX
@@ -229,7 +228,7 @@ class DDPGAgent(Node):
         y_predicted = torch.squeeze(self.critic.forward(s_sample, a_sample))
         self.qvalue = y_predicted.detach()
         # self.pub_qvalue.publish(torch.max(self.qvalue))
-        print(torch.max(self.qvalue))
+        # print(torch.max(self.qvalue))
 
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
         self.critic_optimizer.zero_grad()
@@ -317,7 +316,7 @@ class DDPGAgent(Node):
                 # time.sleep(0.01)  # While loop rate
 
             # Update result and save model every 100 episodes
-            if (episode % 10 == 0) or (episode == 1):
+            if (episode % 100 == 0) or (episode == 1):
                 sm.save_session(self, self.session_dir, episode)
 
             # Epsilon

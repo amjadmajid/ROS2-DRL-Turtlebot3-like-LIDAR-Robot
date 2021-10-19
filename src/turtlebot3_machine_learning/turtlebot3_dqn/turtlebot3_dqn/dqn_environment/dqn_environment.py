@@ -138,7 +138,6 @@ class DDPGEnvironment(Node):
             #     msg.ranges[i] = msg.ranges[i] / 3.5
         self.scan_ranges = msg.ranges
         self.min_obstacle_distance = min(self.scan_ranges)
-        print("min", self.min_obstacle_distance)
         self.received = True
 
     def get_state(self, previous_action_linear, previous_action_angular):
@@ -163,7 +162,7 @@ class DDPGEnvironment(Node):
             self.done = True
             self.stop_reset_robot(False)
 
-        if self.local_step == 500:
+        if self.local_step == 1500:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
