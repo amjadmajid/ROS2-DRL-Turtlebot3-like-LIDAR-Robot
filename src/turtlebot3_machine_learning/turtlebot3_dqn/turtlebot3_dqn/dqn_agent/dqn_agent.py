@@ -113,7 +113,7 @@ class DDPGAgent(Node):
 
         # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
         self.load_session = 'ddpg_6_copy'  # example: 'ddpg_0'
-        self.load_episode = 200 if self.load_session else 0
+        self.load_episode = 1400 if self.load_session else 0
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)

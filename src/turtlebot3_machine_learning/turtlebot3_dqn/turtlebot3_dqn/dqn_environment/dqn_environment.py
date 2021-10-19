@@ -149,7 +149,7 @@ class DDPGEnvironment(Node):
         self.local_step += 1
 
         # Succeed
-        if self.goal_distance < 0.20:  # unit: m
+        if self.goal_distance < 0.20 and self.local_step > 5:  # unit: m
             print("Goal! :)")
             self.succeed = True
             self.done = True
