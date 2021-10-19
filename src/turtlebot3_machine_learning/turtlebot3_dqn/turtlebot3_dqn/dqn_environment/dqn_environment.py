@@ -156,7 +156,7 @@ class DDPGEnvironment(Node):
             self.stop_reset_robot(True)
 
         # Fail
-        if self.min_obstacle_distance < 0.136 and self.local_step > 5:  # unit: m
+        if self.min_obstacle_distance < 0.130 and self.local_step > 5:  # unit: m
             print("Collision! :( step: %d, %d", self.local_step, self.min_obstacle_distance)
             self.collision = True
             self.done = True
@@ -186,7 +186,7 @@ class DDPGEnvironment(Node):
         distance_reward = 0
 
         # Reward for avoiding obstacles
-        if self.min_obstacle_distance < 0.25:
+        if self.min_obstacle_distance < 0.30:
             obstacle_reward = -3
         else:
             obstacle_reward = 0
