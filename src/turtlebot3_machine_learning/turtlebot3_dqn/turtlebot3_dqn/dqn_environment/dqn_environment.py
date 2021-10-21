@@ -162,7 +162,7 @@ class DDPGEnvironment(Node):
             self.done = True
             self.stop_reset_robot(False)
 
-        if self.local_step == 600:
+        if self.local_step == 1500:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
