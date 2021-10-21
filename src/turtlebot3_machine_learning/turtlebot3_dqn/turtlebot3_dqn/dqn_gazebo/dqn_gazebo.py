@@ -16,6 +16,7 @@
 #
 # Authors: Ryan Shim, Gilbert
 
+from math import sqrt
 import os
 import random
 import sys
@@ -44,8 +45,11 @@ class DQNGazebo(Node):
         self.entity = open(self.entity_path, 'r').read()
         self.entity_name = 'goal'
 
-        self.goal_pose_x = 0.5
-        self.goal_pose_y = 0.0
+        self.prev_x = -1
+        self.prev_y = -1
+
+        self.goal_x = 0.5
+        self.goal_y = 0.0
 
         self.init_state = False
 
@@ -89,12 +93,12 @@ class DQNGazebo(Node):
             self.reset_simulation()
             self.init_state = True
             print("init!!!")
-            print("Goal pose:", self.goal_pose_x, self.goal_pose_y)
+            print("Goal pose:", self.goal_x, self.goal_y)
 
         # Publish goal pose
         goal_pose = Pose()
-        goal_pose.position.x = self.goal_pose_x
-        goal_pose.position.y = self.goal_pose_y
+        goal_pose.position.x = self.goal_x
+        goal_pose.position.y = self.goal_y
         self.goal_pose_pub.publish(goal_pose)
         self.spawn_entity()
 
@@ -102,7 +106,7 @@ class DQNGazebo(Node):
         self.delete_entity()
         self.generate_goal_pose()
         print("generate a new goal :) goal pose:",
-              self.goal_pose_x, self.goal_pose_y)
+              self.goal_x, self.goal_y)
 
         return response
 
@@ -111,22 +115,25 @@ class DQNGazebo(Node):
         self.reset_simulation()
         self.generate_goal_pose()
         print("reset the gazebo environment :( goal pose:",
-              self.goal_pose_x, self.goal_pose_y)
+              self.goal_x, self.goal_y)
 
         return response
 
     def generate_goal_pose(self):
-        if self.stage != 4:
-            self.goal_pose_x = random.randrange(-15, 16) / 10.0
-            self.goal_pose_y = random.randrange(-15, 16) / 10.0
-        else:
-            goal_pose_list = [[1.0, 0.0], [2.0, -1.5], [0.0, -2.0], [2.0, 2.0], [0.8, 2.0],
-                              [-1.9, 1.9], [-1.9, 0.2], [-1.9, -0.5], [-2.0, -2.0], [-0.5, -1.0],
-                              [1.2, -1.0]]
-            index = random.randrange(0, len(goal_pose_list))
-            self.goal_pose_x = goal_pose_list[index][0]
-            self.goal_pose_y = goal_pose_list[index][1]
-            # print("Goal pose: ", self.goal_pose_x, self.goal_pose_y)
+        self.prev_x = self.goal_x
+        self.prev_y = self.goal_y
+
+        while ((abs(self.prev_x - self.goal_x) + abs(self.prev_y - self.goal_y)) < 2):
+            if self.stage != 4:
+                self.goal_x = random.randrange(-15, 16) / 10.0
+                self.goal_y = random.randrange(-15, 16) / 10.0
+            else:
+                goal_pose_list = [[1.0, 0.0], [2.0, -1.5], [0.0, -2.0], [2.0, 2.0], [0.8, 2.0],
+                                [-1.9, 1.9], [-1.9, 0.2], [-1.9, -0.5], [-2.0, -2.0], [-0.5, -1.0],
+                                [1.2, -1.0], [-0.5, 1.2], [-0.8, -2.0], [2.0, 0.0], [1, -1.8]]
+                index = random.randrange(0, len(goal_pose_list))
+                self.goal_x = goal_pose_list[index][0]
+                self.goal_y = goal_pose_list[index][1]
 
     def reset_simulation(self):
         req = Empty.Request()
@@ -143,8 +150,8 @@ class DQNGazebo(Node):
 
     def spawn_entity(self):
         goal_pose = Pose()
-        goal_pose.position.x = self.goal_pose_x
-        goal_pose.position.y = self.goal_pose_y
+        goal_pose.position.x = self.goal_x
+        goal_pose.position.y = self.goal_y
         req = SpawnEntity.Request()
         req.name = self.entity_name
         req.xml = self.entity
