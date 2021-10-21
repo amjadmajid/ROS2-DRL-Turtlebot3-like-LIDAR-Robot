@@ -54,7 +54,7 @@ class DDPGAgent(Node):
         self.stage = int(stage)
 
         # State size and action size
-        self.state_size = 24
+        self.state_size = 14
         self.action_size = 2
         self.episode_size = 50000
 
@@ -64,7 +64,7 @@ class DDPGAgent(Node):
         self.epsilon = 1.0
         self.epsilon_decay = 0.999
         self.epsilon_minimum = 0.05
-        self.batch_size = 256
+        self.batch_size = 128
         # self.target_update_interval = 5  # in episodes
 
         # DDPG hyperparameters
@@ -117,8 +117,8 @@ class DDPGAgent(Node):
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
-        self.load_session = False  # example: 'ddpg_0'
-        self.load_episode = 1400 if self.load_session else 0
+        self.load_session = 'ddpg_6_copy'  # example: 'ddpg_0'
+        self.load_episode = 2600 if self.load_session else 0
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)

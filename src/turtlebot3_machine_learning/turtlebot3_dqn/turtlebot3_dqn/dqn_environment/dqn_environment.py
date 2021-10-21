@@ -162,10 +162,11 @@ class DDPGEnvironment(Node):
             self.done = True
             self.stop_reset_robot(False)
 
-        if self.local_step == 1500:
+        if self.local_step == 600:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
+            self.collision = True
             req = Empty.Request()
             while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().info('service not available, waiting again...')
@@ -178,8 +179,8 @@ class DDPGEnvironment(Node):
         # yaw_reward = 1 - 2*math.sqrt(math.fabs(self.goal_angle / math.pi))
         yaw_reward = math.pi - abs(self.goal_angle)
         # now between -3 and 3
-        # if action_angular < 1:
-        #     yaw_reward += 100
+
+        angular_penalty = -1 * (action_angular**2)
 
         distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
         # distance_reward = distance_reward * 3
@@ -191,21 +192,18 @@ class DDPGEnvironment(Node):
         else:
             obstacle_reward = 0
 
-        # TODO: scaling reward for speed?
-        # if action_linear < 0.11:
-            # linear_reward = -2
-        # else:
-        linear_reward = 0
+        # penality from -(4.4^2) to 0
+        linear_penality = -2*(((0.22 - action_linear) * 10) ** 2)
 
-        reward = yaw_reward + distance_reward + obstacle_reward + linear_reward + self.time_penalty
-        print("R_angle: {:.3f}, R_dist: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}".format(
-            yaw_reward, distance_reward, obstacle_reward, linear_reward))
+        reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
+        print("R_angle: {:.3f}, R_dist: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
+            yaw_reward, distance_reward, obstacle_reward, linear_penality, angular_penalty))
 
         # + for succeed, - for fail
         if self.succeed:
-            reward += 500
+            reward += 4000
         elif self.collision:
-            reward -= 1500
+            reward -= 3000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
