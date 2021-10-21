@@ -166,7 +166,6 @@ class DDPGEnvironment(Node):
             print("Time out! :(")
             self.done = True
             self.local_step = 0
-            self.collision = True
             req = Empty.Request()
             while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().info('service not available, waiting again...')
@@ -196,12 +195,12 @@ class DDPGEnvironment(Node):
         linear_penality = -2*(((0.22 - action_linear) * 10) ** 2)
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        print("R_angle: {:.3f}, R_dist: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
+        print("R_angle: {:.3f},  {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
             yaw_reward, distance_reward, obstacle_reward, linear_penality, angular_penalty))
 
         # + for succeed, - for fail
         if self.succeed:
-            reward += 4000
+            reward += 6000
         elif self.collision:
             reward -= 3000
         return float(reward)
