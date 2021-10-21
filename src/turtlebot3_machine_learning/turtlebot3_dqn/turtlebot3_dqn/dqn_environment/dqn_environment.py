@@ -162,7 +162,7 @@ class DDPGEnvironment(Node):
             self.done = True
             self.stop_reset_robot(False)
 
-        if self.local_step == 1500:
+        if self.local_step == 2500:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
@@ -187,8 +187,8 @@ class DDPGEnvironment(Node):
         distance_reward = 0
 
         # Reward for avoiding obstacles
-        if self.min_obstacle_distance < 0.30:
-            obstacle_reward = -3
+        if self.min_obstacle_distance < 0.22:
+            obstacle_reward = -10
         else:
             obstacle_reward = 0
 
