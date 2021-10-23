@@ -179,7 +179,7 @@ class DDPGEnvironment(Node):
         yaw_reward = math.pi - abs(self.goal_angle)
         # now between -3 and 3
 
-        angular_penalty = -1 * (action_angular**2)
+        angular_penalty = -2 * (action_angular**2)
 
         distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
         # distance_reward = distance_reward * 3
