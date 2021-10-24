@@ -117,8 +117,8 @@ class DDPGAgent(Node):
         # models_dir = '/media/tomas/JURAJ\'S USB'
 
         # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
-        self.load_session = 'ddpg_laptop'  # example: 'ddpg_0'
-        self.load_episode = 14000 if self.load_session else 0
+        self.load_session = False  # example: 'ddpg_0'
+        self.load_episode = 200 if self.load_session else 0
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)
@@ -267,7 +267,7 @@ class DDPGAgent(Node):
             if future.done():
                 if future.result() is not None:
                     res = future.result()
-                    return res.state, res.reward, res.done
+                    return res.state, res.reward, res.done, res.success
                 else:
                     self.get_logger().error(
                         'Exception while calling service: {0}'.format(future.exception()))
@@ -277,11 +277,11 @@ class DDPGAgent(Node):
         success_count = 0
 
         self.summary_file.write(
-            "episode, reward, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
+            "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
             past_action = [0., 0.]
-            state, _, _ = self.step([], past_action)
+            state, _, _, _= self.step([], past_action)
             next_state = list()
             done = False
             step = 0
@@ -295,7 +295,7 @@ class DDPGAgent(Node):
                 step_start = time.time()
                 # Send action and receive next state and reward
                 action = self.get_action(state, step)
-                next_state, reward, done = self.step(action, past_action)
+                next_state, reward, done, success = self.step(action, past_action)
                 past_action = copy.deepcopy(action)
                 reward_sum += reward
 
@@ -307,10 +307,10 @@ class DDPGAgent(Node):
                         avg_critic_loss = self.loss_critic_sum / step
                         avg_actor_loss = self.loss_actor_sum / step
                         episode_duration = time.time() - episode_start
-                        print("Episode: {} score: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
-                              episode, reward_sum, step, self.memory.get_length(), self.epsilon, episode_duration))
-                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, reward_sum, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                        print("Episode: {} score: {} success: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
+                              episode, reward_sum, success, step, self.memory.get_length(), self.epsilon, episode_duration))
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                            episode, reward_sum, success, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
 
                 # Prepare for next step
                 state = next_state

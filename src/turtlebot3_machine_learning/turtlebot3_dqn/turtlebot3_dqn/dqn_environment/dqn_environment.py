@@ -187,7 +187,7 @@ class DDPGEnvironment(Node):
 
         # Reward for avoiding obstacles
         if self.min_obstacle_distance < 0.22:
-            obstacle_reward = -10
+            obstacle_reward = -20
         else:
             obstacle_reward = 0
 
@@ -200,9 +200,9 @@ class DDPGEnvironment(Node):
 
         # + for succeed, - for fail
         if self.succeed:
-            reward += 6000
+            reward += 12000
         elif self.collision:
-            reward -= 5000
+            reward -= 10000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
@@ -239,6 +239,7 @@ class DDPGEnvironment(Node):
         print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(
             self.local_step, self.goal_distance, math.degrees(self.goal_angle), action[0], action[1], response.reward, self.min_obstacle_distance))
         response.done = self.done
+        response.success = self.succeed
 
         if self.done is True:
             self.done = False
