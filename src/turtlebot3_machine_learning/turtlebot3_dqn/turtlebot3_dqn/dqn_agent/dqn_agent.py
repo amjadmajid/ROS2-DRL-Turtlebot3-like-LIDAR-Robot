@@ -22,9 +22,8 @@ import os
 import sys
 import time
 
-import torch.nn as nn
-import torch.nn.functional as F
 import torch
+import torch.nn.functional as F
 
 from .ddpg import Critic, Actor
 from .replaybuffer import ReplayBuffer
@@ -37,6 +36,7 @@ from std_srvs.srv import Empty
 import rclpy
 from rclpy.node import Node
 
+# Constants
 ACTION_LINEAR_MAX = 0.22
 ACTION_ANGULAR_MAX = 2.0
 
@@ -47,25 +47,21 @@ INDEX_ANG = 1
 class DDPGAgent(Node):
     def __init__(self, stage):
         super().__init__('ddpg_agent')
+        self.stage = int(stage)
 
         # ===================================================================== #
         #                       parameter initalization                         #
         # ===================================================================== #
-        self.stage = int(stage)
 
-        # State size and action size
+        # 10 laser readings, distance to goal, angle to goal, previous linear action, previous angular action
         self.state_size = 14
         self.action_size = 2
-        self.episode_size = 50000
+        self.episode_size = 10000
 
         # General hyperparameters
         self.discount_factor = 0.99
         self.learning_rate = 0.001
-        self.epsilon = 1.0
-        self.epsilon_decay = 0.999
-        self.epsilon_minimum = 0.05
         self.batch_size = 128
-        # self.target_update_interval = 5  # in episodes
 
         # DDPG hyperparameters
         self.tau = 0.001
@@ -74,8 +70,6 @@ class DDPGAgent(Node):
         self.memory_size = 100000
         self.memory = ReplayBuffer(self.memory_size)
 
-        self.graph_build = False
-
         # metrics
         self.loss_critic_sum = 0.0
         self.loss_actor_sum = 0.0
@@ -83,13 +77,11 @@ class DDPGAgent(Node):
         # ===================================================================== #
         #                          GPU initalization                            #
         # ===================================================================== #
+
         print("GPU INITALIZATION")
         print("gpu torch available: ", torch.cuda.is_available())
         if (torch.cuda.is_available()):
             print("device name: ", torch.cuda.get_device_name(0))
-        # gpu_devices = tf.config.experimental.list_physical_devices(
-        #     'GPU')
-        # print("GPU devices ({}): {}".format(len(gpu_devices),  gpu_devices))
 
         # ===================================================================== #
         #                        Models initialization                          #
@@ -103,31 +95,34 @@ class DDPGAgent(Node):
         self.target_critic = Critic("target_critic", self.state_size, self.action_size)
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), self.learning_rate)
 
-        # TODO: initalize same weights between model and target model?
         self.update_network_parameters(1)
 
         self.actor_noise = OUNoise(self.action_size, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
+
         # ===================================================================== #
         #                             Model loading                             #
         # ===================================================================== #
 
+        # Directory where your models will be stored and loaded from
         models_directory = (os.path.dirname(os.path.realpath(__file__))).replace(
             'install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
             'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
-        # models_dir = '/media/tomas/JURAJ\'S USB'
 
-        # Change load_model to load desired model (e.g. 'ddpg_0') or False for new session
-        self.load_session = 'ddpg_desktop_2'  # example: 'ddpg_0'
-        self.load_episode = 10000 if self.load_session else 0
+        # Specify which model and episode to load from models_directory or Change to False for new session
+        self.load_session = 'ddpg_9'  # example: 'ddpg_0'
+        self.load_episode = 800 if self.load_session else 0
+
+        # Specify whether model is being trained or only evaluated
+        self.trainig = True
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)
             sm.load_session(self, self.session_dir, self.load_episode)
-        else:  # New train session
-            self.session_dir = sm.new_model_dir(models_directory)
+        else:
+            self.session_dir = sm.new_session_dir(models_directory)
 
-        # Determine summary file name
-        self.summary_file = open(os.path.join(self.session_dir, time.strftime("%Y%m%d-%H%M%S") + '.txt'), 'w+')
+        # File where results per episode are written
+        self.results_file = open(os.path.join(self.session_dir, time.strftime("%Y%m%d-%H%M%S") + '.txt'), 'w+')
 
         # ===================================================================== #
         #                             Start Process                             #
@@ -162,11 +157,7 @@ class DDPGAgent(Node):
         state = torch.from_numpy(state)
         action = self.actor.forward(state).detach()
         action = action.data.numpy()
-        # TODO: check types
-        # print(type(action))
-        # print(action)
         action = action.tolist()
-        # print(action)
         N = copy.deepcopy(self.actor_noise.get_noise(t=step))
         N[0] = N[0]*ACTION_LINEAR_MAX/2
         N[1] = N[1]*ACTION_ANGULAR_MAX
@@ -174,46 +165,17 @@ class DDPGAgent(Node):
         action[1] = numpy.clip(action[1] + N[1], -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
         return action
 
-        state_np = numpy.asarray(state, numpy.float32)
-        state_np = state_np.reshape(1, len(state_np))
-        state_tensor = tf.convert_to_tensor(state_np, numpy.float32)
-        action = self.actor.forward_pass(state_tensor)
-        print("action: ", action)
-        action = action.numpy()
-        action = action.tolist()
-        action = action[0]
-        linear = action[INDEX_LIN] * ACTION_LINEAR_MAX
-        angular = action[INDEX_ANG] * ACTION_ANGULAR_MAX
-        noise_lin = 0
-        noise_ang = 0
-
-        # OUNoise
-        # TODO: allow backwards linear movement?
-        # noise = self.actor_noise.get_noise(step)
-        # noise_lin = noise[0] * ACTION_LINEAR_MAX/2
-        # noise_ang = noise[1] * ACTION_ANGULAR_MAX
-
-        # normal noise
-        # if numpy.random.random() < self.epsilon:
-        noise_lin = (numpy.random.random()-0.5)*0.4 * self.epsilon
-        noise_ang = (numpy.random.random()-0.5) * 4 * self.epsilon
-
-        linear = numpy.clip(linear + noise_lin, 0, ACTION_LINEAR_MAX)
-        angular = numpy.clip(angular + noise_ang, -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
-        return [linear, angular]
-
     def update_network_parameters(self, tau):
-
         # update target actor
         for target_param, param in zip(self.target_actor.parameters(), self.actor.parameters()):
             target_param.data.copy_(target_param.data*(1.0 - tau) + param.data*tau)
-
         # update target critic
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
             target_param.data.copy_(target_param.data*(1.0 - tau) + param.data*tau)
 
     def train(self):
-        if self.memory.get_length() < self.batch_size:  # batch_size:
+        # Not enough samples have been collected yet
+        if self.memory.get_length() < self.batch_size:
             return 0, 0
 
         s_sample, a_sample, r_sample, new_s_sample, done_sample = self.memory.sample(self.batch_size)
@@ -232,7 +194,6 @@ class DDPGAgent(Node):
         # y_pred = Q(s,a)
         y_predicted = torch.squeeze(self.critic.forward(s_sample, a_sample))
         self.qvalue = y_predicted.detach()
-        # self.pub_qvalue.publish(torch.max(self.qvalue))
         # print(torch.max(self.qvalue))
 
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
@@ -276,11 +237,11 @@ class DDPGAgent(Node):
     def process(self):
         success_count = 0
 
-        # self.summary_file.write(
-        #     "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
+        self.summary_file.write(
+            "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
-            past_action = [0., 0.]
+            past_action = [0.0, 0.0]
             state, _, _, _ = self.step([], past_action)
             next_state = list()
             done = False
@@ -292,8 +253,7 @@ class DDPGAgent(Node):
             self.loss_actor_sum = 0.0
 
             while not done:
-                step_start = time.time()
-                # Send action and receive next state and reward
+                # Get action, take step, learn
                 action = self.get_action(state, step)
                 next_state, reward, done, success = self.step(action, past_action)
                 past_action = copy.deepcopy(action)
@@ -301,7 +261,8 @@ class DDPGAgent(Node):
 
                 if step > 1:
                     self.memory.add_sample(state, action, reward, next_state, done)
-                    # self.train()  # TODO: alternate experience gathering and training?
+                    if self.trainig:
+                        self.train()
 
                     if done:
                         avg_critic_loss = self.loss_critic_sum / step
@@ -309,22 +270,16 @@ class DDPGAgent(Node):
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} success: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, reward_sum, success, step, self.memory.get_length(), self.epsilon, episode_duration))
-                        # self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                        #     episode, reward_sum, success, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                            episode, reward_sum, success, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
 
-                # Prepare for next step
                 state = next_state
                 step += 1
-                # print("step time: ", time.time() - step_start)
                 # time.sleep(0.01)  # While loop rate
 
-            # Update result and save model every 100 episodes
-            if (episode % 200 == 0) or (episode == 1):
-                sm.save_session(self, self.session_dir, episode)
-
-            # Epsilon
-            if self.epsilon > self.epsilon_minimum:
-                self.epsilon *= self.epsilon_decay
+            if (self.trainig):
+                if (episode % self.store_interval == 0) or (episode == 1):
+                    sm.save_session(self, self.session_dir, episode)
 
 
 def main(args=sys.argv[1]):

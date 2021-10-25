@@ -5,7 +5,7 @@ import json
 import torch
 
 
-def new_model_dir(models_dir):
+def new_session_dir(models_dir):
     i = 0
     session_dir = os.path.join(models_dir, "ddpg_%s" % i)
     while(os.path.exists(session_dir)):
