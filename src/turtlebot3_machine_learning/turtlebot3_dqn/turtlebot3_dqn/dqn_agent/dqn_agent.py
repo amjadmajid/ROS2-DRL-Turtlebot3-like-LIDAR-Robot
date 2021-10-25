@@ -78,7 +78,6 @@ class DDPGAgent(Node):
         #                          GPU initalization                            #
         # ===================================================================== #
 
-        print("GPU INITALIZATION")
         print("gpu torch available: ", torch.cuda.is_available())
         if (torch.cuda.is_available()):
             print("device name: ", torch.cuda.get_device_name(0))

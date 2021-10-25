@@ -43,13 +43,19 @@ class DDPGEnvironment(Node):
         """************************************************************
         ** Initialise variables
         ************************************************************"""
+
+        # Change these parameters if necessary
+        self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
+        self.step_limit = 7500  # maximum number of steps before episode timeout occurs
+        self.time_penalty = -1  # negative reward for every step taken
+
+        # No need to change below
         self.goal_pose_x = 0.0
         self.goal_pose_y = 0.0
         self.last_pose_x = 0.0
         self.last_pose_y = 0.0
         self.last_pose_theta = 0.0
 
-        self.action_size = 2
         self.done = False
         self.collision = False
         self.succeed = False
@@ -59,8 +65,6 @@ class DDPGEnvironment(Node):
         self.init_goal_distance = Infinity
         self.scan_ranges = []
         self.min_obstacle_distance = 3.5
-
-        self.time_penalty = -1
 
         self.local_step = 0
         self.received = False
@@ -134,8 +138,6 @@ class DDPGEnvironment(Node):
         for i in range(len(msg.ranges)):
             if msg.ranges[i] > 3.5:  # max range is specified in model.sdf
                 msg.ranges[i] = 3.5
-            # else:
-            #     msg.ranges[i] = msg.ranges[i] / 3.5
         self.scan_ranges = msg.ranges
         self.min_obstacle_distance = min(self.scan_ranges)
         self.received = True
@@ -162,7 +164,8 @@ class DDPGEnvironment(Node):
             self.done = True
             self.stop_reset_robot(False)
 
-        if self.local_step == 7500:
+        # Timeout
+        if self.local_step == self.step_limit:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
@@ -176,13 +179,14 @@ class DDPGEnvironment(Node):
     def get_reward(self, action_linear, action_angular):
         # yaw_reward will be between -1 and 1
         # yaw_reward = 1 - 2*math.sqrt(math.fabs(self.goal_angle / math.pi))
+
+        # Between 0 and 3.14
         yaw_reward = math.pi - abs(self.goal_angle)
-        # now between -3 and 3
 
-        angular_penalty = -2 * (action_angular**2)
+        # Between -4 and 0
+        angular_penalty = -1 * (action_angular**2)
 
-        distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
-        # distance_reward = distance_reward * 3
+        # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
         distance_reward = 0
 
         # Reward for avoiding obstacles
@@ -191,14 +195,13 @@ class DDPGEnvironment(Node):
         else:
             obstacle_reward = 0
 
-        # penality from -(4.4^2) to 0
-        linear_penality = -2*(((0.22 - action_linear) * 10) ** 2)
+        # Between -2 * (2.2^2) and 0
+        linear_penality = -2 * (((0.22 - action_linear) * 10) ** 2)
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        print("R_angle: {:.3f},  {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
-            yaw_reward, distance_reward, obstacle_reward, linear_penality, angular_penalty))
+        print("R_angle: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
+            yaw_reward, obstacle_reward, linear_penality, angular_penalty))
 
-        # + for succeed, - for fail
         if self.succeed:
             reward += 8000
         elif self.collision:
@@ -235,9 +238,8 @@ class DDPGEnvironment(Node):
         previous_action_angular = request.previous_action[INDEX_ANG]
         response.state = self.get_state(previous_action_linear, previous_action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
-        # print("step: {}, R: {:.3f}, A: {} GD: {:.3f}, GA: {:.3f}, MIND: {:.3f}, MINA: {:.3f}".format(
-        print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}, MIND: {:.3f}".format(
-            self.local_step, self.goal_distance, math.degrees(self.goal_angle), action[0], action[1], response.reward, self.min_obstacle_distance))
+        print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}".format(
+            self.local_step, self.goal_distance, math.degrees(self.goal_angle), action[0], action[1], response.reward))
         response.done = self.done
         response.success = self.succeed
 
