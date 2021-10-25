@@ -162,7 +162,7 @@ class DDPGEnvironment(Node):
             self.done = True
             self.stop_reset_robot(False)
 
-        if self.local_step == 2000:
+        if self.local_step == 7500:
             print("Time out! :(")
             self.done = True
             self.local_step = 0
@@ -200,9 +200,9 @@ class DDPGEnvironment(Node):
 
         # + for succeed, - for fail
         if self.succeed:
-            reward += 12000
+            reward += 8000
         elif self.collision:
-            reward -= 10000
+            reward -= 7000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
