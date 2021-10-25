@@ -114,6 +114,8 @@ class DDPGAgent(Node):
 
         # Specify whether model is being trained or only evaluated
         self.trainig = True
+        # store every N episodes
+        self.store_interval = 200
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)
@@ -237,7 +239,7 @@ class DDPGAgent(Node):
     def process(self):
         success_count = 0
 
-        self.summary_file.write(
+        self.results_file.write(
             "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         for episode in range(self.load_episode+1, self.episode_size):
@@ -270,7 +272,7 @@ class DDPGAgent(Node):
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} success: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
                               episode, reward_sum, success, step, self.memory.get_length(), self.epsilon, episode_duration))
-                        self.summary_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                        self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
                             episode, reward_sum, success, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
 
                 state = next_state
