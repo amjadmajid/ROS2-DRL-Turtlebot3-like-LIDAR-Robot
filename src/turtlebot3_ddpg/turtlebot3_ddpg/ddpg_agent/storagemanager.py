@@ -64,8 +64,8 @@ def load_session(ddpg_self, session_dir, load_episode):
         ddpg_self.actor_noise.sigma = param.get('noise_sigma')
 
     # load replay memory buffer
-    with open(os.path.join(session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(load_episode)+'.pkl'), 'rb') as f:
-        ddpg_self.memory = pickle.load(f)
+    # with open(os.path.join(session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(load_episode)+'.pkl'), 'rb') as f:
+    #     ddpg_self.memory = pickle.load(f)
 
     print(f"memory length: {ddpg_self.memory.get_length()}")
     print(f"continuing session: {session_dir}")

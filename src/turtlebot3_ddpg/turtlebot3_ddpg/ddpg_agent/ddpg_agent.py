@@ -104,8 +104,8 @@ class DDPGAgent(Node):
 
         # Directory where your models will be stored and loaded from
         models_directory = (os.path.dirname(os.path.realpath(__file__))).replace(
-            'install/turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_agent',
-            'src/turtlebot3_machine_learning/turtlebot3_dqn/model')
+            'install/turtlebot3_ddpg/lib/python3.8/site-packages/turtlebot3_ddpg/ddpg_agent',
+            'src/turtlebot3_ddpg/model')
 
         # Specify which model and episode to load from models_directory or Change to False for new session
         self.load_session = 'ddpg_9'  # example: 'ddpg_0'
@@ -114,7 +114,7 @@ class DDPGAgent(Node):
         # Specify whether model is being trained or only evaluated
         self.trainig = True
         # store every N episodes
-        self.store_interval = 200
+        self.store_interval = 50
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)

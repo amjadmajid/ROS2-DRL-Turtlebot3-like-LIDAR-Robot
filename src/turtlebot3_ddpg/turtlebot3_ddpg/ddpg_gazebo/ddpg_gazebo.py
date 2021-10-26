@@ -29,16 +29,16 @@ from rclpy.qos import QoSProfile
 from std_srvs.srv import Empty
 
 
-class DQNGazebo(Node):
+class DDPGGazebo(Node):
     def __init__(self, stage):
-        super().__init__('dqn_gazebo')
+        super().__init__('ddpg_gazebo')
 
         """************************************************************
         ** Initialise variables
         ************************************************************"""
 
         self.entity_dir_path = (os.path.dirname(os.path.realpath(__file__))).replace(
-            'turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_gazebo',
+            'turtlebot3_ddpg/lib/python3.8/site-packages/turtlebot3_ddpg/ddpg_gazebo',
             'turtlebot3_gazebo/share/turtlebot3_gazebo/models/turtlebot3_dqn_world/goal_box')
         self.entity_path = os.path.join(self.entity_dir_path, 'model.sdf')
         self.entity = open(self.entity_path, 'r').read()
@@ -99,7 +99,7 @@ class DQNGazebo(Node):
     def task_succeed_callback(self, request, response):
         self.delete_entity()
         self.generate_goal_pose()
-        print(":) generate a new goal, goal pose:",
+        print("generate a new goal :) goal pose:",
               self.goal_x, self.goal_y)
         return response
 
@@ -107,7 +107,7 @@ class DQNGazebo(Node):
         self.delete_entity()
         self.reset_simulation()
         self.generate_goal_pose()
-        print(":( reset the environment, goal pose:",
+        print("reset the environment.. :( goal pose:",
               self.goal_x, self.goal_y)
         return response
 
@@ -161,10 +161,10 @@ class DQNGazebo(Node):
 
 def main(args=sys.argv[1]):
     rclpy.init(args=args)
-    dqn_gazebo = DQNGazebo(args)
-    rclpy.spin(dqn_gazebo)
+    ddpg_gazebo = DDPGGazebo(args)
+    rclpy.spin(ddpg_gazebo)
 
-    dqn_gazebo.destroy()
+    ddpg_gazebo.destroy()
     rclpy.shutdown()
 
 
