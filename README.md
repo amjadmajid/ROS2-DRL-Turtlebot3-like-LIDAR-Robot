@@ -50,9 +50,7 @@ This should launch the Gazebo GUI with a simple vehicle model. Open a second ter
 ```
 ros2 topic pub /demo/cmd_demo geometry_msgs/Twist '{linear: {x: 1.0}}' -1
 ```
-The vehicle should start moving forward. It is configured to listen to *geometry_msgs/Twist* messages which can be used to signal a velocity. You can check out the demo world file which has some more exmaples commands at the top of the file:
-```
-gedit /opt/ros/foxy/share/gazebo_plugins/worlds/gazebo_ros_diff_drive_demo.world
+The vehicle should start moving forward. It is configured to listen to *geometry_msgs/Twist* messages which can be used to signal a velocity.
 
 ## **Installing Python3, Pytorch** 
 
