@@ -16,7 +16,6 @@
 #
 # Authors: Ryan Shim, Gilbert
 
-from math import sqrt
 import os
 import random
 import sys
@@ -37,21 +36,21 @@ class DQNGazebo(Node):
         """************************************************************
         ** Initialise variables
         ************************************************************"""
-        # Stage
-        self.stage = int(stage)
 
-        self.entity_dir_path = '/home/tomas/code/thesis/turtlebot3_ws/install/turtlebot3_gazebo/share/turtlebot3_gazebo/models/turtlebot3_dqn_world/goal_box/'
+        self.entity_dir_path = (os.path.dirname(os.path.realpath(__file__))).replace(
+            'turtlebot3_dqn/lib/python3.8/site-packages/turtlebot3_dqn/dqn_gazebo',
+            'turtlebot3_gazebo/share/turtlebot3_gazebo/models/turtlebot3_dqn_world/goal_box')
         self.entity_path = os.path.join(self.entity_dir_path, 'model.sdf')
         self.entity = open(self.entity_path, 'r').read()
         self.entity_name = 'goal'
+
+        self.stage = int(stage)
 
         self.prev_x = -1
         self.prev_y = -1
 
         self.goal_x = 0.5
         self.goal_y = 0.0
-
-        self.init_state = False
 
         """************************************************************
         ** Initialise ROS publishers, subscribers and clients
@@ -77,24 +76,19 @@ class DQNGazebo(Node):
         self.task_fail_server = self.create_service(
             Empty, 'task_fail', self.task_fail_callback)
 
-        # Process
-        self.publish_timer = self.create_timer(
-            0.010,  # unit: s
-            self.publish_callback)
+        self.init_callback()
 
     """*******************************************************************************
     ** Callback functions and relevant functions
     *******************************************************************************"""
 
-    def publish_callback(self):
-        # Init
-        if self.init_state is False:
-            self.delete_entity()
-            self.reset_simulation()
-            self.init_state = True
-            print("init!!!")
-            print("Goal pose:", self.goal_x, self.goal_y)
+    def init_callback(self):
+        self.delete_entity()
+        self.reset_simulation()
+        self.publish_callback()
+        print("Init, goal pose:", self.goal_x, self.goal_y)
 
+    def publish_callback(self):
         # Publish goal pose
         goal_pose = Pose()
         goal_pose.position.x = self.goal_x
@@ -105,23 +99,22 @@ class DQNGazebo(Node):
     def task_succeed_callback(self, request, response):
         self.delete_entity()
         self.generate_goal_pose()
-        print("generate a new goal :) goal pose:",
+        print(":) generate a new goal, goal pose:",
               self.goal_x, self.goal_y)
-
         return response
 
     def task_fail_callback(self, request, response):
         self.delete_entity()
         self.reset_simulation()
         self.generate_goal_pose()
-        print("reset the gazebo environment :( goal pose:",
+        print(":( reset the environment, goal pose:",
               self.goal_x, self.goal_y)
-
         return response
 
     def generate_goal_pose(self):
         self.prev_x = self.goal_x
         self.prev_y = self.goal_y
+        self.tries = 0
 
         while ((abs(self.prev_x - self.goal_x) + abs(self.prev_y - self.goal_y)) < 2):
             if self.stage != 4:
@@ -134,7 +127,11 @@ class DQNGazebo(Node):
                 index = random.randrange(0, len(goal_pose_list))
                 self.goal_x = float(goal_pose_list[index][0])
                 self.goal_y = float(goal_pose_list[index][1])
-        self.spawn_entity()
+            self.tries += 1
+            if self.tries > 20:
+                print("warning: distance between goals is small!")
+                break
+        self.publish_callback()
 
     def reset_simulation(self):
         req = Empty.Request()

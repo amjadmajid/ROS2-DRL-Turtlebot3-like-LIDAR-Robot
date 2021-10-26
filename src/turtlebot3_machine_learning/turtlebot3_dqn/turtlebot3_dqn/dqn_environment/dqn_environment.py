@@ -17,7 +17,6 @@
 # Authors: Ryan Shim, Gilbert
 
 import math
-import time
 import numpy
 from numpy.core.numeric import Infinity
 
