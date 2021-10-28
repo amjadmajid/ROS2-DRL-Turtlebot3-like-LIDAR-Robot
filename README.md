@@ -120,7 +120,7 @@ The last thing to do before we can run is add some exports and sources to our ~/
 export ROS_DOMAIN_ID=3
 
 # Path to our workspace
-WORKSPACE_DIR = ~/code/thesis/longNav
+WORKSPACE_DIR=~/code/thesis/longNav
 
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$WORKSPACE_DIR/src/turtlebot3_simulations/turtlebot3_gazebo/models
 
