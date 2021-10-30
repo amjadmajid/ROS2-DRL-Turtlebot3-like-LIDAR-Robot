@@ -45,7 +45,7 @@ class DDPGEnvironment(Node):
 
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
-        self.step_limit = 7500  # maximum number of steps before episode timeout occurs
+        self.step_limit = 2500  # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -183,28 +183,28 @@ class DDPGEnvironment(Node):
         yaw_reward = math.pi - abs(self.goal_angle)
 
         # Between -4 and 0
-        angular_penalty = -1 * (action_angular**2)
+        angular_penalty = -0.5 * (action_angular**2)
 
         # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
         distance_reward = 0
 
         # Reward for avoiding obstacles
         if self.min_obstacle_distance < 0.22:
-            obstacle_reward = -20
+            obstacle_reward = -5
         else:
             obstacle_reward = 0
 
-        # Between -2 * (2.2^2) and 0
-        linear_penality = -2 * (((0.22 - action_linear) * 10) ** 2)
+        # Between -1 * (2.2^2) and 0
+        linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
         print("R_angle: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
             yaw_reward, obstacle_reward, linear_penality, angular_penalty))
 
         if self.succeed:
-            reward += 8000
+            reward += 3000
         elif self.collision:
-            reward -= 7000
+            reward -= 2000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
@@ -268,6 +268,11 @@ class DDPGEnvironment(Node):
         roll = numpy.arctan2(sinr_cosp, cosr_cosp)
 
         sinp = 2 * (w*y - z*x)
+        if (sinp > 1):
+            sinp = 1
+        if (sinp < -1):
+            sinp = -1
+        
         pitch = numpy.arcsin(sinp)
 
         siny_cosp = 2 * (w*z + x*y)
