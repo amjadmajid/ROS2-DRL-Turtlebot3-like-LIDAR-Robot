@@ -30,9 +30,9 @@ def save_session(ddpg_self, session_dir, episode):
     network_save_weights(ddpg_self.target_critic, session_dir, ddpg_self.stage, episode)
 
     # Store parameters state
-    param_keys = ['stage', 'noise_sigma', 'epsilon', 'batch_size', 'learning_rate',
+    param_keys = ['stage', 'noise_sigma', 'batch_size', 'learning_rate',
                   'discount_factor', 'episode_size', 'action_size',  'state_size', 'memory_size', 'tau']
-    param_values = [ddpg_self.stage, ddpg_self.actor_noise.sigma, ddpg_self.epsilon, ddpg_self.batch_size,
+    param_values = [ddpg_self.stage, ddpg_self.actor_noise.sigma, ddpg_self.batch_size,
                     ddpg_self.learning_rate, ddpg_self.discount_factor, ddpg_self.episode_size, ddpg_self.action_size,
                     ddpg_self.state_size, ddpg_self.memory_size, ddpg_self.tau]
     param_dictionary = dict(zip(param_keys, param_values))
@@ -60,7 +60,6 @@ def load_session(ddpg_self, session_dir, load_episode):
     # load hyperparameters
     with open(os.path.join(session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(load_episode)+'.json')) as outfile:
         param = json.load(outfile)
-        ddpg_self.epsilon = param.get('epsilon')
         ddpg_self.actor_noise.sigma = param.get('noise_sigma')
 
     # load replay memory buffer
