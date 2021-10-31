@@ -74,6 +74,8 @@ class DDPGAgent(Node):
         self.loss_critic_sum = 0.0
         self.loss_actor_sum = 0.0
 
+        self.epsilon = 0  # TODO: remove
+
         # ===================================================================== #
         #                          GPU initalization                            #
         # ===================================================================== #
@@ -108,7 +110,7 @@ class DDPGAgent(Node):
             'src/turtlebot3_ddpg/model')
 
         # Specify which model and episode to load from models_directory or Change to False for new session
-        self.load_session = 'ddpg_9'  # example: 'ddpg_0'
+        self.load_session = False  # example: 'ddpg_0'
         self.load_episode = 800 if self.load_session else 0
 
         # Specify whether model is being trained or only evaluated

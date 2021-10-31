@@ -177,16 +177,15 @@ class DDPGEnvironment(Node):
 
     def get_reward(self, action_linear, action_angular):
         # yaw_reward will be between -1 and 1
-        # yaw_reward = 1 - 2*math.sqrt(math.fabs(self.goal_angle / math.pi))
+        # yaw_reward = 3 - (3 * 2 * math.sqrt(math.fabs(self.goal_angle / math.pi)))
 
-        # Between 0 and 3.14
-        yaw_reward = math.pi - abs(self.goal_angle)
+        # Between -3.14 and 0
+        yaw_reward = (math.pi - abs(self.goal_angle)) - math.pi
 
         # Between -4 and 0
         angular_penalty = -1 * (action_angular**2)
 
-        # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
-        distance_reward = 0
+        distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
 
         # Reward for avoiding obstacles
         if self.min_obstacle_distance < 0.22:
@@ -195,7 +194,7 @@ class DDPGEnvironment(Node):
             obstacle_reward = 0
 
         # Between -2 * (2.2^2) and 0
-        linear_penality = -2 * (((0.22 - action_linear) * 10) ** 2)
+        linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
         print("R_angle: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
