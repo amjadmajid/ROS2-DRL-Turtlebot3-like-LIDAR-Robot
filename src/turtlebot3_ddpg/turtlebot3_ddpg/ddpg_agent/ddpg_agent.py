@@ -110,13 +110,13 @@ class DDPGAgent(Node):
             'src/turtlebot3_ddpg/model')
 
         # Specify which model and episode to load from models_directory or Change to False for new session
-        self.load_session = False  # example: 'ddpg_0'
-        self.load_episode = 800 if self.load_session else 0
+        self.load_session = 'ddpg_2'  # example: 'ddpg_0'
+        self.load_episode = 4000 if self.load_session else 0
 
         # Specify whether model is being trained or only evaluated
         self.trainig = True
         # store every N episodes
-        self.store_interval = 50
+        self.store_interval = 200
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)

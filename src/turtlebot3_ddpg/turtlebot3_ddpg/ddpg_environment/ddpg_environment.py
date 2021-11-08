@@ -186,10 +186,11 @@ class DDPGEnvironment(Node):
         angular_penalty = -1 * (action_angular**2)
 
         distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
+        #distance_reward = 0
 
         # Reward for avoiding obstacles
         if self.min_obstacle_distance < 0.22:
-            obstacle_reward = -20
+            obstacle_reward = -40
         else:
             obstacle_reward = 0
 
@@ -267,6 +268,10 @@ class DDPGEnvironment(Node):
         roll = numpy.arctan2(sinr_cosp, cosr_cosp)
 
         sinp = 2 * (w*y - z*x)
+        if sinp < -1:
+            sinp = -1
+        if sinp > 1:
+            sinp = 1
         pitch = numpy.arcsin(sinp)
 
         siny_cosp = 2 * (w*z + x*y)
