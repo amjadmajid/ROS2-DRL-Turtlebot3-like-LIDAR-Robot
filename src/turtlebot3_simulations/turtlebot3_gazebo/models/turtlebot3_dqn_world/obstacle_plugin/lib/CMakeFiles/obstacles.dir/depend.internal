@@ -334,7 +334,6 @@ CMakeFiles/obstacles.dir/obstacles.cc.o
  /usr/include/ignition/math6/ignition/math/detail/Ellipsoid.hh
  /usr/include/ignition/math6/ignition/math/detail/Export.hh
  /usr/include/ignition/math6/ignition/math/detail/Sphere.hh
- /usr/include/ignition/math6/ignition/math/detail/WellOrderedVector.hh
  /usr/include/ignition/math6/ignition/math/graph/Edge.hh
  /usr/include/ignition/math6/ignition/math/graph/Graph.hh
  /usr/include/ignition/math6/ignition/math/graph/GraphAlgorithms.hh

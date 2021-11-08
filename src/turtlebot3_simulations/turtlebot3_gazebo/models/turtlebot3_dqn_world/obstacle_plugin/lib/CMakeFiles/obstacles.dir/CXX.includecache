@@ -7317,13 +7317,7 @@ ignition/math/MassMatrix3.hh
 -
 ignition/math/Material.hh
 -
-ignition/math/Plane.hh
--
 ignition/math/Vector3.hh
--
-ignition/math/detail/WellOrderedVector.hh
-/usr/include/ignition/math6/ignition/math/ignition/math/detail/WellOrderedVector.hh
-set
 -
 ignition/math/detail/Box.hh
 /usr/include/ignition/math6/ignition/math/ignition/math/detail/Box.hh
@@ -7603,12 +7597,6 @@ ignition/math/Vector3.hh
 -
 ignition/math/config.hh
 -
-ignition/math/Line2.hh
--
-ignition/math/Quaternion.hh
--
-optional
--
 
 /usr/include/ignition/math6/ignition/math/Pose3.hh
 ignition/math/Quaternion.hh
@@ -7695,8 +7683,6 @@ ignition/math/Material.hh
 /usr/include/ignition/math6/ignition/math/ignition/math/Material.hh
 ignition/math/Quaternion.hh
 /usr/include/ignition/math6/ignition/math/ignition/math/Quaternion.hh
-ignition/math/Plane.hh
-/usr/include/ignition/math6/ignition/math/ignition/math/Plane.hh
 ignition/math/detail/Sphere.hh
 /usr/include/ignition/math6/ignition/math/ignition/math/detail/Sphere.hh
 
@@ -7769,23 +7755,19 @@ ignition/math/config.hh
 /usr/include/ignition/math6/ignition/math/Vector2.hh
 algorithm
 -
-limits
--
 ignition/math/Helpers.hh
 -
 ignition/math/config.hh
 -
 
 /usr/include/ignition/math6/ignition/math/Vector3.hh
-algorithm
--
-cmath
+iostream
 -
 fstream
 -
-iostream
+cmath
 -
-limits
+algorithm
 -
 ignition/math/Helpers.hh
 -
@@ -7807,8 +7789,6 @@ ignition/math/config.hh
 /usr/include/ignition/math6/ignition/math/Vector4.hh
 algorithm
 -
-limits
--
 ignition/math/Matrix4.hh
 -
 ignition/math/Helpers.hh
@@ -7819,16 +7799,6 @@ ignition/math/config.hh
 /usr/include/ignition/math6/ignition/math/config.hh
 
 /usr/include/ignition/math6/ignition/math/detail/Box.hh
-ignition/math/Triangle3.hh
-/usr/include/ignition/math6/ignition/math/detail/ignition/math/Triangle3.hh
-algorithm
--
-set
--
-utility
--
-vector
--
 
 /usr/include/ignition/math6/ignition/math/detail/Capsule.hh
 limits
@@ -7857,10 +7827,6 @@ ignition/math/Inertial.hh
 /usr/include/ignition/math6/ignition/math/detail/Sphere.hh
 ignition/math/Sphere.hh
 /usr/include/ignition/math6/ignition/math/detail/ignition/math/Sphere.hh
-
-/usr/include/ignition/math6/ignition/math/detail/WellOrderedVector.hh
-ignition/math/Vector3.hh
--
 
 /usr/include/ignition/math6/ignition/math/graph/Edge.hh
 cstdint

@@ -271,10 +271,10 @@ class DDPGAgent(Node):
                         avg_critic_loss = self.loss_critic_sum / step
                         avg_actor_loss = self.loss_actor_sum / step
                         episode_duration = time.time() - episode_start
-                        print("Episode: {} score: {} success: {} n_steps: {} memory length: {} epsilon: {} episode duration: {}".format(
-                              episode, reward_sum, success, step, self.memory.get_length(), self.epsilon, episode_duration))
-                        self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, reward_sum, success, episode_duration, step, self.epsilon, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                        print("Episode: {} score: {} success: {} n_steps: {} memory length: {} episode duration: {}".format(
+                              episode, reward_sum, success, step, self.memory.get_length(), episode_duration))
+                        self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                            episode, reward_sum, success, episode_duration, step, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
 
                 state = next_state
                 step += 1

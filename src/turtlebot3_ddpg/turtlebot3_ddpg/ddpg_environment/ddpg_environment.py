@@ -45,7 +45,7 @@ class DDPGEnvironment(Node):
 
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
-        self.step_limit = 7500  # maximum number of steps before episode timeout occurs
+        self.step_limit = 2500  # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -183,7 +183,7 @@ class DDPGEnvironment(Node):
         yaw_reward = (math.pi - abs(self.goal_angle)) - math.pi
 
         # Between -4 and 0
-        angular_penalty = -1 * (action_angular**2)
+        angular_penalty = -0.5 * (action_angular**2)
 
         distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
         #distance_reward = 0
@@ -202,9 +202,9 @@ class DDPGEnvironment(Node):
             yaw_reward, obstacle_reward, linear_penality, angular_penalty))
 
         if self.succeed:
-            reward += 8000
+            reward += 3000
         elif self.collision:
-            reward -= 7000
+            reward -= 2000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
