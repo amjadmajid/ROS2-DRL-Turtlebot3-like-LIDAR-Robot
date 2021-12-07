@@ -45,7 +45,7 @@ class DDPGEnvironment(Node):
 
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
-        self.step_limit = 2500  # maximum number of steps before episode timeout occurs
+        self.step_limit = 1000  # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -54,6 +54,8 @@ class DDPGEnvironment(Node):
         self.last_pose_x = 0.0
         self.last_pose_y = 0.0
         self.last_pose_theta = 0.0
+
+        self.previous_distance = 0
 
         self.done = False
         self.collision = False
@@ -180,31 +182,35 @@ class DDPGEnvironment(Node):
         # yaw_reward = 3 - (3 * 2 * math.sqrt(math.fabs(self.goal_angle / math.pi)))
 
         # Between -3.14 and 0
-        yaw_reward = (math.pi - abs(self.goal_angle)) - math.pi
+        # yaw_reward = (math.pi - abs(self.goal_angle)) - math.pi
+        yaw_reward = 0
 
         # Between -4 and 0
-        angular_penalty = -0.5 * (action_angular**2)
+        # angular_penalty = -0.5 * (action_angular**2)
+        angular_penalty = 0
 
-        distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
-        #distance_reward = 0
+        # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
+        distance_reward = (self.previous_distance - self.goal_distance) * 50
+        self.previous_distance = self.goal_distance
 
         # Reward for avoiding obstacles
-        if self.min_obstacle_distance < 0.22:
-            obstacle_reward = -40
+        if self.min_obstacle_distance < 0.25:
+            obstacle_reward = -10
         else:
             obstacle_reward = 0
 
         # Between -2 * (2.2^2) and 0
-        linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
+        # linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
+        linear_penality = 0
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        print("R_angle: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
-            yaw_reward, obstacle_reward, linear_penality, angular_penalty))
+        print("R_distance: {:.3f}, R_angle: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
+            distance_reward, yaw_reward, obstacle_reward, linear_penality, angular_penalty))
 
         if self.succeed:
-            reward += 3000
+            reward += 5000
         elif self.collision:
-            reward -= 2000
+            reward -= 5000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
@@ -212,6 +218,7 @@ class DDPGEnvironment(Node):
             self.init_goal_distance = math.sqrt(
                 (self.goal_pose_x-self.last_pose_x)**2
                 + (self.goal_pose_y-self.last_pose_y)**2)
+            self.previous_distance = self.init_goal_distance
             response.state = self.get_state(0, 0)
             response.reward = 0.0
             response.done = False
