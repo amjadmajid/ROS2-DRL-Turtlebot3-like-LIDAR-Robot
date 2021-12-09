@@ -1,0 +1,3 @@
+[submodule "src/jetbot_ros"]
+	path = src/jetbot_ros
+	url = git@github.com:dusty-nv/jetbot_ros.git
