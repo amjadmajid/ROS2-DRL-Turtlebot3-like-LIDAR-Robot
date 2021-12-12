@@ -34,6 +34,9 @@ from rclpy.qos import qos_profile_sensor_data
 INDEX_LIN = 0
 INDEX_ANG = 1
 
+ODOM_TOPIC = 'odom_rf2o'
+SCAN_TOPIC = 'scan'
+
 
 class DDPGEnvironment(Node):
     def __init__(self):
@@ -80,8 +83,8 @@ class DDPGEnvironment(Node):
 
         # Initialise subscribers
         self.goal_pose_sub = self.create_subscription(Pose, 'goal_pose', self.goal_pose_callback, qos)
-        self.odom_sub = self.create_subscription(Odometry, 'odom', self.odom_callback, qos)
-        self.scan_sub = self.create_subscription(LaserScan, 'scan', self.scan_callback, qos_profile=qos_profile_sensor_data)
+        self.odom_sub = self.create_subscription(Odometry, ODOM_TOPIC, self.odom_callback, qos)
+        self.scan_sub = self.create_subscription(LaserScan, SCAN_TOPIC, self.scan_callback, qos_profile=qos_profile_sensor_data)
 
         # Initialise client
         self.task_succeed_client = self.create_client(Empty, 'task_succeed')
