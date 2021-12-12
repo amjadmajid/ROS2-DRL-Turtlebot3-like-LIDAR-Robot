@@ -36,7 +36,7 @@ INDEX_LIN = 0
 INDEX_ANG = 1
 
 VEL_TOPIC = 'jetbot/cmd_vel'
-GOAL_TOPIC = 'goal_pose'
+GOAL_TOPIC = 'jetbot_goal'
 ODOM_TOPIC = 'odom_rf2o'
 SCAN_TOPIC = 'scan'
 
