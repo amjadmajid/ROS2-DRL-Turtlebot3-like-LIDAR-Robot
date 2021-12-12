@@ -25,6 +25,7 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from turtlebot3_msgs.srv import Ddpg
+from turtlebot3_msgs.srv import Goal
 from std_srvs.srv import Empty
 import rclpy
 from rclpy.node import Node
@@ -64,6 +65,7 @@ class DDPGEnvironment(Node):
         self.collision = False
         self.succeed = False
 
+        self.new_goal = False
         self.goal_angle = 0.0
         self.goal_distance = Infinity
         self.init_goal_distance = Infinity
@@ -92,6 +94,7 @@ class DDPGEnvironment(Node):
 
         # Initialise servers
         self.ddpg_com_server = self.create_service(Ddpg, 'ddpg_com', self.ddpg_com_callback)
+        self.goal_com_server = self.create_service(Goal, 'goal_com', self.goal_com_callback)
 
     """*******************************************************************************
     ** Callback functions and relevant functions
@@ -100,6 +103,11 @@ class DDPGEnvironment(Node):
     def goal_pose_callback(self, msg):
         self.goal_pose_x = msg.position.x
         self.goal_pose_y = msg.position.y
+        self.new_goal = True
+
+    def goal_com_callback(self, request, response):
+        response.new_goal = self.new_goal
+        return response
 
     def odom_callback(self, msg):
         self.last_pose_x = msg.pose.pose.position.x
@@ -128,6 +136,7 @@ class DDPGEnvironment(Node):
     def stop_reset_robot(self, success):
         self.cmd_vel_pub.publish(Twist())  # robot stop
         self.local_step = 0
+        self.new_goal = False
         # req = Empty.Request()
         # if success:
         #     while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
@@ -173,7 +182,8 @@ class DDPGEnvironment(Node):
         if self.local_step == self.step_limit:
             print("Time out! :(")
             self.done = True
-            self.local_step = 0
+            self.stop_reset_robot(False)
+
             # req = Empty.Request()
             # while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
             #     self.get_logger().info('service not available, waiting again...')

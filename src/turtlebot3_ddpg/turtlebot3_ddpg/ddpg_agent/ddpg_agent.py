@@ -31,6 +31,7 @@ from . import storagemanager as sm
 from .ounoise import OUNoise
 
 from turtlebot3_msgs.srv import Ddpg
+from turtlebot3_msgs.srv import Goal
 from std_srvs.srv import Empty
 
 import rclpy
@@ -132,6 +133,7 @@ class DDPGAgent(Node):
         # ===================================================================== #
 
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
+        self.goal_com_client = self.create_client(Goal, 'goal_com')
         self.pause_simulation_client = self.create_client(Empty, '/pause_physics')
         self.unpause_simulation_client = self.create_client(Empty, '/unpause_physics')
         self.process()
@@ -223,7 +225,7 @@ class DDPGAgent(Node):
         req.previous_action = previous_action
 
         while not self.ddpg_com_client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
+            self.get_logger().info('env step service not available, waiting again...')
         future = self.ddpg_com_client.call_async(req)
 
         while rclpy.ok():
@@ -237,13 +239,33 @@ class DDPGAgent(Node):
                         'Exception while calling service: {0}'.format(future.exception()))
                     print("ERROR getting ddpg service response!")
 
+    def get_goal_status(self):
+        req = Goal.Request()
+        while not self.goal_com_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('new goal service not available, waiting again...')
+        future = self.goal_com_client.call_async(req)
+
+        while rclpy.ok():
+            rclpy.spin_once(self)
+            if future.done():
+                if future.result() is not None:
+                    res = future.result()
+                    return res.new_goal
+                else:
+                    self.get_logger().error(
+                        'Exception while calling service: {0}'.format(future.exception()))
+                    print("ERROR getting new_goal service response!")
+
     def process(self):
         success_count = 0
 
         self.results_file.write(
             "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
-        for episode in range(self.load_episode+1, self.episode_size):
+        # for episode in range(self.load_episode+1, self.episode_size):
+        episode = 0
+        while (True):
+            episode += 1
             past_action = [0.0, 0.0]
             state, _, _, _ = self.step([], past_action)
             next_state = list()
@@ -275,14 +297,17 @@ class DDPGAgent(Node):
                               episode, reward_sum, success, step, self.memory.get_length(), episode_duration))
                         self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
                             episode, reward_sum, success, episode_duration, step, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                        while(self.get_goal_status() == False):
+                            print("Waiting for new goal...")
+                            time.sleep(1.0)
 
                 state = next_state
                 step += 1
                 # time.sleep(0.01)  # While loop rate
 
-            if (self.trainig):
-                if (episode % self.store_interval == 0) or (episode == 1):
-                    sm.save_session(self, self.session_dir, episode)
+            # if (self.trainig):
+            #     if (episode % self.store_interval == 0) or (episode == 1):
+            #         sm.save_session(self, self.session_dir, episode)
 
 
 def main(args=sys.argv[1]):
