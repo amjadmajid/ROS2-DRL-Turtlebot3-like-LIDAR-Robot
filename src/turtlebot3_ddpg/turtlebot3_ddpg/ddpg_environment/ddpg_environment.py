@@ -35,6 +35,8 @@ from rclpy.qos import qos_profile_sensor_data
 INDEX_LIN = 0
 INDEX_ANG = 1
 
+VEL_TOPIC = 'jetbot/cmd_vel'
+GOAL_TOPIC = 'goal_pose'
 ODOM_TOPIC = 'odom_rf2o'
 SCAN_TOPIC = 'scan'
 
@@ -81,10 +83,10 @@ class DDPGEnvironment(Node):
         qos = QoSProfile(depth=10)
 
         # Initialise publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel', qos)
+        self.cmd_vel_pub = self.create_publisher(Twist, VEL_TOPIC, qos)
 
         # Initialise subscribers
-        self.goal_pose_sub = self.create_subscription(Pose, 'goal_pose', self.goal_pose_callback, qos)
+        self.goal_pose_sub = self.create_subscription(Pose, GOAL_TOPIC, self.goal_pose_callback, qos)
         self.odom_sub = self.create_subscription(Odometry, ODOM_TOPIC, self.odom_callback, qos)
         self.scan_sub = self.create_subscription(LaserScan, SCAN_TOPIC, self.scan_callback, qos_profile=qos_profile_sensor_data)
 
