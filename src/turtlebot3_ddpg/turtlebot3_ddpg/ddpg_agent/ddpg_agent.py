@@ -114,7 +114,7 @@ class DDPGAgent(Node):
         self.load_episode = 4600 if self.load_session else 0
 
         # Specify whether model is being trained or only evaluated
-        self.trainig = True
+        self.trainig = False
         # store every N episodes
         self.store_interval = 200
 

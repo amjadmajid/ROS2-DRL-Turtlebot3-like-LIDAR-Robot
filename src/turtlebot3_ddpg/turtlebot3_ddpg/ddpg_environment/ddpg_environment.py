@@ -144,7 +144,8 @@ class DDPGEnvironment(Node):
         self.received = True
 
     def get_state(self, previous_action_linear, previous_action_angular):
-        state = self.scan_ranges.tolist()
+        state = self.scan_ranges
+        state = state[:10]  # Truncate if more than 10 laser readings are returned, bug?
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
         state.append(float(previous_action_linear))
