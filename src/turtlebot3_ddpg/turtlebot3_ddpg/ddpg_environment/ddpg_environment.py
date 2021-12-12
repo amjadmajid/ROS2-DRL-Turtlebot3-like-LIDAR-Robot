@@ -87,8 +87,8 @@ class DDPGEnvironment(Node):
         self.scan_sub = self.create_subscription(LaserScan, SCAN_TOPIC, self.scan_callback, qos_profile=qos_profile_sensor_data)
 
         # Initialise client
-        self.task_succeed_client = self.create_client(Empty, 'task_succeed')
-        self.task_fail_client = self.create_client(Empty, 'task_fail')
+        # self.task_succeed_client = self.create_client(Empty, 'task_succeed')
+        # self.task_fail_client = self.create_client(Empty, 'task_fail')
 
         # Initialise servers
         self.ddpg_com_server = self.create_service(Ddpg, 'ddpg_com', self.ddpg_com_callback)
@@ -128,15 +128,15 @@ class DDPGEnvironment(Node):
     def stop_reset_robot(self, success):
         self.cmd_vel_pub.publish(Twist())  # robot stop
         self.local_step = 0
-        req = Empty.Request()
-        if success:
-            while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
-                self.get_logger().info('service not available, waiting again...')
-            self.task_succeed_client.call_async(req)
-        else:
-            while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
-                self.get_logger().info('service not available, waiting again...')
-            self.task_fail_client.call_async(req)
+        # req = Empty.Request()
+        # if success:
+        #     while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
+        #         self.get_logger().info('service not available, waiting again...')
+        #     self.task_succeed_client.call_async(req)
+        # else:
+        #     while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
+        #         self.get_logger().info('service not available, waiting again...')
+        #     self.task_fail_client.call_async(req)
 
     def scan_callback(self, msg):
         for i in range(len(msg.ranges)):
@@ -174,10 +174,10 @@ class DDPGEnvironment(Node):
             print("Time out! :(")
             self.done = True
             self.local_step = 0
-            req = Empty.Request()
-            while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
-                self.get_logger().info('service not available, waiting again...')
-            self.task_fail_client.call_async(req)
+            # req = Empty.Request()
+            # while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
+            #     self.get_logger().info('service not available, waiting again...')
+            # self.task_fail_client.call_async(req)
 
         return state
 
