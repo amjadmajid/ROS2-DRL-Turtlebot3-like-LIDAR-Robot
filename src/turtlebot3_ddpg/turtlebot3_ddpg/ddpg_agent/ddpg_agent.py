@@ -127,7 +127,7 @@ class DDPGAgent(Node):
             self.session_dir = sm.new_session_dir(models_directory)
 
         # File where results per episode are written
-        if record_results:
+        if self.record_results:
             self.results_file = open(os.path.join(self.session_dir, time.strftime("%Y%m%d-%H%M%S") + '.txt'), 'w+')
 
         # ===================================================================== #
