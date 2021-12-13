@@ -111,12 +111,13 @@ class DDPGAgent(Node):
             'src/turtlebot3_ddpg/model')
 
         # Specify which model and episode to load from models_directory or Change to False for new session
-        self.load_session = 'ddpg_13'  # example: 'ddpg_0'
-        self.load_episode = 4600 if self.load_session else 0
+        self.load_session = 'ddpg_9'  # example: 'ddpg_0'
+        self.load_episode = 3800 if self.load_session else 0
 
         # Specify whether model is being trained or only evaluated
         self.trainig = False
-        # store every N episodes
+        self.record_results = False
+        # store model every N episodes
         self.store_interval = 200
 
         if self.load_session:
@@ -126,7 +127,8 @@ class DDPGAgent(Node):
             self.session_dir = sm.new_session_dir(models_directory)
 
         # File where results per episode are written
-        self.results_file = open(os.path.join(self.session_dir, time.strftime("%Y%m%d-%H%M%S") + '.txt'), 'w+')
+        if record_results:
+            self.results_file = open(os.path.join(self.session_dir, time.strftime("%Y%m%d-%H%M%S") + '.txt'), 'w+')
 
         # ===================================================================== #
         #                             Start Process                             #
@@ -259,8 +261,9 @@ class DDPGAgent(Node):
     def process(self):
         success_count = 0
 
-        self.results_file.write(
-            "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
+        if self.record_results:
+            self.results_file.write(
+                "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         # for episode in range(self.load_episode+1, self.episode_size):
         episode = 0
@@ -295,8 +298,9 @@ class DDPGAgent(Node):
                         episode_duration = time.time() - episode_start
                         print("Episode: {} score: {} success: {} n_steps: {} memory length: {} episode duration: {}".format(
                               episode, reward_sum, success, step, self.memory.get_length(), episode_duration))
-                        self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                            episode, reward_sum, success, episode_duration, step, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                        if self.record_results:
+                            self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
+                                episode, reward_sum, success, episode_duration, step, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
                         while(self.get_goal_status() == False):
                             print("Waiting for new goal...")
                             time.sleep(1.0)

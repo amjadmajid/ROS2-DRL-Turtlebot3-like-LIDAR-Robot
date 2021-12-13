@@ -245,7 +245,7 @@ class DDPGEnvironment(Node):
         action_angular = action[INDEX_ANG]
 
         twist = Twist()
-        twist.linear.x = action_linear
+        twist.linear.x = action_linear * 0.3
         twist.angular.z = action_angular
         self.cmd_vel_pub.publish(twist)
 
