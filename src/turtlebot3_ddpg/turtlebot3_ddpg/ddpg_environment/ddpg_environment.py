@@ -220,8 +220,8 @@ class DDPGEnvironment(Node):
         linear_penality = 0
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        print("R_distance: {:.3f}, R_angle: {:.3f}, R_obst: {:.3f}, R_speed: {:.3f}, R_turning: {:.3f}".format(
-            distance_reward, yaw_reward, obstacle_reward, linear_penality, angular_penalty))
+        print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Robst {:.3f}, Rturn: {:.3f}".format(
+            self.local_step, distance_reward, yaw_reward, obstacle_reward, angular_penalty), end='')
 
         if self.succeed:
             reward += 5000
@@ -260,8 +260,8 @@ class DDPGEnvironment(Node):
         previous_action_angular = request.previous_action[INDEX_ANG]
         response.state = self.get_state(previous_action_linear, previous_action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
-        print("step: {}, GD: {:.3f}, GA: {:.3f}° A0: {:.3f}, A1: {:.3f}, R: {:.3f}".format(
-            self.local_step, self.goal_distance, math.degrees(self.goal_angle), action[0], action[1], response.reward))
+        print("GD: {:.3f}, GA: {:.3f}° Alin: {:.3f}, Aturn: {:.3f}, Rtot: {:.3f}".format(
+            self.goal_distance, math.degrees(self.goal_angle), action[0], action[1], response.reward))
         response.done = self.done
         response.success = self.succeed
 
