@@ -51,7 +51,7 @@ class DDPGEnvironment(Node):
 
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
-        self.step_limit = 1000  # maximum number of steps before episode timeout occurs
+        self.step_limit = 10000  # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
