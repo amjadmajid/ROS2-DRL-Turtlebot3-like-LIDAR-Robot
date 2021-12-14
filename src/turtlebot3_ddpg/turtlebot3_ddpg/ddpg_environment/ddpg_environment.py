@@ -150,10 +150,15 @@ class DDPGEnvironment(Node):
         #     self.task_fail_client.call_async(req)
 
     def scan_callback(self, msg):
-        for i in range(len(msg.ranges)):
-            if msg.ranges[i] > 3.5:  # max range is specified in model.sdf
-                msg.ranges[i] = 3.5
-        self.scan_ranges = msg.ranges
+        selected_scans = [msg.ranges[180], msg.ranges[220], msg.ranges[260], msg.ranges[300], msg.ranges[340],
+                            msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[500], msg.ranges[540]]
+        print("[", end='')
+        for i in range(len(selected_scans)):
+            if selected_scans[i] > 3.5:  # max range for simulation is specified in model.sdf
+                selected_scans[i] = 3.5
+            print("{:.5f}, ".format(selected_scans[i]), end='')
+        print("]")
+        self.scan_ranges = selected_scans
         self.min_obstacle_distance = min(self.scan_ranges)
         self.received = True
 
@@ -174,7 +179,7 @@ class DDPGEnvironment(Node):
             self.stop_reset_robot(True)
 
         # Fail
-        if self.min_obstacle_distance < 0.130 and self.local_step > 5:  # unit: m
+        if self.min_obstacle_distance < 0.100 and self.local_step > 5:  # unit: m
             print("Collision! :( step: %d, %d", self.local_step, self.min_obstacle_distance)
             self.collision = True
             self.done = True
@@ -260,8 +265,8 @@ class DDPGEnvironment(Node):
         previous_action_angular = request.previous_action[INDEX_ANG]
         response.state = self.get_state(previous_action_linear, previous_action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
-        print("GD: {:.3f}, GA: {:.3f}° Alin: {:.3f}, Aturn: {:.3f}, Rtot: {:.3f}".format(
-            self.goal_distance, math.degrees(self.goal_angle), action[0], action[1], response.reward))
+        print("GD: {:.3f}, GA: {:.3f}° MinD: {:.3f}, Alin: {:.3f}, Aturn: {:.3f}, Rtot: {:.3f}".format(
+            self.goal_distance, math.degrees(self.goal_angle), self.min_obstacle_distance, action[0], action[1], response.reward))
         response.done = self.done
         response.success = self.succeed
 
