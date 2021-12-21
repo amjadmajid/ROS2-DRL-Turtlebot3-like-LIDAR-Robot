@@ -76,7 +76,7 @@ void CLaserOdometry2DNode::process()
   }
   else
   {
-    // RCLCPP_WARN(get_logger(), "Waiting for laser_scans....") ;
+    RCLCPP_WARN(get_logger(), "Waiting for laser_scans....") ;
   }
 }
 
