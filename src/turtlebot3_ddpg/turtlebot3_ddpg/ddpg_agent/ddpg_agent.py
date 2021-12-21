@@ -46,9 +46,12 @@ INDEX_ANG = 1
 
 
 class DDPGAgent(Node):
-    def __init__(self, stage):
+    def __init__(self, stage, agent, episode):
         super().__init__('ddpg_agent')
         self.stage = int(stage)
+        # Specify which model and episode to load from models_directory or Change to False for new session
+        self.load_session = agent  # example: 'ddpg_0'
+        self.load_episode = episode if self.load_session else 0
 
         # ===================================================================== #
         #                       parameter initalization                         #
@@ -109,10 +112,6 @@ class DDPGAgent(Node):
         models_directory = (os.path.dirname(os.path.realpath(__file__))).replace(
             'install/turtlebot3_ddpg/lib/python3.8/site-packages/turtlebot3_ddpg/ddpg_agent',
             'src/turtlebot3_ddpg/model')
-
-        # Specify which model and episode to load from models_directory or Change to False for new session
-        self.load_session = 'ddpg_1'  # example: 'ddpg_0'
-        self.load_episode = 700 if self.load_session else 0
 
         # Specify whether model is being trained or only evaluated
         self.trainig = False
@@ -301,8 +300,8 @@ class DDPGAgent(Node):
                         if self.record_results:
                             self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
                                 episode, reward_sum, success, episode_duration, step, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
+                        print("Waiting for new goal...")
                         while(self.get_goal_status() == False):
-                            print("Waiting for new goal...")
                             time.sleep(1.0)
 
                 state = next_state
@@ -314,9 +313,9 @@ class DDPGAgent(Node):
             #         sm.save_session(self, self.session_dir, episode)
 
 
-def main(args=sys.argv[1]):
+def main(args=sys.argv[1:]):
     rclpy.init(args=args)
-    ddpg_agent = DDPGAgent(args)
+    ddpg_agent = DDPGAgent(args[0], args[1], args[2])
     rclpy.spin(ddpg_agent)
 
     ddpg_agent.destroy()

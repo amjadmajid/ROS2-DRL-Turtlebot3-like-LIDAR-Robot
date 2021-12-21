@@ -72,6 +72,7 @@ class DDPGEnvironment(Node):
         self.goal_distance = Infinity
         self.init_goal_distance = Infinity
         self.scan_ranges = []
+        self.previous_scan = [1,1,1,1,1,1,1,1,1,1]
         self.min_obstacle_distance = 3.5
 
         self.local_step = 0
@@ -112,10 +113,15 @@ class DDPGEnvironment(Node):
         return response
 
     def odom_callback(self, msg):
-        self.last_pose_x = msg.pose.pose.position.x
-        self.last_pose_y = msg.pose.pose.position.y
+        # -1 * to fix direction bug
+        self.last_pose_x = -1 * msg.pose.pose.position.x
+        self.last_pose_y = -1 * msg.pose.pose.position.y
         _, _, self.last_pose_theta = self.euler_from_quaternion(
             msg.pose.pose.orientation)
+        # if self.last_pose_theta > 0:
+        #     self.last_pose_theta -= math.pi
+        # else:
+        #     self.last_pose_theta += math.pi
 
         goal_distance = math.sqrt(
             (self.goal_pose_x-self.last_pose_x)**2
@@ -125,7 +131,9 @@ class DDPGEnvironment(Node):
             self.goal_pose_y-self.last_pose_y,
             self.goal_pose_x-self.last_pose_x)
 
-        goal_angle = path_theta - self.last_pose_theta
+        #todo: investigate why goal_angle is inverted
+        goal_angle = math.pi - abs(path_theta - self.last_pose_theta)
+
         if goal_angle > math.pi:
             goal_angle -= 2 * math.pi
 
@@ -134,33 +142,28 @@ class DDPGEnvironment(Node):
 
         self.goal_distance = goal_distance
         self.goal_angle = goal_angle
+        print("Tx path_theta: {:.3f}, self_theta: {:.3f}, goal_angle: {:.3f}".format(path_theta, self.last_pose_theta, goal_angle))
 
     def stop_reset_robot(self, success):
         self.cmd_vel_pub.publish(Twist())  # robot stop
         self.local_step = 0
         self.new_goal = False
-        # req = Empty.Request()
-        # if success:
-        #     while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
-        #         self.get_logger().info('service not available, waiting again...')
-        #     self.task_succeed_client.call_async(req)
-        # else:
-        #     while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
-        #         self.get_logger().info('service not available, waiting again...')
-        #     self.task_fail_client.call_async(req)
 
     def scan_callback(self, msg):
-        selected_scans = [msg.ranges[180], msg.ranges[220], msg.ranges[260], msg.ranges[300], msg.ranges[340],
-                            msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[500], msg.ranges[540]]
-        print("[", end='')
+        selected_scans = [msg.ranges[180], msg.ranges[220], msg.ranges[260], msg.ranges[304], msg.ranges[344],
+                            msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[502], msg.ranges[544]]
         for i in range(len(selected_scans)):
-            if selected_scans[i] > 3.5:  # max range for simulation is specified in model.sdf
+            if selected_scans[i] > 16:  # max value for rplidar A2
+                selected_scans[i] = float(self.previous_scan[i])
+            elif selected_scans[i] > 3.5:
                 selected_scans[i] = 3.5
-            print("{:.5f}, ".format(selected_scans[i]), end='')
-        print("]")
+            else:
+                selected_scans[i] = float(selected_scans[i])
         self.scan_ranges = selected_scans
         self.min_obstacle_distance = min(self.scan_ranges)
+        self.previous_scan = selected_scans
         self.received = True
+        # print("scan callback")
 
     def get_state(self, previous_action_linear, previous_action_angular):
         state = self.scan_ranges
@@ -179,7 +182,7 @@ class DDPGEnvironment(Node):
             self.stop_reset_robot(True)
 
         # Fail
-        if self.min_obstacle_distance < 0.100 and self.local_step > 5:  # unit: m
+        if self.min_obstacle_distance < 0.115 and self.local_step > 5:  # unit: m
             print("Collision! :( step: %d, %d", self.local_step, self.min_obstacle_distance)
             self.collision = True
             self.done = True
@@ -190,12 +193,6 @@ class DDPGEnvironment(Node):
             print("Time out! :(")
             self.done = True
             self.stop_reset_robot(False)
-
-            # req = Empty.Request()
-            # while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
-            #     self.get_logger().info('service not available, waiting again...')
-            # self.task_fail_client.call_async(req)
-
         return state
 
     def get_reward(self, action_linear, action_angular):
@@ -251,7 +248,7 @@ class DDPGEnvironment(Node):
 
         twist = Twist()
         twist.linear.x = action_linear * 0.3
-        twist.angular.z = action_angular
+        twist.angular.z = action_angular * 0.3
         self.cmd_vel_pub.publish(twist)
 
         # TODO: should there be some kind of delay here to balance laser update rate and vel publish
