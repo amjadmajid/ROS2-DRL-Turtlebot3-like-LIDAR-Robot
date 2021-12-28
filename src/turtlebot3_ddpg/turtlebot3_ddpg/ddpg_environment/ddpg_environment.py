@@ -114,8 +114,8 @@ class DDPGEnvironment(Node):
 
     def odom_callback(self, msg):
         # -1 * to fix direction bug
-        self.last_pose_x = -1 * msg.pose.pose.position.x
-        self.last_pose_y = -1 * msg.pose.pose.position.y
+        self.last_pose_x = msg.pose.pose.position.x
+        self.last_pose_y = msg.pose.pose.position.y
         _, _, self.last_pose_theta = self.euler_from_quaternion(
             msg.pose.pose.orientation)
         # if self.last_pose_theta > 0:
@@ -123,26 +123,30 @@ class DDPGEnvironment(Node):
         # else:
         #     self.last_pose_theta += math.pi
 
-        goal_distance = math.sqrt(
-            (self.goal_pose_x-self.last_pose_x)**2
-            + (self.goal_pose_y-self.last_pose_y)**2)
+        diff_y = self.goal_pose_y - self.last_pose_y
+        diff_x = self.goal_pose_x - self.last_pose_x
 
-        path_theta = math.atan2(
-            self.goal_pose_y-self.last_pose_y,
-            self.goal_pose_x-self.last_pose_x)
+        goal_distance = math.sqrt(diff_x**2 + diff_y**2)
 
-        #todo: investigate why goal_angle is inverted
-        goal_angle = math.pi - abs(path_theta - self.last_pose_theta)
+        # Note: it appears the goal_angle got inverted during training.
+        # This means the NN expects inverted values for goal_angle input
+        # Thus *-1 to invert for the NN and non-inverted for debug output
+        path_theta = math.atan2(-1 * diff_y,-1 * diff_x)
+        path_theta_print = math.atan2(diff_y,diff_x)
+
+        # for some reason an extra math.pi is added
+        goal_angle = path_theta - self.last_pose_theta
+        goal_angle_print = path_theta_print - self.last_pose_theta
 
         if goal_angle > math.pi:
-            goal_angle -= 2 * math.pi
+            goal_angle = math.pi
+        if goal_angle < -math.pi:
+            goal_angle = -math.pi
 
-        elif goal_angle < -math.pi:
-            goal_angle += 2 * math.pi
+        # print(f"atan2: {math.degrees(path_theta_print):.3f}, theta: {math.degrees(self.last_pose_theta):.3f}, goal_angle: {math.degrees(goal_angle_prin):.3f} Goal[X:{self.goal_pose_x}, Y:{self.goal_pose_y}]")
 
         self.goal_distance = goal_distance
         self.goal_angle = goal_angle
-        print("Tx path_theta: {:.3f}, self_theta: {:.3f}, goal_angle: {:.3f}".format(path_theta, self.last_pose_theta, goal_angle))
 
     def stop_reset_robot(self, success):
         self.cmd_vel_pub.publish(Twist())  # robot stop
@@ -175,7 +179,7 @@ class DDPGEnvironment(Node):
         self.local_step += 1
 
         # Succeed
-        if self.goal_distance < 0.20 and self.local_step > 5:  # unit: m
+        if self.goal_distance < 0.15 and self.local_step > 5:  # unit: m
             print("Goal! :)")
             self.succeed = True
             self.done = True
@@ -222,8 +226,8 @@ class DDPGEnvironment(Node):
         linear_penality = 0
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Robst {:.3f}, Rturn: {:.3f}".format(
-            self.local_step, distance_reward, yaw_reward, obstacle_reward, angular_penalty), end='')
+        # print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Robst {:.3f}, Rturn: {:.3f}".format(
+            # self.local_step, distance_reward, yaw_reward, obstacle_reward, angular_penalty), end='')
 
         if self.succeed:
             reward += 5000
