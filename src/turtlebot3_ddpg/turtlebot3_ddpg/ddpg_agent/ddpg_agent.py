@@ -167,7 +167,7 @@ class DDPGAgent(Node):
         N = copy.deepcopy(self.actor_noise.get_noise(t=step))
         N[0] = N[0]*ACTION_LINEAR_MAX/2
         N[1] = N[1]*ACTION_ANGULAR_MAX
-        action[0] = numpy.clip(action[0] + N[0], 0., ACTION_LINEAR_MAX)
+        action[0] = numpy.clip(action[0] + N[0], 0.0, ACTION_LINEAR_MAX)
         action[1] = numpy.clip(action[1] + N[1], -ACTION_ANGULAR_MAX, ACTION_ANGULAR_MAX)
         return action
 

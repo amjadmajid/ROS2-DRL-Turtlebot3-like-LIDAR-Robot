@@ -186,7 +186,7 @@ class DDPGEnvironment(Node):
             self.stop_reset_robot(True)
 
         # Fail
-        if self.min_obstacle_distance < 0.115 and self.local_step > 5:  # unit: m
+        if self.min_obstacle_distance < 0.1 and self.local_step > 5:  # unit: m
             print("Collision! :( step: %d, %d", self.local_step, self.min_obstacle_distance)
             self.collision = True
             self.done = True
@@ -251,7 +251,7 @@ class DDPGEnvironment(Node):
         action_angular = action[INDEX_ANG]
 
         twist = Twist()
-        twist.linear.x = action_linear * 0.3
+        twist.linear.x = action_linear * 0.3 + 0.06
         twist.angular.z = action_angular * 0.3
         self.cmd_vel_pub.publish(twist)
 
