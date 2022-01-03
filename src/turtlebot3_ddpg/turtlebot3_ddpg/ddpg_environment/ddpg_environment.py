@@ -72,7 +72,7 @@ class DDPGEnvironment(Node):
         self.goal_distance = Infinity
         self.init_goal_distance = Infinity
         self.scan_ranges = []
-        self.previous_scan = [1,1,1,1,1,1,1,1,1,1]
+        self.previous_scan = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         self.min_obstacle_distance = 3.5
 
         self.local_step = 0
@@ -131,8 +131,8 @@ class DDPGEnvironment(Node):
         # Note: it appears the goal_angle got inverted during training.
         # This means the NN expects inverted values for goal_angle input
         # Thus *-1 to invert for the NN and non-inverted for debug output
-        path_theta = math.atan2(-1 * diff_y,-1 * diff_x)
-        path_theta_print = math.atan2(diff_y,diff_x)
+        path_theta = math.atan2(-1 * diff_y, -1 * diff_x)
+        path_theta_print = math.atan2(diff_y, diff_x)
 
         # for some reason an extra math.pi is added
         goal_angle = path_theta - self.last_pose_theta
@@ -155,7 +155,7 @@ class DDPGEnvironment(Node):
 
     def scan_callback(self, msg):
         selected_scans = [msg.ranges[180], msg.ranges[220], msg.ranges[260], msg.ranges[304], msg.ranges[344],
-                            msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[502], msg.ranges[544]]
+                          msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[502], msg.ranges[544]]
         for i in range(len(selected_scans)):
             if selected_scans[i] > 16:  # max value for rplidar A2
                 selected_scans[i] = float(self.previous_scan[i])
@@ -227,7 +227,7 @@ class DDPGEnvironment(Node):
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
         # print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Robst {:.3f}, Rturn: {:.3f}".format(
-            # self.local_step, distance_reward, yaw_reward, obstacle_reward, angular_penalty), end='')
+        # self.local_step, distance_reward, yaw_reward, obstacle_reward, angular_penalty), end='')
 
         if self.succeed:
             reward += 5000
