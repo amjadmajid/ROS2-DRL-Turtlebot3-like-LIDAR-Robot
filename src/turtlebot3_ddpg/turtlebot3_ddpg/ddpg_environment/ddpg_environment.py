@@ -178,9 +178,10 @@ class DDPGEnvironment(Node):
                 self.task_fail_client.call_async(req)
 
     def scan_callback(self, msg):
+        selected_scans = []
         if self.real_robot == True:
-            selected_scans = [msg.ranges[180], msg.ranges[220], msg.ranges[260], msg.ranges[304], msg.ranges[344],
-                              msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[502], msg.ranges[544]]
+            for i in range(36):
+                selected_scans[i] = msg.ranges[i * 20]
         else:
             selected_scans = msg.ranges
 
@@ -198,7 +199,7 @@ class DDPGEnvironment(Node):
 
     def get_state(self, previous_action_linear, previous_action_angular):
         state = self.scan_ranges
-        state = state[:10]  # Truncate if more than 10 laser readings are returned, bug?
+        state = state[:36]  # Truncate if more than 10 laser readings are returned, bug?
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
         state.append(float(previous_action_linear))
