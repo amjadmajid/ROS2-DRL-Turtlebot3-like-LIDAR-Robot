@@ -135,28 +135,11 @@ class DDPGAgent(Node):
 
         self.ddpg_com_client = self.create_client(Ddpg, 'ddpg_com')
         self.goal_com_client = self.create_client(Goal, 'goal_com')
-        self.pause_simulation_client = self.create_client(Empty, '/pause_physics')
-        self.unpause_simulation_client = self.create_client(Empty, '/unpause_physics')
         self.process()
 
     # ===================================================================== #
     #                           Class functions                             #
     # ===================================================================== #
-
-    # TODO: move this elsewhere
-    def pause_physics(self):
-        req = Empty.Request()
-        while not self.pause_simulation_client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        print("pausing simulation!")
-        self.pause_simulation_client.call_async(req)
-
-    def unpause_physics(self):
-        req = Empty.Request()
-        while not self.unpause_simulation_client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        print("unpausing simulation!")
-        self.unpause_simulation_client.call_async(req)
 
     def get_action(self, state, step):
         state = numpy.asarray(state, numpy.float32)

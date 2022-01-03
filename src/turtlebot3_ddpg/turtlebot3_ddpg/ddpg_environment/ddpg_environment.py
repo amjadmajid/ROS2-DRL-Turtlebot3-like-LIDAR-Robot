@@ -18,6 +18,7 @@
 
 import math
 import numpy
+import sys
 from numpy.core.numeric import Infinity
 
 from geometry_msgs.msg import Pose
@@ -35,23 +36,33 @@ from rclpy.qos import qos_profile_sensor_data
 INDEX_LIN = 0
 INDEX_ANG = 1
 
-VEL_TOPIC = 'jetbot/cmd_vel'
-GOAL_TOPIC = 'jetbot_goal'
-ODOM_TOPIC = 'odom_rf2o'
-SCAN_TOPIC = 'scan'
-
 
 class DDPGEnvironment(Node):
-    def __init__(self):
+    def __init__(self, real_robot=False, is_training=False):
         super().__init__('ddpg_environment')
 
         """************************************************************
         ** Initialise variables
         ************************************************************"""
+        self.real_robot = real_robot
+        self.is_training = is_training
+
+        self.scan_topic = 'scan'
+        if self.real_robot == True:
+            self.vel_topic = 'jetbot/cmd_vel'
+            self.goal_topic = 'jetbot_goal'
+            self.odom_topic = 'odom_rf2o'
+        else:
+            self.vel_topic = 'cmd_vel'
+            self.goal_topic = 'goal_pose'
+            self.odom_topic = 'odom'
 
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
-        self.step_limit = 10000  # maximum number of steps before episode timeout occurs
+        if self.is_training == True and self.real_robot != True:
+            self.step_limit = 10000
+        else:
+            self.step_limit = 100000  # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -84,16 +95,18 @@ class DDPGEnvironment(Node):
         qos = QoSProfile(depth=10)
 
         # Initialise publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, VEL_TOPIC, qos)
+        self.cmd_vel_pub = self.create_publisher(Twist, self.vel_topic, qos)
 
         # Initialise subscribers
-        self.goal_pose_sub = self.create_subscription(Pose, GOAL_TOPIC, self.goal_pose_callback, qos)
-        self.odom_sub = self.create_subscription(Odometry, ODOM_TOPIC, self.odom_callback, qos)
-        self.scan_sub = self.create_subscription(LaserScan, SCAN_TOPIC, self.scan_callback, qos_profile=qos_profile_sensor_data)
+        self.goal_pose_sub = self.create_subscription(Pose, self.goal_topic, self.goal_pose_callback, qos)
+        self.odom_sub = self.create_subscription(Odometry, self.odom_topic, self.odom_callback, qos)
+        self.scan_sub = self.create_subscription(
+            LaserScan, self.scan_topic, self.scan_callback, qos_profile=qos_profile_sensor_data)
 
         # Initialise client
-        # self.task_succeed_client = self.create_client(Empty, 'task_succeed')
-        # self.task_fail_client = self.create_client(Empty, 'task_fail')
+        if self.real_robot != True:
+            self.task_succeed_client = self.create_client(Empty, 'task_succeed')
+            self.task_fail_client = self.create_client(Empty, 'task_fail')
 
         # Initialise servers
         self.ddpg_com_server = self.create_service(Ddpg, 'ddpg_com', self.ddpg_com_callback)
@@ -113,15 +126,10 @@ class DDPGEnvironment(Node):
         return response
 
     def odom_callback(self, msg):
-        # -1 * to fix direction bug
         self.last_pose_x = msg.pose.pose.position.x
         self.last_pose_y = msg.pose.pose.position.y
         _, _, self.last_pose_theta = self.euler_from_quaternion(
             msg.pose.pose.orientation)
-        # if self.last_pose_theta > 0:
-        #     self.last_pose_theta -= math.pi
-        # else:
-        #     self.last_pose_theta += math.pi
 
         diff_y = self.goal_pose_y - self.last_pose_y
         diff_x = self.goal_pose_x - self.last_pose_x
@@ -131,7 +139,11 @@ class DDPGEnvironment(Node):
         # Note: it appears the goal_angle got inverted during training.
         # This means the NN expects inverted values for goal_angle input
         # Thus *-1 to invert for the NN and non-inverted for debug output
-        path_theta = math.atan2(-1 * diff_y, -1 * diff_x)
+        if self.real_robot == True:
+            path_theta = math.atan2(-1 * diff_y, -1 * diff_x)
+        else:
+            path_theta = math.atan2(diff_y, diff_x)
+
         path_theta_print = math.atan2(diff_y, diff_x)
 
         # for some reason an extra math.pi is added
@@ -149,13 +161,29 @@ class DDPGEnvironment(Node):
         self.goal_angle = goal_angle
 
     def stop_reset_robot(self, success):
+        self.done = True
         self.cmd_vel_pub.publish(Twist())  # robot stop
         self.local_step = 0
-        self.new_goal = False
+        if self.real_robot == True:
+            self.new_goal = False
+        else:
+            req = Empty.Request()
+            if success:
+                while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
+                    self.get_logger().info('service not available, waiting again...')
+                self.task_succeed_client.call_async(req)
+            else:
+                while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
+                    self.get_logger().info('service not available, waiting again...')
+                self.task_fail_client.call_async(req)
 
     def scan_callback(self, msg):
-        selected_scans = [msg.ranges[180], msg.ranges[220], msg.ranges[260], msg.ranges[304], msg.ranges[344],
-                          msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[502], msg.ranges[544]]
+        if self.real_robot == True:
+            selected_scans = [msg.ranges[180], msg.ranges[220], msg.ranges[260], msg.ranges[304], msg.ranges[344],
+                              msg.ranges[380], msg.ranges[420], msg.ranges[460], msg.ranges[502], msg.ranges[544]]
+        else:
+            selected_scans = msg.ranges
+
         for i in range(len(selected_scans)):
             if selected_scans[i] > 16:  # max value for rplidar A2
                 selected_scans[i] = float(self.previous_scan[i])
@@ -167,7 +195,6 @@ class DDPGEnvironment(Node):
         self.min_obstacle_distance = min(self.scan_ranges)
         self.previous_scan = selected_scans
         self.received = True
-        # print("scan callback")
 
     def get_state(self, previous_action_linear, previous_action_angular):
         state = self.scan_ranges
@@ -182,20 +209,18 @@ class DDPGEnvironment(Node):
         if self.goal_distance < 0.15 and self.local_step > 5:  # unit: m
             print("Goal! :)")
             self.succeed = True
-            self.done = True
             self.stop_reset_robot(True)
 
         # Fail
-        if self.min_obstacle_distance < 0.1 and self.local_step > 5:  # unit: m
+        if self.min_obstacle_distance < 0.15 and self.local_step > 5:  # unit: m
             print("Collision! :( step: %d, %d", self.local_step, self.min_obstacle_distance)
             self.collision = True
-            self.done = True
             self.stop_reset_robot(False)
 
         # Timeout
         if self.local_step == self.step_limit:
             print("Time out! :(")
-            self.done = True
+            self.collision = False
             self.stop_reset_robot(False)
         return state
 
@@ -310,9 +335,9 @@ class DDPGEnvironment(Node):
         return roll, pitch, yaw
 
 
-def main(args=None):
+def main(args=sys.argv[1:]):
     rclpy.init(args=args)
-    ddpg_environment = DDPGEnvironment()
+    ddpg_environment = DDPGEnvironment(args[0], args[1])
     rclpy.spin(ddpg_environment)
 
     ddpg_environment.destroy()
