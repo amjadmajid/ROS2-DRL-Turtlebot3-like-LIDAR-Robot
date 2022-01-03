@@ -187,8 +187,8 @@ class DDPGEnvironment(Node):
         for i in range(len(selected_scans)):
             if selected_scans[i] > 16:  # max value for rplidar A2
                 selected_scans[i] = float(self.previous_scan[i])
-            elif selected_scans[i] > 3.5:
-                selected_scans[i] = 3.5
+            elif selected_scans[i] > 10:
+                selected_scans[i] = 10
             else:
                 selected_scans[i] = float(selected_scans[i])
         self.scan_ranges = selected_scans
