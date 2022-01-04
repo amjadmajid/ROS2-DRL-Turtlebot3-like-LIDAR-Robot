@@ -37,6 +37,8 @@ from std_srvs.srv import Empty
 import rclpy
 from rclpy.node import Node
 
+import matplotlib.pyplot as plt
+
 # Constants
 ACTION_LINEAR_MAX = 0.22
 ACTION_ANGULAR_MAX = 2.0
@@ -63,22 +65,25 @@ class DDPGAgent(Node):
         self.episode_size = 10000
 
         # General hyperparameters
-        self.discount_factor = 0.99
-        self.learning_rate = 0.001
-        self.batch_size = 128
+        self.discount_factor = 0.90
+        self.learning_rate = 0.0001
+        self.batch_size = 512
 
         # DDPG hyperparameters
         self.tau = 0.001
 
         # Replay memory
-        self.memory_size = 100000
+        self.memory_size = 1000000
         self.memory = ReplayBuffer(self.memory_size)
 
         # metrics
         self.loss_critic_sum = 0.0
         self.loss_actor_sum = 0.0
 
-        self.epsilon = 0  # TODO: remove
+        # logging
+        self.rewards_data = []
+        self.avg_critic_loss_data = []
+        self.avg_actor_loss_data = []
 
         # ===================================================================== #
         #                          GPU initalization                            #
@@ -114,10 +119,10 @@ class DDPGAgent(Node):
             'src/turtlebot3_ddpg/model')
 
         # Specify whether model is being trained or only evaluated
-        self.trainig = False
-        self.record_results = False
+        self.trainig = True
+        self.record_results = True
         # store model every N episodes
-        self.store_interval = 200
+        self.store_interval = 100
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)
@@ -241,15 +246,67 @@ class DDPGAgent(Node):
                         'Exception while calling service: {0}'.format(future.exception()))
                     print("ERROR getting new_goal service response!")
 
+    def update_plots(self, episode, reward, critic_loss, actor_loss):
+        # plot 1:
+        xaxis = numpy.array(range(episode))
+        x = xaxis
+        y = reward
+        print(x)
+        print(y)
+        plt.subplot(2, 2, 1)
+        plt.gca().set_title('reward')
+        plt.plot(x, y)
+
+        # plot 2:
+        x = xaxis
+        y = numpy.array(critic_loss)
+
+        plt.subplot(2, 2, 2)
+        plt.gca().set_title('avg critic loss over episode')
+        plt.plot(x, y)
+
+        # plot 3:
+        x = xaxis
+        y = numpy.array(actor_loss)
+
+        plt.subplot(2, 2, 3)
+        plt.gca().set_title('avg actor loss over episode')
+        plt.plot(x, y)
+
+        # plot 4:
+        count = int(episode / 10)
+        if count > 0:
+            x = numpy.array(range(0, episode, 10))
+            averages = []
+            for i in range(count):
+                avg_sum = 0
+                for j in range(10):
+                    avg_sum += reward[i * 10 + j]
+                averages[i] = avg_sum / 10
+            y = numpy.array(averages)
+            plt.subplot(2, 2, 4)
+            plt.gca().set_title('avg reward over 10 episodes')
+            plt.plot(x, y)
+
+        plt.draw()
+        plt.pause(0.001)
+        plt.show()
+
     def process(self):
         success_count = 0
 
         if self.record_results:
             self.results_file.write(
-                "episode, reward, success, duration, n_steps, epsilon, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
+                "episode, reward, success, duration, n_steps, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         # for episode in range(self.load_episode+1, self.episode_size):
         episode = 0
+
+        plt.figure()
+        plt.axis([-50, 50, 0, 10000])
+        plt.ion()
+        plt.show()
+
         while (True):
             episode += 1
             past_action = [0.0, 0.0]
@@ -272,29 +329,35 @@ class DDPGAgent(Node):
 
                 if step > 1:
                     self.memory.add_sample(state, action, reward, next_state, done)
-                    if self.trainig:
+                    if self.trainig == True:
                         self.train()
 
                     if done:
                         avg_critic_loss = self.loss_critic_sum / step
                         avg_actor_loss = self.loss_actor_sum / step
                         episode_duration = time.time() - episode_start
-                        print("Episode: {} score: {} success: {} n_steps: {} memory length: {} episode duration: {}".format(
-                              episode, reward_sum, success, step, self.memory.get_length(), episode_duration))
-                        if self.record_results:
-                            self.results_file.write("{}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(  # todo: remove format
-                                episode, reward_sum, success, episode_duration, step, success_count, self.memory.get_length(), avg_critic_loss, avg_actor_loss))
-                        print("Waiting for new goal...")
-                        while(self.get_goal_status() == False):
-                            time.sleep(1.0)
+                        print(f"Episode: {episode} score: {reward_sum} success: {success}\
+                            n_steps: {step} memory length: {self.memory.get_length()} episode duration: {episode_duration}")
+                        self.results_file.write(f"{episode}, {reward_sum}, {success}, {episode_duration}, \
+                            {step}, {success_count}, {self.memory.get_length()}, {avg_critic_loss}, {avg_actor_loss}")
+
+                        self.rewards_data.append(reward_sum)
+                        self.avg_critic_loss_data.append(avg_critic_loss)
+                        self.avg_actor_loss_data.append(avg_actor_loss)
+                        self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
+
+                        if self.trainig != True:
+                            print("Waiting for new goal...")
+                            while(self.get_goal_status() == False):
+                                time.sleep(1.0)
 
                 state = next_state
                 step += 1
-                # time.sleep(0.01)  # While loop rate
+                time.sleep(0.01)  # While loop rate
 
-            # if (self.trainig):
-            #     if (episode % self.store_interval == 0) or (episode == 1):
-            #         sm.save_session(self, self.session_dir, episode)
+            if (self.trainig == True):
+                if (episode % self.store_interval == 0) or (episode == 1):
+                    sm.save_session(self, self.session_dir, episode)
 
 
 def main(args=sys.argv[1:]):
