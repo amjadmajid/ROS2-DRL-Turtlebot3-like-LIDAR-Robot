@@ -57,8 +57,8 @@ class DDPGAgent(Node):
         #                       parameter initalization                         #
         # ===================================================================== #
 
-        # 10 laser readings, distance to goal, angle to goal, previous linear action, previous angular action
-        self.state_size = 14
+        # 36 laser readings, distance to goal, angle to goal, previous linear action, previous angular action
+        self.state_size = 40
         self.action_size = 2
         self.episode_size = 10000
 
@@ -189,6 +189,7 @@ class DDPGAgent(Node):
         self.loss_critic_sum += loss_critic
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
+        # torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
         self.critic_optimizer.step()
 
         # optimize actor

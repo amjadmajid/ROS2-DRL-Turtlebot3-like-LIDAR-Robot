@@ -36,6 +36,10 @@ from rclpy.qos import qos_profile_sensor_data
 INDEX_LIN = 0
 INDEX_ANG = 1
 
+NUM_SCAN_SAMPLES = 36
+HARD_MAX_LIDAR_VALUE = 16  # in meters
+MAX_LIDAR_VALUE = 10
+
 
 class DDPGEnvironment(Node):
     def __init__(self, real_robot=False, is_training=False):
@@ -59,10 +63,10 @@ class DDPGEnvironment(Node):
 
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
-        if self.is_training == True and self.real_robot != True:
-            self.step_limit = 10000
+        if self.is_training == True:
+            self.step_limit = 700
         else:
-            self.step_limit = 100000  # maximum number of steps before episode timeout occurs
+            self.step_limit = 700  # 10000  # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -83,8 +87,8 @@ class DDPGEnvironment(Node):
         self.goal_distance = Infinity
         self.init_goal_distance = Infinity
         self.scan_ranges = []
-        self.previous_scan = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        self.min_obstacle_distance = 3.5
+        self.previous_scan = [HARD_MAX_LIDAR_VALUE] * NUM_SCAN_SAMPLES
+        self.min_obstacle_distance = HARD_MAX_LIDAR_VALUE
 
         self.local_step = 0
         self.received = False
@@ -144,21 +148,27 @@ class DDPGEnvironment(Node):
         else:
             path_theta = math.atan2(diff_y, diff_x)
 
-        path_theta_print = math.atan2(diff_y, diff_x)
+        if path_theta < 0:
+            path_theta += 2 * math.pi
 
-        # for some reason an extra math.pi is added
+        if self.last_pose_theta < 0:
+            self.last_pose_theta += 2 * math.pi
+
         goal_angle = path_theta - self.last_pose_theta
+
+        while goal_angle > math.pi:
+            goal_angle -= 2 * math.pi
+        while goal_angle < -math.pi:
+            goal_angle += 2 * math.pi
+
+        path_theta_print = math.atan2(diff_y, diff_x)
         goal_angle_print = path_theta_print - self.last_pose_theta
-
-        if goal_angle > math.pi:
-            goal_angle = math.pi
-        if goal_angle < -math.pi:
-            goal_angle = -math.pi
-
-        # print(f"atan2: {math.degrees(path_theta_print):.3f}, theta: {math.degrees(self.last_pose_theta):.3f}, goal_angle: {math.degrees(goal_angle_prin):.3f} Goal[X:{self.goal_pose_x}, Y:{self.goal_pose_y}]")
+        # print(f"atan2: {math.degrees(path_theta_print):.3f}, theta: {math.degrees(self.last_pose_theta):.3f}, \
+        # goal_angle: {math.degrees(goal_angle_print):.3f} Goal[X:{self.goal_pose_x}, Y:{self.goal_pose_y}]")
 
         self.goal_distance = goal_distance
         self.goal_angle = goal_angle
+        self.received = True
 
     def stop_reset_robot(self, success):
         self.done = True
@@ -180,26 +190,26 @@ class DDPGEnvironment(Node):
     def scan_callback(self, msg):
         selected_scans = []
         if self.real_robot == True:
-            for i in range(36):
+            for i in range(NUM_SCAN_SAMPLES):
                 selected_scans[i] = msg.ranges[i * 20]
         else:
             selected_scans = msg.ranges
 
         for i in range(len(selected_scans)):
-            if selected_scans[i] > 16:  # max value for rplidar A2
+            if selected_scans[i] > HARD_MAX_LIDAR_VALUE:  # max value for rplidar A2
                 selected_scans[i] = float(self.previous_scan[i])
-            elif selected_scans[i] > 10:
-                selected_scans[i] = 10
+            elif selected_scans[i] > MAX_LIDAR_VALUE:
+                selected_scans[i] = 1
             else:
-                selected_scans[i] = float(selected_scans[i])
+                # noramlize laser values
+                selected_scans[i] = float(selected_scans[i]) / MAX_LIDAR_VALUE
         self.scan_ranges = selected_scans
         self.min_obstacle_distance = min(self.scan_ranges)
         self.previous_scan = selected_scans
-        self.received = True
 
     def get_state(self, previous_action_linear, previous_action_angular):
         state = self.scan_ranges
-        state = state[:36]  # Truncate if more than 10 laser readings are returned, bug?
+        state = state[:NUM_SCAN_SAMPLES]  # Truncate if too many laser readings are returned
         state.append(float(self.goal_distance))
         state.append(float(self.goal_angle))
         state.append(float(previous_action_linear))
@@ -213,8 +223,8 @@ class DDPGEnvironment(Node):
             self.stop_reset_robot(True)
 
         # Fail
-        if self.min_obstacle_distance < 0.15 and self.local_step > 5:  # unit: m
-            print("Collision! :( step: %d, %d", self.local_step, self.min_obstacle_distance)
+        if self.min_obstacle_distance < (0.15 / MAX_LIDAR_VALUE) and self.local_step > 5:  # unit: m
+            print("Collision! :(")
             self.collision = True
             self.stop_reset_robot(False)
 
@@ -229,9 +239,9 @@ class DDPGEnvironment(Node):
         # yaw_reward will be between -1 and 1
         # yaw_reward = 3 - (3 * 2 * math.sqrt(math.fabs(self.goal_angle / math.pi)))
 
-        # Between -3.14 and 0
-        # yaw_reward = (math.pi - abs(self.goal_angle)) - math.pi
-        yaw_reward = 0
+        # Between -1 and 0
+        yaw_reward = -1 * abs(self.goal_angle) / (math.pi / 2)
+        # yaw_reward = 0
 
         # Between -4 and 0
         # angular_penalty = -0.5 * (action_angular**2)
@@ -242,23 +252,24 @@ class DDPGEnvironment(Node):
         self.previous_distance = self.goal_distance
 
         # Reward for avoiding obstacles
-        if self.min_obstacle_distance < 0.25:
-            obstacle_reward = -10
-        else:
-            obstacle_reward = 0
+        # if self.min_obstacle_distance < 0.25:
+        #     obstacle_reward = -10
+        # else:
+        # obstacle_reward = 0
+        obstacle_reward = 0
 
         # Between -2 * (2.2^2) and 0
-        # linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
-        linear_penality = 0
+        linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
+        # linear_penality = 0
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        # print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Robst {:.3f}, Rturn: {:.3f}".format(
-        # self.local_step, distance_reward, yaw_reward, obstacle_reward, angular_penalty), end='')
+        print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f},".format(
+            self.local_step, distance_reward, yaw_reward), end=' ')
 
         if self.succeed:
-            reward += 5000
+            reward += 1000
         elif self.collision:
-            reward -= 5000
+            reward -= 1000
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
@@ -292,8 +303,8 @@ class DDPGEnvironment(Node):
         previous_action_angular = request.previous_action[INDEX_ANG]
         response.state = self.get_state(previous_action_linear, previous_action_angular)
         response.reward = self.get_reward(action_linear, action_angular)
-        print("GD: {:.3f}, GA: {:.3f}° MinD: {:.3f}, Alin: {:.3f}, Aturn: {:.3f}, Rtot: {:.3f}".format(
-            self.goal_distance, math.degrees(self.goal_angle), self.min_obstacle_distance, action[0], action[1], response.reward))
+        print(
+            f"Rtot: {response.reward:.3f}, GD: {self.goal_distance:.3f}, GA: {math.degrees(self.goal_angle):.3f}° MinD: {self.min_obstacle_distance:.3f}, Alin: {action[0]:.3f}, Aturn: {action[1]:.3f}")
         response.done = self.done
         response.success = self.succeed
 
