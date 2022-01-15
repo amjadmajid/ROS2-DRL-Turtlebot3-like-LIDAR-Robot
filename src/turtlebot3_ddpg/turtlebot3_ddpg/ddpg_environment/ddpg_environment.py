@@ -66,7 +66,7 @@ class DDPGEnvironment(Node):
         if self.is_training == True:
             self.step_limit = 700
         else:
-            self.step_limit = 700  # 10000  # maximum number of steps before episode timeout occurs
+            self.step_limit = 500  # 10000  # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below

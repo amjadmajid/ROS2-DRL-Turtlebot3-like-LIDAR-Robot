@@ -46,6 +46,7 @@ ACTION_ANGULAR_MAX = 2.0
 INDEX_LIN = 0
 INDEX_ANG = 1
 
+PLOT_INTERVAL = 10
 
 class DDPGAgent(Node):
     def __init__(self, stage, agent, episode):
@@ -67,13 +68,13 @@ class DDPGAgent(Node):
         # General hyperparameters
         self.discount_factor = 0.90
         self.learning_rate = 0.0001
-        self.batch_size = 512
+        self.batch_size = 128
 
         # DDPG hyperparameters
         self.tau = 0.001
 
         # Replay memory
-        self.memory_size = 1000000
+        self.memory_size = 100000
         self.memory = ReplayBuffer(self.memory_size)
 
         # metrics
@@ -119,7 +120,7 @@ class DDPGAgent(Node):
             'src/turtlebot3_ddpg/model')
 
         # Specify whether model is being trained or only evaluated
-        self.trainig = True
+        self.training = True
         self.record_results = True
         # store model every N episodes
         self.store_interval = 100
@@ -274,15 +275,15 @@ class DDPGAgent(Node):
         plt.plot(x, y)
 
         # plot 4:
-        count = int(episode / 10)
+        count = int(episode / PLOT_INTERVAL)
         if count > 0:
-            x = numpy.array(range(0, episode, 10))
-            averages = []
+            x = numpy.array(range(PLOT_INTERVAL, episode+1, PLOT_INTERVAL))
+            averages = list()
             for i in range(count):
                 avg_sum = 0
-                for j in range(10):
-                    avg_sum += reward[i * 10 + j]
-                averages[i] = avg_sum / 10
+                for j in range(PLOT_INTERVAL):
+                    avg_sum += reward[i * PLOT_INTERVAL + j]
+                averages.append(avg_sum / PLOT_INTERVAL)
             y = numpy.array(averages)
             plt.subplot(2, 2, 4)
             plt.gca().set_title('avg reward over 10 episodes')
@@ -329,7 +330,7 @@ class DDPGAgent(Node):
 
                 if step > 1:
                     self.memory.add_sample(state, action, reward, next_state, done)
-                    if self.trainig == True:
+                    if self.training == True:
                         self.train()
 
                     if done:
@@ -346,7 +347,7 @@ class DDPGAgent(Node):
                         self.avg_actor_loss_data.append(avg_actor_loss)
                         self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
 
-                        if self.trainig != True:
+                        if self.training != True:
                             print("Waiting for new goal...")
                             while(self.get_goal_status() == False):
                                 time.sleep(1.0)
@@ -355,7 +356,7 @@ class DDPGAgent(Node):
                 step += 1
                 time.sleep(0.01)  # While loop rate
 
-            if (self.trainig == True):
+            if (self.training == True):
                 if (episode % self.store_interval == 0) or (episode == 1):
                     sm.save_session(self, self.session_dir, episode)
 
