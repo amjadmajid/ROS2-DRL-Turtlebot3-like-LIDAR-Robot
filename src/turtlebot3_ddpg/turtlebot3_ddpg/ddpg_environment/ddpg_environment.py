@@ -21,6 +21,8 @@ import numpy
 import sys
 from numpy.core.numeric import Infinity
 
+import tracemalloc
+
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -36,7 +38,7 @@ from rclpy.qos import qos_profile_sensor_data
 INDEX_LIN = 0
 INDEX_ANG = 1
 
-NUM_SCAN_SAMPLES = 36
+NUM_SCAN_SAMPLES = 10
 HARD_MAX_LIDAR_VALUE = 16  # in meters
 MAX_LIDAR_VALUE = 10
 
@@ -44,6 +46,8 @@ MAX_LIDAR_VALUE = 10
 class DDPGEnvironment(Node):
     def __init__(self, real_robot=False, is_training=False):
         super().__init__('ddpg_environment')
+
+        tracemalloc.start()
 
         """************************************************************
         ** Initialise variables
@@ -174,6 +178,14 @@ class DDPGEnvironment(Node):
         self.done = True
         self.cmd_vel_pub.publish(Twist())  # robot stop
         self.local_step = 0
+
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+
+        print(f"[ Top 10 (out of {len(top_stats)}) ]")
+        for stat in top_stats[:10]:
+            print(stat)
+
         if self.real_robot == True:
             self.new_goal = False
         else:

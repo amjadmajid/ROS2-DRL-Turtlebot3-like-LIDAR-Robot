@@ -39,6 +39,8 @@ from rclpy.node import Node
 
 import matplotlib.pyplot as plt
 
+import tracemalloc
+
 # Constants
 ACTION_LINEAR_MAX = 0.22
 ACTION_ANGULAR_MAX = 2.0
@@ -48,9 +50,13 @@ INDEX_ANG = 1
 
 PLOT_INTERVAL = 10
 
+
 class DDPGAgent(Node):
     def __init__(self, stage, agent, episode):
         super().__init__('ddpg_agent')
+
+        tracemalloc.start()
+
         self.stage = int(stage)
         # Specify which model and episode to load from models_directory or Change to False for new session
         self.load_session = agent  # example: 'ddpg_0'
@@ -61,7 +67,7 @@ class DDPGAgent(Node):
         # ===================================================================== #
 
         # 36 laser readings, distance to goal, angle to goal, previous linear action, previous angular action
-        self.state_size = 40
+        self.state_size = 14
         self.action_size = 2
         self.episode_size = 10000
 
@@ -173,6 +179,8 @@ class DDPGAgent(Node):
         if self.memory.get_length() < self.batch_size:
             return 0, 0
 
+        return 0, 0
+
         s_sample, a_sample, r_sample, new_s_sample, done_sample = self.memory.sample(self.batch_size)
 
         s_sample = torch.from_numpy(s_sample)
@@ -190,6 +198,8 @@ class DDPGAgent(Node):
         y_predicted = torch.squeeze(self.critic.forward(s_sample, a_sample))
         self.qvalue = y_predicted.detach()
         # print(torch.max(self.qvalue))
+
+        # return 0, 0
 
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
         self.loss_critic_sum += loss_critic.detach()
@@ -342,10 +352,17 @@ class DDPGAgent(Node):
                         self.results_file.write(f"{episode}, {reward_sum}, {success}, {episode_duration}, \
                             {step}, {success_count}, {self.memory.get_length()}, {avg_critic_loss}, {avg_actor_loss}")
 
-                        self.rewards_data.append(reward_sum)
-                        self.avg_critic_loss_data.append(avg_critic_loss)
-                        self.avg_actor_loss_data.append(avg_actor_loss)
-                        self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
+                        # self.rewards_data.append(reward_sum)
+                        # self.avg_critic_loss_data.append(avg_critic_loss)
+                        # self.avg_actor_loss_data.append(avg_actor_loss)
+                        # self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
+
+                        snapshot = tracemalloc.take_snapshot()
+                        top_stats = snapshot.statistics('lineno')
+
+                        print(f"[ Top 10 (out of {len(top_stats)})]")
+                        for stat in top_stats[:10]:
+                            print(stat)
 
                         if self.training != True:
                             print("Waiting for new goal...")
