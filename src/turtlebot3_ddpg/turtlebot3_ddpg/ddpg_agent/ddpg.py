@@ -14,21 +14,21 @@ class Actor(nn.Module):
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
 
-        self.fa1 = nn.Linear(state_size, 512)
+        self.fa1 = nn.Linear(state_size, 500)
         nn.init.xavier_uniform_(self.fa1.weight)
         self.fa1.bias.data.fill_(0.01)
 
-        self.fa2 = nn.Linear(512, 512)
+        self.fa2 = nn.Linear(500, 500)
         nn.init.xavier_uniform_(self.fa2.weight)
         self.fa2.bias.data.fill_(0.01)
 
-        self.fa3 = nn.Linear(512, action_size)
+        self.fa3 = nn.Linear(500, action_size)
         nn.init.xavier_uniform_(self.fa3.weight)
         self.fa3.bias.data.fill_(0.01)
 
     def forward(self, states):
         x = torch.relu(self.fa1(states))
-        # x = torch.relu(self.fa2(x))
+        x = torch.relu(self.fa2(x))
         action = self.fa3(x)
         if states.shape <= torch.Size([self.state_size]):
             action[0] = torch.sigmoid(action[0])*self.action_limit_v
@@ -47,26 +47,21 @@ class Critic(nn.Module):
         self.action_size = action_size
         self.name = name
 
-        self.fc1 = nn.Linear(state_size, 256)
+        self.fc1 = nn.Linear(state_size, 500)
         nn.init.xavier_uniform_(self.fc1.weight)
         self.fc1.bias.data.fill_(0.01)
 
-        self.fa1 = nn.Linear(action_size, 256)
-        nn.init.xavier_uniform_(self.fa1.weight)
-        self.fa1.bias.data.fill_(0.01)
-
-        self.fca1 = nn.Linear(512, 512)
+        self.fca1 = nn.Linear(500 + action_size, 500)
         nn.init.xavier_uniform_(self.fca1.weight)
         self.fca1.bias.data.fill_(0.01)
 
-        self.fca2 = nn.Linear(512, 1)
+        self.fca2 = nn.Linear(500, 1)
         nn.init.xavier_uniform_(self.fca2.weight)
         self.fca2.bias.data.fill_(0.01)
 
     def forward(self, states, actions):
-        xs = torch.relu(self.fc1(states))
-        xa = torch.relu(self.fa1(actions))
-        x = torch.cat((xs, xa), dim=1)
-        x = torch.relu(self.fca1(x))
-        vs = self.fca2(x)
-        return vs
+        x_states = torch.relu(self.fc1(states))
+        x_merged = torch.cat((x_states, actions), dim=1)
+        x = torch.relu(self.fca1(x_merged))
+        critic_output = self.fca2(x)
+        return critic_output
