@@ -191,7 +191,7 @@ class DDPGAgent(Node):
         # print(torch.max(self.qvalue))
 
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
-        self.loss_critic_sum += loss_critic
+        self.loss_critic_sum += loss_critic.detach()
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
         # torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
@@ -200,7 +200,7 @@ class DDPGAgent(Node):
         # optimize actor
         pred_a_sample = self.actor.forward(s_sample)
         loss_actor = -1*torch.sum(self.critic.forward(s_sample, pred_a_sample))
-        self.loss_actor_sum += loss_actor
+        self.loss_actor_sum += loss_actor.detach()
 
         self.actor_optimizer.zero_grad()
         loss_actor.backward()
