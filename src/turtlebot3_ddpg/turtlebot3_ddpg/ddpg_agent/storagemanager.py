@@ -1,18 +1,20 @@
 import os
 import pickle
 import json
+import socket
 
 import torch
 
 
 def new_session_dir(models_dir):
     i = 0
+    models_dir = os.path.join(models_dir, str(socket.gethostname()))
     session_dir = os.path.join(models_dir, "ddpg_%s" % i)
     while(os.path.exists(session_dir)):
         i += 1
         session_dir = os.path.join(models_dir, "ddpg_%s" % i)
     print(f"making new model dir: ddpg_{i}")
-    os.mkdir(session_dir)
+    os.makedirs(session_dir)
     return session_dir
 
 
