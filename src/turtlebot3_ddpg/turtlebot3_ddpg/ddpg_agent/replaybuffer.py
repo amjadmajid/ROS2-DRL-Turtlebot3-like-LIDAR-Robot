@@ -10,7 +10,7 @@ class ReplayBuffer:
 
     def sample(self, count):
         batch = []
-        count = min(count, self.len)
+        count = min(count, self.get_length())
         batch = random.sample(self.buffer, count)
 
         s_array = np.float32([array[0] for array in batch])
