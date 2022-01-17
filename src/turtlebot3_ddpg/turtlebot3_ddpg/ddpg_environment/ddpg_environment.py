@@ -90,7 +90,7 @@ class DDPGEnvironment(Node):
         self.previous_scan = [HARD_MAX_LIDAR_VALUE] * NUM_SCAN_SAMPLES
         self.min_obstacle_distance = HARD_MAX_LIDAR_VALUE
 
-        self.local_step = 0
+        self.local_step = 1
         self.received = False
 
         """************************************************************
@@ -173,7 +173,7 @@ class DDPGEnvironment(Node):
     def stop_reset_robot(self, success):
         self.done = True
         self.cmd_vel_pub.publish(Twist())  # robot stop
-        self.local_step = 0
+        self.local_step = 1
         if self.real_robot == True:
             self.new_goal = False
         else:
@@ -240,15 +240,15 @@ class DDPGEnvironment(Node):
         # yaw_reward = 3 - (3 * 2 * math.sqrt(math.fabs(self.goal_angle / math.pi)))
 
         # Between -1 and 0
-        yaw_reward = -1 * abs(self.goal_angle) / (math.pi / 2)
-        # yaw_reward = 0
+        # yaw_reward = -1 * abs(self.goal_angle) / (math.pi / 2)
+        yaw_reward = 0
 
         # Between -4 and 0
         # angular_penalty = -0.5 * (action_angular**2)
         angular_penalty = 0
 
         # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
-        distance_reward = (self.previous_distance - self.goal_distance) * 50
+        distance_reward = (self.previous_distance - self.goal_distance) * (5/self.local_step) * 10
         self.previous_distance = self.goal_distance
 
         # Reward for avoiding obstacles
@@ -259,12 +259,12 @@ class DDPGEnvironment(Node):
         obstacle_reward = 0
 
         # Between -2 * (2.2^2) and 0
-        linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
-        # linear_penality = 0
+        #linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
+        linear_penality = 0
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f},".format(
-            self.local_step, distance_reward, yaw_reward), end=' ')
+        print("{:0>4} - Rdist: {:.3f}".format(
+            self.local_step, distance_reward), end=' ')
 
         if self.succeed:
             reward += 1000
