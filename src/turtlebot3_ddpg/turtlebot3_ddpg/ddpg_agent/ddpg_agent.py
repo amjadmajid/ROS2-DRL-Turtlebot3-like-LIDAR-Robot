@@ -60,8 +60,8 @@ class DDPGAgent(Node):
         #                       parameter initalization                         #
         # ===================================================================== #
 
-        # 36 laser readings, distance to goal, angle to goal, previous linear action, previous angular action
-        self.state_size = 40
+        # 10 laser readings, distance to goal, angle to goal, previous linear action, previous angular action
+        self.state_size = 10 + 4
         self.action_size = 2
         self.episode_size = 10000
 

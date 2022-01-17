@@ -36,7 +36,7 @@ from rclpy.qos import qos_profile_sensor_data
 INDEX_LIN = 0
 INDEX_ANG = 1
 
-NUM_SCAN_SAMPLES = 36
+NUM_SCAN_SAMPLES = 10
 HARD_MAX_LIDAR_VALUE = 16  # in meters
 MAX_LIDAR_VALUE = 10
 
