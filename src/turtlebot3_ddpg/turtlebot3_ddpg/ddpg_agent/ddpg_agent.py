@@ -54,7 +54,7 @@ class DDPGAgent(Node):
         self.stage = int(stage)
         # Specify which model and episode to load from models_directory or Change to False for new session
         self.load_session = agent  # example: 'ddpg_0'
-        self.load_episode = episode if self.load_session else 0
+        self.load_episode = int(episode)
 
         # ===================================================================== #
         #                       parameter initalization                         #
@@ -301,7 +301,7 @@ class DDPGAgent(Node):
                 "episode, reward, success, duration, n_steps, success_count, memory length, avg_critic_loss, avg_actor_loss\n")
 
         # for episode in range(self.load_episode+1, self.episode_size):
-        episode = 0
+        episode = self.load_episode
 
         plt.figure()
         plt.axis([-50, 50, 0, 10000])

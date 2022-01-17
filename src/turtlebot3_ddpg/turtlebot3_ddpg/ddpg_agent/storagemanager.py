@@ -42,8 +42,9 @@ def save_session(ddpg_self, session_dir, episode):
         json.dump(param_dictionary, outfile)
 
     # Store replay buffer state
+    pickle_data = [ddpg_self.memory, ddpg_self.rewards_data, ddpg_self.avg_critic_loss_data, ddpg_self.avg_actor_loss_data]
     with open(os.path.join(ddpg_self.session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
-        pickle.dump(ddpg_self.memory, f, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(pickle_data, f, pickle.HIGHEST_PROTOCOL)
 
 
 def network_load_weights(network, model_dir, stage, episode):
@@ -64,9 +65,13 @@ def load_session(ddpg_self, session_dir, load_episode):
         param = json.load(outfile)
         ddpg_self.actor_noise.sigma = param.get('noise_sigma')
 
-    # load replay memory buffer
-    # with open(os.path.join(session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(load_episode)+'.pkl'), 'rb') as f:
-    #     ddpg_self.memory = pickle.load(f)
+    # load replay memory buffer and graph data
+    with open(os.path.join(ddpg_self.session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(load_episode)+'.pkl'), 'rb') as f:
+        pickle_data = pickle.load(f)
+        ddpg_self.memory = pickle_data[0]
+        ddpg_self.rewards_data = pickle_data[1]
+        ddpg_self.avg_critic_loss_data = pickle_data[2]
+        ddpg_self.avg_actor_loss_data = pickle_data[3]
+    print(f"memory length: {len(ddpg_self.memory.buffer)}")
 
-    print(f"memory length: {ddpg_self.memory.get_length()}")
     print(f"continuing session: {session_dir}")
