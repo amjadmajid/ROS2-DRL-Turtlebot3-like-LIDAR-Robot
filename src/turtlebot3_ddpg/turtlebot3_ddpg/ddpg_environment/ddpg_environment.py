@@ -63,10 +63,10 @@ class DDPGEnvironment(Node):
 
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
-        if self.is_training == True:
+        if self.is_training == True: #TODO fix this statement
             self.step_limit = 700
         else:
-            self.step_limit = 500  # 10000  # maximum number of steps before episode timeout occurs
+            self.step_limit = 700 # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -240,31 +240,30 @@ class DDPGEnvironment(Node):
         # yaw_reward = 3 - (3 * 2 * math.sqrt(math.fabs(self.goal_angle / math.pi)))
 
         # Between -1 and 0
-        # yaw_reward = -1 * abs(self.goal_angle) / (math.pi / 2)
-        yaw_reward = 0
+        yaw_reward = -1 * abs(self.goal_angle) / (math.pi)
 
         # Between -4 and 0
         # angular_penalty = -0.5 * (action_angular**2)
         angular_penalty = 0
 
         # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
-        distance_reward = (self.previous_distance - self.goal_distance) * (5/self.local_step) * 10
+        # distance_reward = (self.previous_distance - self.goal_distance) * ((self.step_limit/100) / self.local_step) * 10
+        distance_reward = (self.previous_distance - self.goal_distance) * 100
+
         self.previous_distance = self.goal_distance
 
         # Reward for avoiding obstacles
         # if self.min_obstacle_distance < 0.25:
         #     obstacle_reward = -10
         # else:
-        # obstacle_reward = 0
         obstacle_reward = 0
 
-        # Between -2 * (2.2^2) and 0
-        #linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
-        linear_penality = 0
+        # Between -1 * (2.2^2) and 0
+        linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
-        print("{:0>4} - Rdist: {:.3f}".format(
-            self.local_step, distance_reward), end=' ')
+        print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Rspeed: {:.3f}".format(
+            self.local_step, distance_reward, yaw_reward, linear_penality), end=' ')
 
         if self.succeed:
             reward += 1000
