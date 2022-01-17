@@ -7,7 +7,6 @@ class ReplayBuffer:
     def __init__(self, size):
         self.buffer = deque(maxlen=size)
         self.maxSize = size
-        self.len = 0
 
     def sample(self, count):
         batch = []
@@ -23,11 +22,8 @@ class ReplayBuffer:
         return s_array, a_array, r_array, new_s_array, done_array
 
     def get_length(self):
-        return self.len
+        return len(self.buffer)
 
     def add_sample(self, s, a, r, new_s, done):
         transition = (s, a, r, new_s, done)
-        self.len += 1
-        if self.len > self.maxSize:
-            self.len = self.maxSize
         self.buffer.append(transition)
