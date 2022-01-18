@@ -292,6 +292,7 @@ class DDPGAgent(Node):
         plt.draw()
         plt.pause(0.001)
         plt.show()
+        plt.savefig(os.path.join(self.session_dir, "_figure.png"))
 
     def process(self):
         success_count = 0
@@ -353,7 +354,7 @@ class DDPGAgent(Node):
 
                 state = next_state
                 step += 1
-                time.sleep(0.01)  # While loop rate
+                # time.sleep(0.01)  # While loop rate
 
             if (self.training == True):
                 if (episode % self.store_interval == 0) or (episode == 1):

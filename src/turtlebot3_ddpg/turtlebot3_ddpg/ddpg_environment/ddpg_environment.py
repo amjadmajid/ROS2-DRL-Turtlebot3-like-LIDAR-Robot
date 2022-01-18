@@ -42,7 +42,7 @@ MAX_LIDAR_VALUE = 10
 
 
 class DDPGEnvironment(Node):
-    def __init__(self, real_robot=False, is_training=False):
+    def __init__(self, real_robot, is_training):
         super().__init__('ddpg_environment')
 
         """************************************************************
@@ -64,9 +64,9 @@ class DDPGEnvironment(Node):
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
         if self.is_training == True: #TODO fix this statement
-            self.step_limit = 700
+            self.step_limit = 1000
         else:
-            self.step_limit = 700 # maximum number of steps before episode timeout occurs
+            self.step_limit = 1000 # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -253,8 +253,8 @@ class DDPGEnvironment(Node):
         self.previous_distance = self.goal_distance
 
         # Reward for avoiding obstacles
-        # if self.min_obstacle_distance < 0.25:
-        #     obstacle_reward = -10
+        if self.min_obstacle_distance < 0.25:
+            obstacle_reward = -10
         # else:
         obstacle_reward = 0
 
@@ -266,9 +266,9 @@ class DDPGEnvironment(Node):
             self.local_step, distance_reward, yaw_reward, linear_penality), end=' ')
 
         if self.succeed:
-            reward += 1000
+            reward += 500
         elif self.collision:
-            reward -= 1000
+            reward -= 500
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
