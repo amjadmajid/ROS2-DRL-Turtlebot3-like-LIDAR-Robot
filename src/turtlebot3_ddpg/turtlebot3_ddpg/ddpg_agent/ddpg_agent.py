@@ -303,7 +303,7 @@ class DDPGAgent(Node):
         # for episode in range(self.load_episode+1, self.episode_size):
         episode = self.load_episode
 
-        plt.figure()
+        plt.figure(figsize=(14,10))
         plt.axis([-50, 50, 0, 10000])
         plt.ion()
         plt.show()
