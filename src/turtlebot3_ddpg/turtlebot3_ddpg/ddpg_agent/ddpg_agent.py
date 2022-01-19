@@ -292,6 +292,7 @@ class DDPGAgent(Node):
         plt.draw()
         plt.pause(0.001)
         plt.show()
+        plt.savefig(os.path.join(self.session_dir, "_figure.png"))
 
     def process(self):
         success_count = 0
@@ -303,10 +304,12 @@ class DDPGAgent(Node):
         # for episode in range(self.load_episode+1, self.episode_size):
         episode = self.load_episode
 
-        plt.figure()
+        plt.figure(figsize=(14,10))
         plt.axis([-50, 50, 0, 10000])
         plt.ion()
         plt.show()
+
+        self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
 
         while (True):
             episode += 1
@@ -337,15 +340,12 @@ class DDPGAgent(Node):
                         avg_critic_loss = self.loss_critic_sum / step
                         avg_actor_loss = self.loss_actor_sum / step
                         episode_duration = time.time() - episode_start
-                        print(f"Episode: {episode} score: {reward_sum} success: {success}\
-                            n_steps: {step} memory length: {self.memory.get_length()} episode duration: {episode_duration}")
-                        self.results_file.write(f"{episode}, {reward_sum}, {success}, {episode_duration}, \
-                            {step}, {success_count}, {self.memory.get_length()}, {avg_critic_loss}, {avg_actor_loss}")
+                        print(f"Episode: {episode} score: {reward_sum} success: {success} n_steps: {step} memory length: {self.memory.get_length()} episode duration: {episode_duration}")
+                        self.results_file.write(f"{episode}, {reward_sum}, {success}, {episode_duration}, {step}, {success_count}, {self.memory.get_length()}, {avg_critic_loss}, {avg_actor_loss}\n")
 
                         self.rewards_data.append(reward_sum)
                         self.avg_critic_loss_data.append(avg_critic_loss)
                         self.avg_actor_loss_data.append(avg_actor_loss)
-                        self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
 
                         if self.training != True:
                             print("Waiting for new goal...")
@@ -354,10 +354,11 @@ class DDPGAgent(Node):
 
                 state = next_state
                 step += 1
-                time.sleep(0.01)  # While loop rate
+                # time.sleep(0.01)  # While loop rate
 
             if (self.training == True):
                 if (episode % self.store_interval == 0) or (episode == 1):
+                    self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
                     sm.save_session(self, self.session_dir, episode)
 
 
