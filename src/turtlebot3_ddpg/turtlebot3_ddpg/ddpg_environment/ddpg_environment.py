@@ -45,6 +45,8 @@ class DDPGEnvironment(Node):
     def __init__(self, real_robot, is_training):
         super().__init__('ddpg_environment')
 
+        self.episode = 0
+
         """************************************************************
         ** Initialise variables
         ************************************************************"""
@@ -64,9 +66,9 @@ class DDPGEnvironment(Node):
         # Change these parameters if necessary
         self.action_size = 2    # number of action types (e.g. linear velocity, angular velocity)
         if self.is_training == True: #TODO fix this statement
-            self.step_limit = 1000
+            self.step_limit = 500
         else:
-            self.step_limit = 1000 # maximum number of steps before episode timeout occurs
+            self.step_limit = 500 # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -171,6 +173,9 @@ class DDPGEnvironment(Node):
         self.received = True
 
     def stop_reset_robot(self, success):
+        self.episode += 1
+        if self.episode > 200:
+            self.step_limit = 700
         self.done = True
         self.cmd_vel_pub.publish(Twist())  # robot stop
         self.local_step = 1
