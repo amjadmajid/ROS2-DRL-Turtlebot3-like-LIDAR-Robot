@@ -67,8 +67,8 @@ class DDPGAgent(Node):
 
         # General hyperparameters
         self.discount_factor = 0.90
-        self.learning_rate = 0.0001
-        self.batch_size = 128
+        self.learning_rate = 0.001
+        self.batch_size = 512
 
         # DDPG hyperparameters
         self.tau = 0.001
