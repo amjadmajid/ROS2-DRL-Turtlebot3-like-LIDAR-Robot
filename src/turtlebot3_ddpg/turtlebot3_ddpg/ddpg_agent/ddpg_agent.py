@@ -123,7 +123,7 @@ class DDPGAgent(Node):
         self.training = True
         self.record_results = True
         # store model every N episodes
-        self.store_interval = 100
+        self.store_interval = 200
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)
