@@ -17,6 +17,10 @@ def new_session_dir(models_dir):
     os.makedirs(session_dir)
     return session_dir
 
+def delete_file(path):
+    if os.path.exists(path):
+        os.remove(path)
+
 
 def network_save_weights(network, model_dir, stage, episode):
     filepath = os.path.join(model_dir, str(network.name) + '_stage'+str(stage)+'_episode'+str(episode)+'.pt')
@@ -45,6 +49,18 @@ def save_session(ddpg_self, session_dir, episode):
     pickle_data = [ddpg_self.memory, ddpg_self.rewards_data, ddpg_self.avg_critic_loss_data, ddpg_self.avg_actor_loss_data]
     with open(os.path.join(ddpg_self.session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(episode)+'.pkl'), 'wb') as f:
         pickle.dump(pickle_data, f, pickle.HIGHEST_PROTOCOL)
+
+    # Delete previous iterations (except every 1000th episode)
+    if (episode % 1000 == 0):
+        for i in range(episode, episode - 1000, 100):
+            delete_file(os.path.join(session_dir, 'actor' + '_stage'+str(ddpg_self.stage)+'_episode'+str(i)+'.pt'))
+            delete_file(os.path.join(session_dir, 'target_actor' + '_stage'+str(ddpg_self.stage)+'_episode'+str(i)+'.pt'))
+            delete_file(os.path.join(session_dir, 'critic' + '_stage'+str(ddpg_self.stage)+'_episode'+str(i)+'.pt'))
+            delete_file(os.path.join(session_dir, 'target_critic' + '_stage'+str(ddpg_self.stage)+'_episode'+str(i)+'.pt'))
+            delete_file(os.path.join(session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(i)+'.json'))
+            delete_file(os.path.join(session_dir, 'stage'+str(ddpg_self.stage)+'_episode'+str(i)+'.pkl'))
+
+
 
 
 def network_load_weights(network, model_dir, stage, episode):
