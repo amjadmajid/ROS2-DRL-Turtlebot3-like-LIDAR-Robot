@@ -1,0 +1,1 @@
+episode, reward, success, duration, n_steps, success_count, memory length, avg_critic_loss, avg_actor_loss

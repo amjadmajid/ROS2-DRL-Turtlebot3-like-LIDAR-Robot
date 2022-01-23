@@ -67,8 +67,8 @@ class DDPGAgent(Node):
 
         # General hyperparameters
         self.discount_factor = 0.90
-        self.learning_rate = 0.0001
-        self.batch_size = 128
+        self.learning_rate = 0.001
+        self.batch_size = 512
 
         # DDPG hyperparameters
         self.tau = 0.001
@@ -123,7 +123,7 @@ class DDPGAgent(Node):
         self.training = True
         self.record_results = True
         # store model every N episodes
-        self.store_interval = 100
+        self.store_interval = 200
 
         if self.load_session:
             self.session_dir = os.path.join(models_directory, self.load_session)

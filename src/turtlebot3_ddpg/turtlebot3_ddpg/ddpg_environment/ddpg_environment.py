@@ -175,7 +175,7 @@ class DDPGEnvironment(Node):
     def stop_reset_robot(self, success):
         self.episode += 1
         if self.episode > 200:
-            self.step_limit = 700
+            self.step_limit = 800
         self.done = True
         self.cmd_vel_pub.publish(Twist())  # robot stop
         self.local_step = 1
@@ -269,11 +269,12 @@ class DDPGEnvironment(Node):
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
         print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Rspeed: {:.3f}".format(
             self.local_step, distance_reward, yaw_reward, linear_penality), end=' ')
+        reward = reward * 0.8
 
         if self.succeed:
-            reward += 500
+            reward += 700
         elif self.collision:
-            reward -= 500
+            reward -= 800
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
@@ -292,8 +293,13 @@ class DDPGEnvironment(Node):
         action_angular = action[INDEX_ANG]
 
         twist = Twist()
-        twist.linear.x = action_linear * 0.3 + 0.06
-        twist.angular.z = action_angular * 0.3
+        if self.real_robot:
+            twist.linear.x = action_linear * 0.3 + 0.06
+            twist.angular.z = action_angular * 0.3
+        else:
+            twist.linear.x = action_linear
+            twist.angular.z = action_angular
+
         self.cmd_vel_pub.publish(twist)
 
         # TODO: should there be some kind of delay here to balance laser update rate and vel publish
