@@ -66,15 +66,15 @@ class DDPGAgent(Node):
         self.episode_size = 10000
 
         # General hyperparameters
-        self.discount_factor = 0.90
-        self.learning_rate = 0.001
+        self.discount_factor = 0.99
+        self.learning_rate = 0.0001
         self.batch_size = 512
 
         # DDPG hyperparameters
         self.tau = 0.001
 
         # Replay memory
-        self.memory_size = 100000
+        self.memory_size = 10000
         self.memory = ReplayBuffer(self.memory_size)
 
         # metrics
@@ -108,7 +108,7 @@ class DDPGAgent(Node):
 
         self.update_network_parameters(1)
 
-        self.actor_noise = OUNoise(self.action_size, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
+        self.actor_noise = OUNoise(self.action_size, theta=0.5, max_sigma=0.5, min_sigma=0.5, decay_period=8000000)
 
         # ===================================================================== #
         #                             Model loading                             #

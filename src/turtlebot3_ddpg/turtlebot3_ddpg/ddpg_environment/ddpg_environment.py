@@ -269,10 +269,10 @@ class DDPGEnvironment(Node):
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
         print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Rspeed: {:.3f}".format(
             self.local_step, distance_reward, yaw_reward, linear_penality), end=' ')
-        reward = reward * 0.8
+        reward = reward
 
         if self.succeed:
-            reward += 700
+            reward += 1000
         elif self.collision:
             reward -= 800
         return float(reward)
