@@ -21,6 +21,7 @@ import numpy
 import os
 import sys
 import time
+import math
 
 import torch
 import torch.nn.functional as F
@@ -67,14 +68,15 @@ class DDPGAgent(Node):
 
         # General hyperparameters
         self.discount_factor = 0.99
-        self.learning_rate = 0.0001
-        self.batch_size = 512
+        self.learning_rate = 0.0003
+        self.batch_size = 256
 
-        # DDPG hyperparameters
-        self.tau = 0.001
+        # SAC hyperparameters
+        self.tau = 0.01
+        self.alpha = 0.2
 
         # Replay memory
-        self.memory_size = 10000
+        self.memory_size = 50000
         self.memory = ReplayBuffer(self.memory_size)
 
         # metrics
@@ -93,6 +95,7 @@ class DDPGAgent(Node):
         print("gpu torch available: ", torch.cuda.is_available())
         if (torch.cuda.is_available()):
             print("device name: ", torch.cuda.get_device_name(0))
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
 
         # ===================================================================== #
         #                        Models initialization                          #
@@ -106,8 +109,17 @@ class DDPGAgent(Node):
         self.target_critic = Critic("target_critic", self.state_size, self.action_size)
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), self.learning_rate)
 
+
+        self.target_entropy = -torch.prod(torch.Tensor([self.action_size]).to(self.device)).item()
+        print('entropy', self.target_entropy)
+        self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
+        self.alpha_optim = torch.optim.Adam([self.log_alpha], lr=self.learning_rate)
+
+
         self.update_network_parameters(1)
 
+        #TODO: The authors of the original DDPG paper recommended time-correlated OU noise, but more recent results suggest 
+        # that uncorrelated, mean-zero Gaussian noise works perfectly well. Since the latter is simpler, it is preferred. 
         self.actor_noise = OUNoise(self.action_size, theta=0.5, max_sigma=0.5, min_sigma=0.5, decay_period=8000000)
 
         # ===================================================================== #
@@ -147,12 +159,13 @@ class DDPGAgent(Node):
     #                           Class functions                             #
     # ===================================================================== #
 
+    #TODO: move below to ddpg (model) file
+
     def get_action(self, state, step):
         state = numpy.asarray(state, numpy.float32)
         state = torch.from_numpy(state)
-        action = self.actor.forward(state).detach()
-        action = action.data.numpy()
-        action = action.tolist()
+        action, _, _, _ = self.actor.sample(state)
+        action = action.detach().data.numpy().tolist()
         N = copy.deepcopy(self.actor_noise.get_noise(t=step))
         N[0] = N[0]*ACTION_LINEAR_MAX/2
         N[1] = N[1]*ACTION_ANGULAR_MAX
@@ -162,8 +175,8 @@ class DDPGAgent(Node):
 
     def update_network_parameters(self, tau):
         # update target actor
-        for target_param, param in zip(self.target_actor.parameters(), self.actor.parameters()):
-            target_param.data.copy_(target_param.data*(1.0 - tau) + param.data*tau)
+        # for target_param, param in zip(self.target_actor.parameters(), self.actor.parameters()):
+        #     target_param.data.copy_(target_param.data*(1.0 - tau) + param.data*tau)
         # update target critic
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
             target_param.data.copy_(target_param.data*(1.0 - tau) + param.data*tau)
@@ -177,35 +190,74 @@ class DDPGAgent(Node):
 
         s_sample = torch.from_numpy(s_sample)
         a_sample = torch.from_numpy(a_sample)
-        r_sample = torch.from_numpy(r_sample)
+        r_sample = torch.from_numpy(r_sample).unsqueeze(1)
         new_s_sample = torch.from_numpy(new_s_sample)
-        done_sample = torch.from_numpy(done_sample)
+        done_sample = torch.from_numpy(done_sample).unsqueeze(1)
 
-        # optimize critic
-        a_target = self.target_actor.forward(new_s_sample).detach()
-        next_value = torch.squeeze(self.target_critic.forward(new_s_sample, a_target).detach())
-        # y_exp = r _ gamma*Q'(s', P'(s'))
-        y_expected = r_sample + (1 - done_sample)*self.discount_factor*next_value
-        # y_pred = Q(s,a)
-        y_predicted = torch.squeeze(self.critic.forward(s_sample, a_sample))
-        self.qvalue = y_predicted.detach()
-        # print(torch.max(self.qvalue))
+        # optimize critic (policy)
+        with torch.no_grad():
+            next_state_action, next_state_log_pi, _, _ = self.target_actor.sample(new_s_sample)
+            qf1_next_target, qf2_next_target = self.target_critic.forward(new_s_sample, next_state_action)
+            min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - self.alpha * next_state_log_pi
+            print(min_qf_next_target)
+            print(r_sample)
+            next_q_value = r_sample + (1 - done_sample) * self.discount_factor * (min_qf_next_target)
 
-        loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
+        # a_target = self.target_actor.sample(new_s_sample)
+        # next_value = torch.squeeze(self.target_critic.forward(new_s_sample, a_target).detach())
+        # # y_exp = r _ gamma*Q'(s', P'(s'))
+        # y_expected = r_sample + (1 - done_sample)*self.discount_factor*next_value
+        # # y_pred = Q(s,a)
+        # q1_y_predicted, q2_y_predicted = torch.squeeze(self.critic.forward(s_sample, a_sample))
+        # self.q1_qvalue = q1_y_predicted.detach()
+        # self.q2_qvalue = q2_y_predicted.detach()
+
+        qf1, qf2 = self.critic.forward(s_sample, a_sample)
+        q1_loss_critic = F.smooth_l1_loss(qf1, next_q_value)
+        q2_loss_critic = F.smooth_l1_loss(qf2, next_q_value)
+        loss_critic = q1_loss_critic + q2_loss_critic
         self.loss_critic_sum += loss_critic.detach()
+
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
         # torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
         self.critic_optimizer.step()
 
-        # optimize actor
-        pred_a_sample = self.actor.forward(s_sample)
-        loss_actor = -1*torch.sum(self.critic.forward(s_sample, pred_a_sample))
-        self.loss_actor_sum += loss_actor.detach()
+        pi, log_pi, mean, log_std = self.actor.sample(s_sample)
+
+        # todo: use sum? 
+        # q1_loss_actor, q2_loss_actor = -1*torch.sum(self.critic.forward(s_sample, pred_a_sample))
+        qf1_pi, qf2_pi = self.critic.forward(s_sample, pi)
+        min_qf_pi = torch.min(qf1_pi, qf2_pi)
+        self.loss_actor_sum += min_qf_pi.detach()
+
+        policy_loss = ((self.alpha * log_pi) - min_qf_pi).mean() 
+        # Regularization Loss
+        #reg_loss = 0.001 * (mean.pow(2).mean() + log_std.pow(2).mean())
+        #policy_loss += reg_loss
 
         self.actor_optimizer.zero_grad()
-        loss_actor.backward()
-        self.actor_optimizer.step()
+        policy_loss.backward()
+        self.actor_optimizer.step() 
+
+        # optimize actor
+        # pred_a_sample = self.actor.forward(s_sample)
+        # q1_loss_actor, q2_loss_actor = -1*torch.sum(self.critic.forward(s_sample, pred_a_sample))
+        # min_loss_actor = torch.min(q1_loss_actor, q2_loss_actor)
+        # self.loss_actor_sum += min_loss_actor.detach()
+        # loss_actor = ((self.alpha * log_pi) - min_qf_pi).mean() 
+
+        # self.actor_optimizer.zero_grad()
+        # loss_actor.backward()
+        # self.actor_optimizer.step() 
+
+        alpha_loss = -(self.log_alpha * (log_pi + self.target_entropy).detach()).mean()
+
+        self.alpha_optim.zero_grad()
+        alpha_loss.backward()
+        self.alpha_optim.step()
+
+        self.alpha = self.log_alpha.exp()
 
         # Soft update all target networks
         self.update_network_parameters(self.tau)
@@ -359,7 +411,7 @@ class DDPGAgent(Node):
             if (self.training == True):
                 if (episode % self.store_interval == 0) or (episode == 1):
                     self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
-                    sm.save_session(self, self.session_dir, episode)
+                    # sm.save_session(self, self.session_dir, episode)
 
 
 def main(args=sys.argv[1:]):
