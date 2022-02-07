@@ -102,7 +102,7 @@ class DDPGAgent(Node):
         # ===================================================================== #
 
         self.actor = Actor("actor", self.state_size, self.action_size, ACTION_LINEAR_MAX, ACTION_ANGULAR_MAX)
-        self.target_actor = Actor("target_actor", self.state_size, self.action_size, ACTION_LINEAR_MAX, ACTION_ANGULAR_MAX)
+        # self.target_actor = Actor("target_actor", self.state_size, self.action_size, ACTION_LINEAR_MAX, ACTION_ANGULAR_MAX)
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), self.learning_rate)
 
         self.critic = Critic("critic", self.state_size, self.action_size)
@@ -111,7 +111,7 @@ class DDPGAgent(Node):
 
 
         self.target_entropy = -torch.prod(torch.Tensor([self.action_size]).to(self.device)).item()
-        print('entropy', self.target_entropy)
+        # print('entropy', self.target_entropy)
         self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
         self.alpha_optim = torch.optim.Adam([self.log_alpha], lr=self.learning_rate)
 
@@ -162,10 +162,9 @@ class DDPGAgent(Node):
     #TODO: move below to ddpg (model) file
 
     def get_action(self, state, step):
-        state = numpy.asarray(state, numpy.float32)
-        state = torch.from_numpy(state)
+        state = torch.FloatTensor(state).unsqueeze(0)
         action, _, _, _ = self.actor.sample(state)
-        action = action.detach().data.numpy().tolist()
+        action = action.detach().data.numpy().tolist()[0]
         N = copy.deepcopy(self.actor_noise.get_noise(t=step))
         N[0] = N[0]*ACTION_LINEAR_MAX/2
         N[1] = N[1]*ACTION_ANGULAR_MAX
@@ -194,13 +193,11 @@ class DDPGAgent(Node):
         new_s_sample = torch.from_numpy(new_s_sample)
         done_sample = torch.from_numpy(done_sample).unsqueeze(1)
 
-        # optimize critic (policy)
+        # optimize critic (policy)  
         with torch.no_grad():
-            next_state_action, next_state_log_pi, _, _ = self.target_actor.sample(new_s_sample)
+            next_state_action, next_state_log_pi, _, _ = self.actor.sample(new_s_sample)
             qf1_next_target, qf2_next_target = self.target_critic.forward(new_s_sample, next_state_action)
-            min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - self.alpha * next_state_log_pi
-            print(min_qf_next_target)
-            print(r_sample)
+            min_qf_next_target = torch.minimum(qf1_next_target, qf2_next_target) - self.alpha * next_state_log_pi
             next_q_value = r_sample + (1 - done_sample) * self.discount_factor * (min_qf_next_target)
 
         # a_target = self.target_actor.sample(new_s_sample)
@@ -213,8 +210,8 @@ class DDPGAgent(Node):
         # self.q2_qvalue = q2_y_predicted.detach()
 
         qf1, qf2 = self.critic.forward(s_sample, a_sample)
-        q1_loss_critic = F.smooth_l1_loss(qf1, next_q_value)
-        q2_loss_critic = F.smooth_l1_loss(qf2, next_q_value)
+        q1_loss_critic = F.mse_loss(qf1, next_q_value)
+        q2_loss_critic = F.mse_loss(qf2, next_q_value)
         loss_critic = q1_loss_critic + q2_loss_critic
         self.loss_critic_sum += loss_critic.detach()
 
@@ -228,7 +225,7 @@ class DDPGAgent(Node):
         # todo: use sum? 
         # q1_loss_actor, q2_loss_actor = -1*torch.sum(self.critic.forward(s_sample, pred_a_sample))
         qf1_pi, qf2_pi = self.critic.forward(s_sample, pi)
-        min_qf_pi = torch.min(qf1_pi, qf2_pi)
+        min_qf_pi = torch.minimum(qf1_pi, qf2_pi)
         self.loss_actor_sum += min_qf_pi.detach()
 
         policy_loss = ((self.alpha * log_pi) - min_qf_pi).mean() 
@@ -304,8 +301,6 @@ class DDPGAgent(Node):
         xaxis = numpy.array(range(episode))
         x = xaxis
         y = reward
-        print(x)
-        print(y)
         plt.subplot(2, 2, 1)
         plt.gca().set_title('reward')
         plt.plot(x, y)
@@ -361,7 +356,7 @@ class DDPGAgent(Node):
         plt.ion()
         plt.show()
 
-        self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
+        # self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
 
         while (True):
             episode += 1
@@ -410,8 +405,8 @@ class DDPGAgent(Node):
 
             if (self.training == True):
                 if (episode % self.store_interval == 0) or (episode == 1):
-                    self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
-                    # sm.save_session(self, self.session_dir, episode)
+                    # self.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
+                    sm.save_session(self, self.session_dir, episode)
 
 
 def main(args=sys.argv[1:]):
