@@ -68,7 +68,7 @@ class DDPGEnvironment(Node):
         if self.is_training == True: #TODO fix this statement
             self.step_limit = 500
         else:
-            self.step_limit = 500 # maximum number of steps before episode timeout occurs
+            self.step_limit = 50000 # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -269,12 +269,12 @@ class DDPGEnvironment(Node):
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
         print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Rspeed: {:.3f}".format(
             self.local_step, distance_reward, yaw_reward, linear_penality), end=' ')
-        reward = reward
+        reward = reward * 0.3
 
         if self.succeed:
-            reward += 1000
+            reward += 400
         elif self.collision:
-            reward -= 800
+            reward -= 100
         return float(reward)
 
     def ddpg_com_callback(self, request, response):
