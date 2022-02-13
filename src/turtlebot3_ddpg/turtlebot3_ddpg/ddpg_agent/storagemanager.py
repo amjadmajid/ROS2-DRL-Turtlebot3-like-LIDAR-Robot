@@ -28,18 +28,18 @@ def network_save_weights(network, model_dir, stage, episode):
     torch.save(network.state_dict(), filepath)
 
 
-def save_session(agent_self, session_dir, episode):
+def save_session(agent_self, agent, session_dir, episode):
     print(f"saving data for episode: {episode}")
-    network_save_weights(agent_self.actor, session_dir, agent_self.stage, episode)
-    network_save_weights(agent_self.critic, session_dir, agent_self.stage, episode)
+    network_save_weights(agent.actor, session_dir, agent_self.stage, episode)
+    network_save_weights(agent.critic, session_dir, agent_self.stage, episode)
     # network_save_weights(ddpg_self.target_actor, session_dir, ddpg_self.stage, episode)
-    network_save_weights(agent_self.target_critic, session_dir, agent_self.stage, episode)
+    network_save_weights(agent.target_critic, session_dir, agent_self.stage, episode)
 
     # Store parameters state
-    param_keys = ['stage', 'batch_size', 'learning_rate', 'discount_factor', 'episode_size', 
-                    'action_size',  'state_size', 'buffer_size', 'tau', 'alpha']
-    param_values = [agent_self.stage, agent_self.batch_size, agent_self.learning_rate, agent_self.discount_factor, agent_self.episode_size, 
-                    agent_self.action_size, agent_self.state_size, agent_self.buffer_size, agent_self.tau, agent_self.alpha.item()]
+    param_keys = ['stage', 'batch_size', 'learning_rate', 'discount_factor',
+                    'action_size',  'state_size', 'buffer_size', 'tau']
+    param_values = [agent_self.stage, agent_self.batch_size, agent_self.learning_rate, agent_self.discount_factor,
+                    agent_self.action_size, agent_self.state_size, agent_self.buffer_size, agent_self.tau]
     param_dictionary = dict(zip(param_keys, param_values))
     with open(os.path.join(agent_self.session_dir, 'stage'+str(agent_self.stage)+'_episode'+str(episode)+'.json'), 'w') as outfile:
         json.dump(param_dictionary, outfile)
@@ -68,25 +68,24 @@ def network_load_weights(network, model_dir, stage, episode):
     network.load_state_dict(torch.load(filepath))
 
 
-def load_session(agent_self, session_dir, load_episode):
+def load_session(agent_self, agent, session_dir, load_episode):
     # Load stored weights for network
-    network_load_weights(agent_self.actor, session_dir, agent_self.stage, load_episode)
-    network_load_weights(agent_self.critic, session_dir, agent_self.stage, load_episode)
+    network_load_weights(agent.actor, session_dir, agent_self.stage, load_episode)
+    network_load_weights(agent.critic, session_dir, agent_self.stage, load_episode)
     # network_load_weights(ddpg_self.target_actor, session_dir, ddpg_self.stage, load_episode)
-    network_load_weights(agent_self.target_critic, session_dir, agent_self.stage, load_episode)
+    network_load_weights(agent.target_critic, session_dir, agent_self.stage, load_episode)
 
     # load hyperparameters
     with open(os.path.join(session_dir, 'stage'+str(agent_self.stage)+'_episode'+str(load_episode)+'.json')) as outfile:
         param = json.load(outfile)
-        agent_self.batch_size = ('batch_size') 
-        agent_self.learning_rate = ('learning_rate') 
-        agent_self.discount_factor = ('discount_factor') 
-        agent_self.episode_size = ('episode_size') 
-        agent_self.action_size = ('action_size') 
-        agent_self.state_size = ('state_size') 
+        agent_self.batch_size = param.get('batch_size')
+        agent_self.learning_rate = param.get('learning_rate')
+        agent_self.discount_factor = param.get('discount_factor')
+        agent_self.action_size = param.get('action_size')
+        agent_self.state_size = param.get('state_size')
         agent_self.buffer_size = param.get('buffer_size')
         agent_self.tau = param.get('tau')
-        agent_self.alpha = param.get('alpha')
+        # agent_self.alpha = param.get('alpha')
 
     # load replay buffer and graph data
     with open(os.path.join(agent_self.session_dir, 'stage'+str(agent_self.stage)+'_episode'+str(load_episode)+'.pkl'), 'rb') as f:

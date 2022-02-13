@@ -68,7 +68,7 @@ class DDPGEnvironment(Node):
         if self.is_training == True: #TODO fix this statement
             self.step_limit = 500
         else:
-            self.step_limit = 50000 # maximum number of steps before episode timeout occurs
+            self.step_limit = 500 # maximum number of steps before episode timeout occurs
         self.time_penalty = -1  # negative reward for every step taken
 
         # No need to change below
@@ -245,7 +245,8 @@ class DDPGEnvironment(Node):
         # yaw_reward = 3 - (3 * 2 * math.sqrt(math.fabs(self.goal_angle / math.pi)))
 
         # Between -1 and 0
-        yaw_reward = -1 * abs(self.goal_angle) / (math.pi)
+        # yaw_reward = -1 * abs(self.goal_angle) / (math.pi)
+        yaw_reward = 0
 
         # Between -4 and 0
         # angular_penalty = -0.5 * (action_angular**2)
@@ -253,23 +254,25 @@ class DDPGEnvironment(Node):
 
         # distance_reward = (2 * self.init_goal_distance) / (self.init_goal_distance + self.goal_distance) - 1
         # distance_reward = (self.previous_distance - self.goal_distance) * ((self.step_limit/100) / self.local_step) * 10
-        distance_reward = (self.previous_distance - self.goal_distance) * 100
+        distance_reward = (self.previous_distance - self.goal_distance) * 500
+        # distance_reward = 0
 
         self.previous_distance = self.goal_distance
 
         # Reward for avoiding obstacles
-        if self.min_obstacle_distance < 0.25:
-            obstacle_reward = -10
+        # if self.min_obstacle_distance < 0.25:
+        #     obstacle_reward = -10
         # else:
         obstacle_reward = 0
 
-        # Between -1 * (2.2^2) and 0
-        linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2)
+        # Between -1 * (2.2^2) * 0.2 and 0
+        # linear_penality = -1 * (((0.22 - action_linear) * 10) ** 2) * 0.2
+        linear_penality = 0
 
         reward = yaw_reward + distance_reward + obstacle_reward + linear_penality + angular_penalty + self.time_penalty
         print("{:0>4} - Rdist: {:.3f}, Rangle: {:.3f}, Rspeed: {:.3f}".format(
             self.local_step, distance_reward, yaw_reward, linear_penality), end=' ')
-        reward = reward * 0.3
+        reward = reward 
 
         if self.succeed:
             reward += 400
