@@ -1,4 +1,5 @@
-# This repository contains the code for a ROS2 implementation of several DRL algorithms for autonumous navigation with the Turtlebot3.
+# Thesis project
+### This repository contains the code for a ROS2 implementation of several DRL algorithms for autonumous navigation with the Turtlebot3.
 
 
 # **INSTALLATION INSTRUCTIONS**
