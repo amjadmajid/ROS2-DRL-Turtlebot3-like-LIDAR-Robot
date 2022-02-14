@@ -26,6 +26,7 @@ from .replaybuffer import ReplayBuffer
 from . import storagemanager as sm
 from .utilities import DDPGplot
 from . import utilities
+from .ounoise import OUNoise
 
 from turtlebot3_msgs.srv import DrlStep
 from turtlebot3_msgs.srv import Goal
@@ -33,15 +34,7 @@ from turtlebot3_msgs.srv import Goal
 import rclpy
 from rclpy.node import Node
 
-
-# Constants
-ACTION_LINEAR_MAX = 0.22
-ACTION_ANGULAR_MAX = 2.0
-
-INDEX_LIN = 0
-INDEX_ANG = 1
-
-PLOT_INTERVAL = 3
+PLOT_INTERVAL = 2
 
 class DDPGagent(Node):
     def __init__(self, stage, agent, episode):
@@ -62,6 +55,8 @@ class DDPGagent(Node):
         # DDPG hyperparameters
         self.tau = 0.01
 
+        self.actor_noise = OUNoise(self.action_size, max_sigma=0.1, min_sigma=0.1, decay_period=8000000)
+
         # Replay Buffer
         self.buffer_size = 50000
         self.replay_buffer = ReplayBuffer(self.buffer_size)
@@ -70,10 +65,9 @@ class DDPGagent(Node):
         self.rewards_data = []
         self.avg_critic_loss_data = []
         self.avg_actor_loss_data = []
-        self.avg_alpha_loss_data = []
 
         self.device = utilities.check_gpu()
-        self.agent = DDPG(self.device, self.state_size, self.action_size, self.discount_factor, self.learning_rate, self.tau)
+        self.agent = DDPG(self.device, self.state_size, self.action_size, self.discount_factor, self.learning_rate, self.tau, self.actor_noise)
 
         self.is_training = True
         self.store_interval = 200 # save simulation state every N episodes
@@ -112,7 +106,7 @@ class DDPGagent(Node):
 
         episode = self.load_episode
         ddpg_plot = DDPGplot(self.session_dir, PLOT_INTERVAL, episode, self.rewards_data, self.avg_critic_loss_data, 
-                                self.avg_actor_loss_data, self.avg_alpha_loss_data)
+                                self.avg_actor_loss_data)
 
 
         while (True):
@@ -121,13 +115,12 @@ class DDPGagent(Node):
             next_state = list()
             episode_done = False
             step = 0
-            reward_sum = 0.0
             time.sleep(1.0)
             episode_start = time.time()
-            loss_critic_sum, loss_actor_sum, loss_alpha_sum = 0.0, 0.0, 0.0
+            reward_sum, loss_critic_sum, loss_actor_sum = 0.0, 0.0, 0.0
 
             while not episode_done:
-                action = self.agent.get_action(state)
+                action = self.agent.get_action(state, step)
                 next_state, reward, episode_done, success = utilities.step(self, action, past_action)
                 past_action = copy.deepcopy(action)
                 reward_sum += reward
@@ -137,10 +130,10 @@ class DDPGagent(Node):
                 if self.is_training == True:
                     self.replay_buffer.add_sample(state, action, reward, next_state, episode_done)
                     if self.replay_buffer.get_length() >= self.batch_size:
-                        cri_loss, act_loss, alp_loss = self.agent.train(self.replay_buffer.sample(self.batch_size))
+                        # TODO: how often train for every added sample?
+                        cri_loss, act_loss, = self.agent.train(self.replay_buffer.sample(self.batch_size))
                         loss_critic_sum += cri_loss
                         loss_actor_sum += act_loss
-                        loss_alpha_sum += alp_loss
 
                 # time.sleep(0.01)  # While loop rate
 
@@ -150,15 +143,13 @@ class DDPGagent(Node):
             self.rewards_data.append(reward_sum)
             self.avg_critic_loss_data.append(loss_critic_sum / step)
             self.avg_actor_loss_data.append(loss_actor_sum / step)
-            self.avg_alpha_loss_data.append(loss_alpha_sum / step)
 
             print(f"Episode: {episode} score: {reward_sum} success: {success} n_steps: {step} memory length: {self.replay_buffer.get_length()} episode duration: {episode_duration}")
             self.results_file.write(f"{episode}, {reward_sum}, {success}, {episode_duration}, {step}, {success_count}, {self.replay_buffer.get_length()}, {loss_critic_sum / step}, {loss_actor_sum / step}\n")
           
+            ddpg_plot.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data)
             if (self.is_training == True):
                 if (episode % self.store_interval == 0) or (episode == 1):
-                    ddpg_plot.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, 
-                                            self.avg_actor_loss_data, self.avg_alpha_loss_data)
                     sm.save_session(self, self.agent, self.session_dir, episode)
 
             if self.is_training != True:

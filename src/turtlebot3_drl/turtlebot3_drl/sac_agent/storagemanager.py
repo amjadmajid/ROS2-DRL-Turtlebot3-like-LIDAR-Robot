@@ -28,11 +28,11 @@ def network_save_weights(network, model_dir, stage, episode):
     torch.save(network.state_dict(), filepath)
 
 
-def save_session(agent_self, agent, session_dir, episode):
+def save_session(agent_self, model, session_dir, episode):
     print(f"saving data for episode: {episode}")
-    network_save_weights(agent.actor, session_dir, agent_self.stage, episode)
-    network_save_weights(agent.critic, session_dir, agent_self.stage, episode)
-    network_save_weights(agent.target_critic, session_dir, agent_self.stage, episode)
+    network_save_weights(model.actor, session_dir, agent_self.stage, episode)
+    network_save_weights(model.critic, session_dir, agent_self.stage, episode)
+    network_save_weights(model.target_critic, session_dir, agent_self.stage, episode)
 
     # Store parameters state
     param_keys = ['stage', 'batch_size', 'learning_rate', 'discount_factor',
@@ -66,11 +66,11 @@ def network_load_weights(network, model_dir, stage, episode):
     network.load_state_dict(torch.load(filepath))
 
 
-def load_session(agent_self, agent, session_dir, load_episode):
+def load_session(agent_self, model, session_dir, load_episode):
     # Load stored weights for network
-    network_load_weights(agent.actor, session_dir, agent_self.stage, load_episode)
-    network_load_weights(agent.critic, session_dir, agent_self.stage, load_episode)
-    network_load_weights(agent.target_critic, session_dir, agent_self.stage, load_episode)
+    network_load_weights(model.actor, session_dir, agent_self.stage, load_episode)
+    network_load_weights(model.critic, session_dir, agent_self.stage, load_episode)
+    network_load_weights(model.target_critic, session_dir, agent_self.stage, load_episode)
 
     # load hyperparameters
     with open(os.path.join(session_dir, 'stage'+str(agent_self.stage)+'_episode'+str(load_episode)+'.json')) as outfile:

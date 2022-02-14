@@ -19,40 +19,26 @@ class SACplot():
         self.update_plots(episode, rewards, critic_loss, actor_loss, alpha_loss)
 
     def update_plots(self, episode, rewards, critic_loss, actor_loss, alpha_loss):
-        # plot 1:
+        
         xaxis = numpy.array(range(episode))
-        # x = xaxis
-        # y = self.rewards_data
-        # plt.subplot(2, 3, 1)
-        # plt.gca().set_title('reward')
-        # plt.plot(x, y)
-
-        # plot 2:
         x = xaxis
         y = numpy.array(critic_loss)
-
         plt.subplot(2, 2, 1)
         plt.gca().set_title('avg critic loss over episode')
         plt.plot(x, y)
 
-        # plot 3:
         x = xaxis
         y = numpy.array(actor_loss)
-
         plt.subplot(2, 2, 2)
         plt.gca().set_title('avg actor loss over episode')
         plt.plot(x, y)
 
-        # plot 4:
         x = xaxis
         y = numpy.array(alpha_loss)
-
         plt.subplot(2, 2, 3)
         plt.gca().set_title('avg alpha loss over episode')
         plt.plot(x, y)
 
-
-        # plot 5:
         count = int(episode / self.plot_interval)
         if count > 0:
             x = numpy.array(range(self.plot_interval, episode+1, self.plot_interval))

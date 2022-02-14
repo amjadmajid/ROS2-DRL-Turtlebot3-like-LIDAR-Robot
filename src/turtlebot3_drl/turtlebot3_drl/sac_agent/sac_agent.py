@@ -41,7 +41,7 @@ ACTION_ANGULAR_MAX = 2.0
 INDEX_LIN = 0
 INDEX_ANG = 1
 
-PLOT_INTERVAL = 3
+PLOT_INTERVAL = 2
 
 class SACagent(Node):
     def __init__(self, stage, agent, episode):
@@ -121,10 +121,9 @@ class SACagent(Node):
             next_state = list()
             episode_done = False
             step = 0
-            reward_sum = 0.0
             time.sleep(1.0)
             episode_start = time.time()
-            loss_critic_sum, loss_actor_sum, loss_alpha_sum = 0.0, 0.0, 0.0
+            reward_sum, loss_critic_sum, loss_actor_sum, loss_alpha_sum = 0.0, 0.0, 0.0, 0.0
 
             while not episode_done:
                 action = self.agent.get_action(state)
@@ -137,6 +136,7 @@ class SACagent(Node):
                 if self.is_training == True:
                     self.replay_buffer.add_sample(state, action, reward, next_state, episode_done)
                     if self.replay_buffer.get_length() >= self.batch_size:
+                        # TODO: how often train for every added sample?
                         cri_loss, act_loss, alp_loss = self.agent.train(self.replay_buffer.sample(self.batch_size))
                         loss_critic_sum += cri_loss
                         loss_actor_sum += act_loss
@@ -155,10 +155,9 @@ class SACagent(Node):
             print(f"Episode: {episode} score: {reward_sum} success: {success} n_steps: {step} memory length: {self.replay_buffer.get_length()} episode duration: {episode_duration}")
             self.results_file.write(f"{episode}, {reward_sum}, {success}, {episode_duration}, {step}, {success_count}, {self.replay_buffer.get_length()}, {loss_critic_sum / step}, {loss_actor_sum / step}\n")
           
+            sac_plot.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, self.avg_actor_loss_data, self.avg_alpha_loss_data)
             if (self.is_training == True):
                 if (episode % self.store_interval == 0) or (episode == 1):
-                    sac_plot.update_plots(episode, self.rewards_data, self.avg_critic_loss_data, 
-                                            self.avg_actor_loss_data, self.avg_alpha_loss_data)
                     sm.save_session(self, self.agent, self.session_dir, episode)
 
             if self.is_training != True:
