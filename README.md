@@ -151,11 +151,11 @@ ros2 run turtlebot3_dqn dqn_gazebo 4
 ```
 In a third terminal run
 ```
-ros2 run turtlebot3_ddpg ddpg_environment 
+ros2 run turtlebot3_drl drl_environment 
 ```
 And lastly, in the fourth terminal run
 ```
-ros2 run turtlebot3_ddpg ddpg_agent 4
+ros2 run turtlebot3_drl ddpg_agent 4
 ```
 
 Your robot should now be moving and logging output is being printed to the terminals!

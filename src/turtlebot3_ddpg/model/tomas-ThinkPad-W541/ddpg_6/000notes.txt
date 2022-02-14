@@ -1,1 +1,0 @@
-First working version where robot did not constantly spin, was trained on stage 1.
