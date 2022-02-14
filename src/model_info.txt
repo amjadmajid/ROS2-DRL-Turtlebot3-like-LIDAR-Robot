@@ -1,4 +1,0 @@
-tag 0.0.1 - ddpg_1:
-good performance with moving obstacles (around 80% so far)
-doesn't sway
-still cuts corners sometimes
