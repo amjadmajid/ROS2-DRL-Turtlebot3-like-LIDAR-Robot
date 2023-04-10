@@ -1,0 +1,26 @@
+20220624-215100, ddpgfixed_0, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-215139, ddpgfixed_1, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-215259, ddpgfixed_2, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-220204, ddpgfixed_3, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-220252, ddpgfixed_4, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-220417, ddpgfixed_5, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-221536, ddpgfixed_6, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-221613, ddpgfixed_7, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-221823, ddpgfixed_8, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-225517, ddpgfixed_9, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-225643, ddpgfixed_10, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-225741, ddpgfixed_11, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-230517, ddpgfixed_12, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-230616, ddpgfixed_13, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-230658, ddpgfixed_14, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-230935, ddpgfixed_15, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-231008, ddpgfixed_16, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-231159, ddpgfixed_17, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-231405, ddpgfixed_18, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-231520, ddpgfixed_19, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-231602, ddpgfixed_20, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3, results, 1, 0: 0%, 1: -5931.7434186935425
+20220624-231657, ddpgfixed_0, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220624-232144, ddpgfixed_0, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3
+20220625-105523, ddpgfixed_1, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3, results, 2000, 1100: 77%, 1100: 660.0838645178571
+20220625-133056, ddpgfixed_2, 0, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, A, False, 3, 3, 3
+20220625-142741, ddpgfixed_3, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, K, False, 3, 3, 3, results, 100, 0: 0%, 100: -5284.511927343286

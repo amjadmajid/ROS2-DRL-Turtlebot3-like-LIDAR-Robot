@@ -1,0 +1,541 @@
+20221011-122743, dqn_29, 9, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, AdamW, smooth_l1_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 2900, 500: 5%, 1800: -4225.95202558279
+20221011-224300, dqn_31, 9, 1024, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, AdamW, smooth_l1_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 600, 200: 4%, 100: -6657.476396718025
+20221012-134216, dqn_32, 7, 1024, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.0, AdamW, smooth_l1_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 800, 300: 3%, 700: -12930.548898694515
+20221013-130413, dqn_34, 7, 1024, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.04, AdamW, smooth_l1_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 700, 200: 5%, 100: -3868.718600920141
+20221014-235055, dqn_37, 1, 512, 1000000, 44, 5, 256, 0.99, 0.001, 0.001, 0.01, AdamW, mse_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 400, 100: 15%, 100: -8751.714108986855
+20221016-154903, dqn_49, 4, 512, 1000000, 44, 5, 256, 0.99, 0.001, 0.001, 0.0, AdamW, mse_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 300, 100: 3%, 100: -16135.834880217313
+20221016-234000, dqn_52, 4, 512, 1000000, 44, 5, 256, 0.99, 0.001, 0.001, 0.0, AdamW, mse_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 1400, 500: 6%, 1000: -4680.093512882292
+20221017-121045, dqn_54, 4, 512, 1000000, 44, 5, 256, 0.99, 0.001, 0.001, 0.0, AdamW, mse_loss, A, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 3700, 1200: 7%, 3300: -399.49713375143705
+20221017-235620, dqn_55, 4, 512, 1000000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 900, 200: 8%, 800: -5087.947194723785
+20221019-120521, dqn_57, 1, 512, 1000000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.999, 0.05, results, 4900, 3900: 100%, 4400: -699.8297532647848
+20221020-213209, dqn_59, 9, 512, 1000000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.9995, 0.05, results, 5300, 2900: 29%, 4500: -2414.9211615374684
+20221021-104525, dqn_59, 9, 512, 1000000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.9995, 0.05, results, 6600, 5400: 26%, 5700: -7292.500415132045
+20221021-115923, dqn_60, 9, 512, 800000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.9995, 0.05, results, 300, 200: 5%, 300: -8208.111987226308
+20221022-202237, dqn_61, 9, 512, 800000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.9995, 0.05, results, 5400, 3700: 19%, 3200: -3557.7855813121796
+20221024-105522, dqn_61, 9, 512, 800000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.9995, 0.05, results, 8700, 8100: 18%, 7200: -6790.9608260113
+20221024-205030, dqn_62, 7, 512, 800000, 44, 5, 256, 0.99, 3e-05, 3e-05, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.9995, 0.05, results, 3000, 3000: 16%, 1600: -2912.843615807593
+20221027-143532, dqn_63, 7, 512, 800000, 44, 5, 256, 0.99, 0.0003, 0.0003, 0.0, AdamW, mse_loss, G_dqn, False, 1, False, 3, 4, 1.0, 0.9995, 0.05, results, 11200, 8700: 82%, 9000: -2088.344956934899
+
+20221130-134437, dqn_79, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f82027b6b80>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221130-134448, dqn_80, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f160d78eb80>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+20221130-134519, dqn_80, 1, s, t, a, t, e, _, s, i, z, e,  , =,  , 4, 4, ,,  , a, c, t, i, o, n, _, s, i, z, e,  , =,  , 5, ,,  , h, i, d, d, e, n, _, s, i, z, e,  , =,  , 5, 1, 2, ,,  , b, a, t, c, h, _, s, i, z, e,  , =,  , 1, 2, 8, ,,  , b, u, f, f, e, r, _, s, i, z, e,  , =,  , 1, 0, 0, 0, 0, 0, 0, ,,  , d, i, s, c, o, u, n, t, _, f, a, c, t, o, r,  , =,  , 0, ., 9, 9, ,,  , l, e, a, r, n, i, n, g, _, r, a, t, e,  , =,  , 0, ., 0, 0, 3, ,,  , t, a, u,  , =,  , 0, ., 0, 0, 3, ,,  , s, t, e, p, _, t, i, m, e,  , =,  , 0, ., 0, 1, ,,  , l, o, s, s, _, f, u, n, c, t, i, o, n,  , =,  , <, f, u, n, c, t, i, o, n,  , s, m, o, o, t, h, _, l, 1, _, l, o, s, s,  , a, t,  , 0, x, 7, f, 1, 6, 0, d, 7, 8, e, b, 8, 0, >, ,,  , e, p, s, i, l, o, n,  , =,  , 1, ., 0, ,,  , e, p, s, i, l, o, n, _, d, e, c, a, y,  , =,  , 0, ., 9, 9, 9, 5, ,,  , e, p, s, i, l, o, n, _, m, i, n, i, m, u, m,  , =,  , 0, ., 0, 5, ,,  , t, a, r, g, e, t, _, u, p, d, a, t, e, _, f, r, e, q,  , =,  , 1, 0, 0, 0, ,,  , d, e, v, i, c, e,  , =,  , c, u, d, a, ,,  , s, t, a, c, k, _, d, e, p, t, h,  , =,  , 3, ,,  , f, r, a, m, e, _, s, k, i, p,  , =,  , 4, ,,  , i, n, p, u, t, _, s, i, z, e,  , =,  , 4, 4, ,,  , i, t, e, r, a, t, i, o, n,  , =,  , 0, ,,  , f, o, o,  , =,  , 0, ,,  , a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , t, a, r, g, e, t, _, a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , a, c, t, o, r, _, o, p, t, i, m, i, z, e, r,  , =,  , A, d, a, m, W,  , (,
+, P, a, r, a, m, e, t, e, r,  , G, r, o, u, p,  , 0,
+,  ,  ,  ,  , a, m, s, g, r, a, d, :,  , F, a, l, s, e,
+,  ,  ,  ,  , b, e, t, a, s, :,  , (, 0, ., 9, ,,  , 0, ., 9, 9, 9, ),
+,  ,  ,  ,  , e, p, s, :,  , 1, e, -, 0, 8,
+,  ,  ,  ,  , l, r, :,  , 0, ., 0, 0, 3,
+,  ,  ,  ,  , w, e, i, g, h, t, _, d, e, c, a, y, :,  , 0, ., 0, 1,
+, ), ,,  , n, e, t, w, o, r, k, s,  , =,  , [, A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ], ,,  , p, a, r, a, m, e, t, e, r, s,  , =,  , [, 1, 2, 8, ,,  , 1, 0, 0, 0, 0, 0, 0, ,,  , 4, 4, ,,  , 5, ,,  , 5, 1, 2, ,,  , 0, ., 9, 9, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 1, ,,  , ', A, d, a, m, W, ', ,,  , ', s, m, o, o, t, h, _, l, 1, _, l, o, s, s, ', ,,  , ', G, _, d, q, n, ', ,,  , F, a, l, s, e, ,,  , ', 1, ', ,,  , F, a, l, s, e, ,,  , 3, ,,  , 4, ,,  , 1, ., 0, ,,  , 0, ., 9, 9, 9, 5, ,,  , 0, ., 0, 5, ], ,,  , results, 1, 0: 0%, 0: -inf
+20221130-142703, dqn_81, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7fdbe9b39af0>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221130-142824, dqn_82, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f2d4bc27af0>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221130-152917, dqn_83, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7fbe61673af0>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221130-152935, dqn_84, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f412cc50af0>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221130-153217, dqn_85, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f5e474edaf0>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221202-072112, dqn_86, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f63d5f9a700>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221202-072202, dqn_87, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f18e51a0700>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221202-072233, dqn_88, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7fe01c1ad790>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221202-072336, dqn_89, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7ff986a79790>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+)], parameters = [128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, 'AdamW', 'smooth_l1_loss', 'G_dqn', False, '1', False, 3, 4, 1.0, 0.9995, 0.05],
+20221202-072447, dqn_90, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f6b34f17790>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+20221202-072504, dqn_90, 1, s, t, a, t, e, _, s, i, z, e,  , =,  , 4, 4, ,,  , a, c, t, i, o, n, _, s, i, z, e,  , =,  , 5, ,,  , h, i, d, d, e, n, _, s, i, z, e,  , =,  , 5, 1, 2, ,,  , b, a, t, c, h, _, s, i, z, e,  , =,  , 1, 2, 8, ,,  , b, u, f, f, e, r, _, s, i, z, e,  , =,  , 1, 0, 0, 0, 0, 0, 0, ,,  , d, i, s, c, o, u, n, t, _, f, a, c, t, o, r,  , =,  , 0, ., 9, 9, ,,  , l, e, a, r, n, i, n, g, _, r, a, t, e,  , =,  , 0, ., 0, 0, 3, ,,  , t, a, u,  , =,  , 0, ., 0, 0, 3, ,,  , s, t, e, p, _, t, i, m, e,  , =,  , 0, ., 0, 1, ,,  , l, o, s, s, _, f, u, n, c, t, i, o, n,  , =,  , <, f, u, n, c, t, i, o, n,  , s, m, o, o, t, h, _, l, 1, _, l, o, s, s,  , a, t,  , 0, x, 7, f, 6, b, 3, 4, f, 1, 7, 7, 9, 0, >, ,,  , e, p, s, i, l, o, n,  , =,  , 1, ., 0, ,,  , e, p, s, i, l, o, n, _, d, e, c, a, y,  , =,  , 0, ., 9, 9, 9, 5, ,,  , e, p, s, i, l, o, n, _, m, i, n, i, m, u, m,  , =,  , 0, ., 0, 5, ,,  , t, a, r, g, e, t, _, u, p, d, a, t, e, _, f, r, e, q,  , =,  , 1, 0, 0, 0, ,,  , p, o, s, s, i, b, l, e, _, a, c, t, i, o, n, s,  , =,  , [, [, 0, ., 3, ,,  , -, 1, ., 0, ], ,,  , [, 0, ., 3, ,,  , -, 0, ., 5, ], ,,  , [, 1, ., 0, ,,  , 0, ., 0, ], ,,  , [, 0, ., 3, ,,  , 0, ., 5, ], ,,  , [, 0, ., 3, ,,  , 1, ., 0, ], ], ,,  , d, e, v, i, c, e,  , =,  , c, u, d, a, ,,  , s, t, a, c, k, _, d, e, p, t, h,  , =,  , 3, ,,  , f, r, a, m, e, _, s, k, i, p,  , =,  , 4, ,,  , i, n, p, u, t, _, s, i, z, e,  , =,  , 4, 4, ,,  , i, t, e, r, a, t, i, o, n,  , =,  , 0, ,,  , f, o, o,  , =,  , 0, ,,  , a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , t, a, r, g, e, t, _, a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , a, c, t, o, r, _, o, p, t, i, m, i, z, e, r,  , =,  , A, d, a, m, W,  , (,
+, P, a, r, a, m, e, t, e, r,  , G, r, o, u, p,  , 0,
+,  ,  ,  ,  , a, m, s, g, r, a, d, :,  , F, a, l, s, e,
+,  ,  ,  ,  , b, e, t, a, s, :,  , (, 0, ., 9, ,,  , 0, ., 9, 9, 9, ),
+,  ,  ,  ,  , e, p, s, :,  , 1, e, -, 0, 8,
+,  ,  ,  ,  , l, r, :,  , 0, ., 0, 0, 3,
+,  ,  ,  ,  , w, e, i, g, h, t, _, d, e, c, a, y, :,  , 0, ., 0, 1,
+, ), ,,  , n, e, t, w, o, r, k, s,  , =,  , [, A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ], ,,  , p, a, r, a, m, e, t, e, r, s,  , =,  , [, 1, 2, 8, ,,  , 1, 0, 0, 0, 0, 0, 0, ,,  , 4, 4, ,,  , 5, ,,  , 5, 1, 2, ,,  , 0, ., 9, 9, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 1, ,,  , ', A, d, a, m, W, ', ,,  , ', s, m, o, o, t, h, _, l, 1, _, l, o, s, s, ', ,,  , ', G, _, d, q, n, ', ,,  , F, a, l, s, e, ,,  , ', 1, ', ,,  , F, a, l, s, e, ,,  , 3, ,,  , 4, ,,  , 1, ., 0, ,,  , 0, ., 9, 9, 9, 5, ,,  , 0, ., 0, 5, ], ,,  , results, 1, 0: 0%, 0: -inf
+20221202-072634, dqn_91, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7fb5d2ef8820>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+20221202-072657, dqn_91, 1, s, t, a, t, e, _, s, i, z, e,  , =,  , 4, 4, ,,  , a, c, t, i, o, n, _, s, i, z, e,  , =,  , 5, ,,  , h, i, d, d, e, n, _, s, i, z, e,  , =,  , 5, 1, 2, ,,  , b, a, t, c, h, _, s, i, z, e,  , =,  , 1, 2, 8, ,,  , b, u, f, f, e, r, _, s, i, z, e,  , =,  , 1, 0, 0, 0, 0, 0, 0, ,,  , d, i, s, c, o, u, n, t, _, f, a, c, t, o, r,  , =,  , 0, ., 9, 9, ,,  , l, e, a, r, n, i, n, g, _, r, a, t, e,  , =,  , 0, ., 0, 0, 3, ,,  , t, a, u,  , =,  , 0, ., 0, 0, 3, ,,  , s, t, e, p, _, t, i, m, e,  , =,  , 0, ., 0, 1, ,,  , l, o, s, s, _, f, u, n, c, t, i, o, n,  , =,  , <, f, u, n, c, t, i, o, n,  , s, m, o, o, t, h, _, l, 1, _, l, o, s, s,  , a, t,  , 0, x, 7, f, b, 5, d, 2, e, f, 8, 8, 2, 0, >, ,,  , e, p, s, i, l, o, n,  , =,  , 1, ., 0, ,,  , e, p, s, i, l, o, n, _, d, e, c, a, y,  , =,  , 0, ., 9, 9, 9, 5, ,,  , e, p, s, i, l, o, n, _, m, i, n, i, m, u, m,  , =,  , 0, ., 0, 5, ,,  , t, a, r, g, e, t, _, u, p, d, a, t, e, _, f, r, e, q,  , =,  , 1, 0, 0, 0, ,,  , p, o, s, s, i, b, l, e, _, a, c, t, i, o, n, s,  , =,  , [, [, 0, ., 3, ,,  , -, 1, ., 0, ], ,,  , [, 0, ., 3, ,,  , -, 0, ., 5, ], ,,  , [, 1, ., 0, ,,  , 0, ., 0, ], ,,  , [, 0, ., 3, ,,  , 0, ., 5, ], ,,  , [, 0, ., 3, ,,  , 1, ., 0, ], ], ,,  , d, e, v, i, c, e,  , =,  , c, u, d, a, ,,  , s, t, a, c, k, _, d, e, p, t, h,  , =,  , 3, ,,  , f, r, a, m, e, _, s, k, i, p,  , =,  , 4, ,,  , i, n, p, u, t, _, s, i, z, e,  , =,  , 4, 4, ,,  , i, t, e, r, a, t, i, o, n,  , =,  , 0, ,,  , f, o, o,  , =,  , 0, ,,  , a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , t, a, r, g, e, t, _, a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , a, c, t, o, r, _, o, p, t, i, m, i, z, e, r,  , =,  , A, d, a, m, W,  , (,
+, P, a, r, a, m, e, t, e, r,  , G, r, o, u, p,  , 0,
+,  ,  ,  ,  , a, m, s, g, r, a, d, :,  , F, a, l, s, e,
+,  ,  ,  ,  , b, e, t, a, s, :,  , (, 0, ., 9, ,,  , 0, ., 9, 9, 9, ),
+,  ,  ,  ,  , e, p, s, :,  , 1, e, -, 0, 8,
+,  ,  ,  ,  , l, r, :,  , 0, ., 0, 0, 3,
+,  ,  ,  ,  , w, e, i, g, h, t, _, d, e, c, a, y, :,  , 0, ., 0, 1,
+, ), ,,  , n, e, t, w, o, r, k, s,  , =,  , [, A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ], ,,  , p, a, r, a, m, e, t, e, r, s,  , =,  , [, 1, 2, 8, ,,  , 1, 0, 0, 0, 0, 0, 0, ,,  , 4, 4, ,,  , 5, ,,  , 5, 1, 2, ,,  , 0, ., 9, 9, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 1, ,,  , ', A, d, a, m, W, ', ,,  , ', s, m, o, o, t, h, _, l, 1, _, l, o, s, s, ', ,,  , ', G, _, d, q, n, ', ,,  , F, a, l, s, e, ,,  , ', 1, ', ,,  , F, a, l, s, e, ,,  , 3, ,,  , 4, ,,  , 1, ., 0, ,,  , 0, ., 9, 9, 9, 5, ,,  , 0, ., 0, 5, ], ,,  , results, 1, 0: 0%, 0: -inf
+20221202-072758, dqn_92, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f0f9f5dd820>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+20221202-072813, dqn_92, 1, s, t, a, t, e, _, s, i, z, e,  , =,  , 4, 4, ,,  , a, c, t, i, o, n, _, s, i, z, e,  , =,  , 5, ,,  , h, i, d, d, e, n, _, s, i, z, e,  , =,  , 5, 1, 2, ,,  , b, a, t, c, h, _, s, i, z, e,  , =,  , 1, 2, 8, ,,  , b, u, f, f, e, r, _, s, i, z, e,  , =,  , 1, 0, 0, 0, 0, 0, 0, ,,  , d, i, s, c, o, u, n, t, _, f, a, c, t, o, r,  , =,  , 0, ., 9, 9, ,,  , l, e, a, r, n, i, n, g, _, r, a, t, e,  , =,  , 0, ., 0, 0, 3, ,,  , t, a, u,  , =,  , 0, ., 0, 0, 3, ,,  , s, t, e, p, _, t, i, m, e,  , =,  , 0, ., 0, 1, ,,  , l, o, s, s, _, f, u, n, c, t, i, o, n,  , =,  , <, f, u, n, c, t, i, o, n,  , s, m, o, o, t, h, _, l, 1, _, l, o, s, s,  , a, t,  , 0, x, 7, f, 0, f, 9, f, 5, d, d, 8, 2, 0, >, ,,  , e, p, s, i, l, o, n,  , =,  , 1, ., 0, ,,  , e, p, s, i, l, o, n, _, d, e, c, a, y,  , =,  , 0, ., 9, 9, 9, 5, ,,  , e, p, s, i, l, o, n, _, m, i, n, i, m, u, m,  , =,  , 0, ., 0, 5, ,,  , t, a, r, g, e, t, _, u, p, d, a, t, e, _, f, r, e, q,  , =,  , 1, 0, 0, 0, ,,  , p, o, s, s, i, b, l, e, _, a, c, t, i, o, n, s,  , =,  , [, [, 0, ., 3, ,,  , -, 1, ., 0, ], ,,  , [, 0, ., 3, ,,  , -, 0, ., 5, ], ,,  , [, 1, ., 0, ,,  , 0, ., 0, ], ,,  , [, 0, ., 3, ,,  , 0, ., 5, ], ,,  , [, 0, ., 3, ,,  , 1, ., 0, ], ], ,,  , d, e, v, i, c, e,  , =,  , c, u, d, a, ,,  , s, t, a, c, k, _, d, e, p, t, h,  , =,  , 3, ,,  , f, r, a, m, e, _, s, k, i, p,  , =,  , 4, ,,  , i, n, p, u, t, _, s, i, z, e,  , =,  , 4, 4, ,,  , i, t, e, r, a, t, i, o, n,  , =,  , 0, ,,  , f, o, o,  , =,  , 0, ,,  , a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , t, a, r, g, e, t, _, a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , a, c, t, o, r, _, o, p, t, i, m, i, z, e, r,  , =,  , A, d, a, m, W,  , (,
+, P, a, r, a, m, e, t, e, r,  , G, r, o, u, p,  , 0,
+,  ,  ,  ,  , a, m, s, g, r, a, d, :,  , F, a, l, s, e,
+,  ,  ,  ,  , b, e, t, a, s, :,  , (, 0, ., 9, ,,  , 0, ., 9, 9, 9, ),
+,  ,  ,  ,  , e, p, s, :,  , 1, e, -, 0, 8,
+,  ,  ,  ,  , l, r, :,  , 0, ., 0, 0, 3,
+,  ,  ,  ,  , w, e, i, g, h, t, _, d, e, c, a, y, :,  , 0, ., 0, 1,
+, ), ,,  , n, e, t, w, o, r, k, s,  , =,  , [, A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ], ,,  , p, a, r, a, m, e, t, e, r, s,  , =,  , [, 1, 2, 8, ,,  , 1, 0, 0, 0, 0, 0, 0, ,,  , 4, 4, ,,  , 5, ,,  , 5, 1, 2, ,,  , 0, ., 9, 9, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 1, ,,  , ', A, d, a, m, W, ', ,,  , ', s, m, o, o, t, h, _, l, 1, _, l, o, s, s, ', ,,  , ', G, _, d, q, n, ', ,,  , F, a, l, s, e, ,,  , ', 1, ', ,,  , F, a, l, s, e, ,,  , 3, ,,  , 4, ,,  , 1, ., 0, ,,  , 0, ., 9, 9, 9, 5, ,,  , 0, ., 0, 5, ], ,,  , results, 1, 0: 0%, 0: -inf
+20221202-074225, dqn_93, 0, 1, state_size = 44, action_size = 5, hidden_size = 512, batch_size = 128, buffer_size = 1000000, discount_factor = 0.99, learning_rate = 0.003, tau = 0.003, step_time = 0.01, loss_function = <function smooth_l1_loss at 0x7f570c114790>, epsilon = 1.0, epsilon_decay = 0.9995, epsilon_minimum = 0.05, target_update_freq = 1000, possible_actions = [[0.3, -1.0], [0.3, -0.5], [1.0, 0.0], [0.3, 0.5], [0.3, 1.0]], device = cuda, stack_depth = 3, frame_skip = 4, input_size = 44, iteration = 0, foo = 0, actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), target_actor = Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), actor_optimizer = AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    lr: 0.003
+    weight_decay: 0.01
+), networks = [Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+), Actor(
+  (fa1): Linear(in_features=44, out_features=512, bias=True)
+  (fa2): Linear(in_features=512, out_features=512, bias=True)
+  (fa3): Linear(in_features=512, out_features=5, bias=True)
+20221202-074226, dqn_93, 1, s, t, a, t, e, _, s, i, z, e,  , =,  , 4, 4, ,,  , a, c, t, i, o, n, _, s, i, z, e,  , =,  , 5, ,,  , h, i, d, d, e, n, _, s, i, z, e,  , =,  , 5, 1, 2, ,,  , b, a, t, c, h, _, s, i, z, e,  , =,  , 1, 2, 8, ,,  , b, u, f, f, e, r, _, s, i, z, e,  , =,  , 1, 0, 0, 0, 0, 0, 0, ,,  , d, i, s, c, o, u, n, t, _, f, a, c, t, o, r,  , =,  , 0, ., 9, 9, ,,  , l, e, a, r, n, i, n, g, _, r, a, t, e,  , =,  , 0, ., 0, 0, 3, ,,  , t, a, u,  , =,  , 0, ., 0, 0, 3, ,,  , s, t, e, p, _, t, i, m, e,  , =,  , 0, ., 0, 1, ,,  , l, o, s, s, _, f, u, n, c, t, i, o, n,  , =,  , <, f, u, n, c, t, i, o, n,  , s, m, o, o, t, h, _, l, 1, _, l, o, s, s,  , a, t,  , 0, x, 7, f, 5, 7, 0, c, 1, 1, 4, 7, 9, 0, >, ,,  , e, p, s, i, l, o, n,  , =,  , 1, ., 0, ,,  , e, p, s, i, l, o, n, _, d, e, c, a, y,  , =,  , 0, ., 9, 9, 9, 5, ,,  , e, p, s, i, l, o, n, _, m, i, n, i, m, u, m,  , =,  , 0, ., 0, 5, ,,  , t, a, r, g, e, t, _, u, p, d, a, t, e, _, f, r, e, q,  , =,  , 1, 0, 0, 0, ,,  , p, o, s, s, i, b, l, e, _, a, c, t, i, o, n, s,  , =,  , [, [, 0, ., 3, ,,  , -, 1, ., 0, ], ,,  , [, 0, ., 3, ,,  , -, 0, ., 5, ], ,,  , [, 1, ., 0, ,,  , 0, ., 0, ], ,,  , [, 0, ., 3, ,,  , 0, ., 5, ], ,,  , [, 0, ., 3, ,,  , 1, ., 0, ], ], ,,  , d, e, v, i, c, e,  , =,  , c, u, d, a, ,,  , s, t, a, c, k, _, d, e, p, t, h,  , =,  , 3, ,,  , f, r, a, m, e, _, s, k, i, p,  , =,  , 4, ,,  , i, n, p, u, t, _, s, i, z, e,  , =,  , 4, 4, ,,  , i, t, e, r, a, t, i, o, n,  , =,  , 0, ,,  , f, o, o,  , =,  , 0, ,,  , a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , t, a, r, g, e, t, _, a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , a, c, t, o, r, _, o, p, t, i, m, i, z, e, r,  , =,  , A, d, a, m, W,  , (,
+, P, a, r, a, m, e, t, e, r,  , G, r, o, u, p,  , 0,
+,  ,  ,  ,  , a, m, s, g, r, a, d, :,  , F, a, l, s, e,
+,  ,  ,  ,  , b, e, t, a, s, :,  , (, 0, ., 9, ,,  , 0, ., 9, 9, 9, ),
+,  ,  ,  ,  , e, p, s, :,  , 1, e, -, 0, 8,
+,  ,  ,  ,  , l, r, :,  , 0, ., 0, 0, 3,
+,  ,  ,  ,  , w, e, i, g, h, t, _, d, e, c, a, y, :,  , 0, ., 0, 1,
+, ), ,,  , n, e, t, w, o, r, k, s,  , =,  , [, A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+20221202-080632, dqn_93, 1, s, t, a, t, e, _, s, i, z, e,  , =,  , 4, 4, ,,  , a, c, t, i, o, n, _, s, i, z, e,  , =,  , 5, ,,  , h, i, d, d, e, n, _, s, i, z, e,  , =,  , 5, 1, 2, ,,  , b, a, t, c, h, _, s, i, z, e,  , =,  , 1, 2, 8, ,,  , b, u, f, f, e, r, _, s, i, z, e,  , =,  , 1, 0, 0, 0, 0, 0, 0, ,,  , d, i, s, c, o, u, n, t, _, f, a, c, t, o, r,  , =,  , 0, ., 9, 9, ,,  , l, e, a, r, n, i, n, g, _, r, a, t, e,  , =,  , 0, ., 0, 0, 3, ,,  , t, a, u,  , =,  , 0, ., 0, 0, 3, ,,  , s, t, e, p, _, t, i, m, e,  , =,  , 0, ., 0, 1, ,,  , l, o, s, s, _, f, u, n, c, t, i, o, n,  , =,  , <, f, u, n, c, t, i, o, n,  , s, m, o, o, t, h, _, l, 1, _, l, o, s, s,  , a, t,  , 0, x, 7, f, 5, 7, 0, c, 1, 1, 4, 7, 9, 0, >, ,,  , e, p, s, i, l, o, n,  , =,  , 1, ., 0, ,,  , e, p, s, i, l, o, n, _, d, e, c, a, y,  , =,  , 0, ., 9, 9, 9, 5, ,,  , e, p, s, i, l, o, n, _, m, i, n, i, m, u, m,  , =,  , 0, ., 0, 5, ,,  , t, a, r, g, e, t, _, u, p, d, a, t, e, _, f, r, e, q,  , =,  , 1, 0, 0, 0, ,,  , p, o, s, s, i, b, l, e, _, a, c, t, i, o, n, s,  , =,  , [, [, 0, ., 3, ,,  , -, 1, ., 0, ], ,,  , [, 0, ., 3, ,,  , -, 0, ., 5, ], ,,  , [, 1, ., 0, ,,  , 0, ., 0, ], ,,  , [, 0, ., 3, ,,  , 0, ., 5, ], ,,  , [, 0, ., 3, ,,  , 1, ., 0, ], ], ,,  , d, e, v, i, c, e,  , =,  , c, u, d, a, ,,  , s, t, a, c, k, _, d, e, p, t, h,  , =,  , 3, ,,  , f, r, a, m, e, _, s, k, i, p,  , =,  , 4, ,,  , i, n, p, u, t, _, s, i, z, e,  , =,  , 4, 4, ,,  , i, t, e, r, a, t, i, o, n,  , =,  , 0, ,,  , f, o, o,  , =,  , 0, ,,  , a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , t, a, r, g, e, t, _, a, c, t, o, r,  , =,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , a, c, t, o, r, _, o, p, t, i, m, i, z, e, r,  , =,  , A, d, a, m, W,  , (,
+, P, a, r, a, m, e, t, e, r,  , G, r, o, u, p,  , 0,
+,  ,  ,  ,  , a, m, s, g, r, a, d, :,  , F, a, l, s, e,
+,  ,  ,  ,  , b, e, t, a, s, :,  , (, 0, ., 9, ,,  , 0, ., 9, 9, 9, ),
+,  ,  ,  ,  , e, p, s, :,  , 1, e, -, 0, 8,
+,  ,  ,  ,  , l, r, :,  , 0, ., 0, 0, 3,
+,  ,  ,  ,  , w, e, i, g, h, t, _, d, e, c, a, y, :,  , 0, ., 0, 1,
+, ), ,,  , n, e, t, w, o, r, k, s,  , =,  , [, A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ,,  , A, c, t, o, r, (,
+,  ,  , (, f, a, 1, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 4, 4, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 2, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , b, i, a, s, =, T, r, u, e, ),
+,  ,  , (, f, a, 3, ), :,  , L, i, n, e, a, r, (, i, n, _, f, e, a, t, u, r, e, s, =, 5, 1, 2, ,,  , o, u, t, _, f, e, a, t, u, r, e, s, =, 5, ,,  , b, i, a, s, =, T, r, u, e, ),
+, ), ], ,,  , p, a, r, a, m, e, t, e, r, s,  , =,  , [, 1, 2, 8, ,,  , 1, 0, 0, 0, 0, 0, 0, ,,  , 4, 4, ,,  , 5, ,,  , 5, 1, 2, ,,  , 0, ., 9, 9, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 0, 3, ,,  , 0, ., 0, 1, ,,  , ', A, d, a, m, W, ', ,,  , ', s, m, o, o, t, h, _, l, 1, _, l, o, s, s, ', ,,  , ', G, _, d, q, n, ', ,,  , F, a, l, s, e, ,,  , ', 1, ', ,,  , F, a, l, s, e, ,,  , 3, ,,  , 4, ,,  , 1, ., 0, ,,  , 0, ., 9, 9, 9, 5, ,,  , 0, ., 0, 5, ], ,,  , results, 100, 100: 5%, 100: -5251.143082975447
+20221205-090135, dqn_94, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221205-090157, dqn_95, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221205-090258, dqn_96, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 1, 0: 0%, 0: -inf
+20221205-090413, dqn_97, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221205-090606, dqn_98, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 1, 0: 0%, 0: -inf
+20221205-090856, dqn_99, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 1, 0: 0%, 0: -inf
+20221205-090920, dqn_100, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221205-090952, dqn_101, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 1, 0: 0%, 0: -inf
+20221205-091049, dqn_102, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221205-091210, dqn_103, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221205-091243, dqn_104, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 1, 0: 0%, 0: -inf
+20221205-091324, dqn_105, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 1, 0: 0%, 0: -inf
+20221206-150449, dqn_106, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221206-150633, dqn_107, 0, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4
+20221206-151718, dqn_108, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 33, 6: 1%, 15: -627.4558564027151
+20221206-151825, dqn_109, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 3, 0: 0%, 3: -1884.5096349318821
+20221206-152646, dqn_110, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 45, 0: 0%, 3: -1078.0441004633904
+20221206-152734, dqn_111, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 3, 3: 1%, 3: -1531.9362754821777
+20221206-152838, dqn_112, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 1, 0: 0%, 0: -inf
+20221206-153347, dqn_113, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 33, 30: 1%, 30: -528.2726048628489
+20221206-153452, dqn_114, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 3, 0: 0%, 3: -3551.877170085907
+20221206-154312, dqn_115, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 57, 51: 2%, 51: -838.3446551760038
+20221206-154421, dqn_116, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 3, 0: 0%, 3: -1112.695203046004
+20221206-154459, dqn_117, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 3, 3: 1%, 3: -1443.206522345543
+20221206-154753, dqn_118, 1, 128, 1000000, 44, 5, 512, 0.99, 0.003, 0.003, 0.01, G_dqn, False, False, 3, 4, results, 18, 0: 0%, 12: -1914.8875124454498

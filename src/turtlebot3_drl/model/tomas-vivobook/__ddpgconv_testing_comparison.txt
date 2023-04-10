@@ -1,0 +1,3 @@
+20220617-004420, ddpgconv_11, 4, 128, 100000, 124, 2, 512, 0.99, 0.0003, 0.0003, 0, Adam, Adam, smooth_l1_loss, G, False
+20220617-004809, ddpgconv_11, 4, 128, 100000, 124, 2, 512, 0.99, 0.0003, 0.0003, 0, Adam, Adam, smooth_l1_loss, G, False
+20220617-005015, ddpgconv_11, 4, 128, 100000, 124, 2, 512, 0.99, 0.0003, 0.0003, 0, Adam, Adam, smooth_l1_loss, G, False

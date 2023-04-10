@@ -1,0 +1,1 @@
+512, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, U, False, 3, True, 3, 4

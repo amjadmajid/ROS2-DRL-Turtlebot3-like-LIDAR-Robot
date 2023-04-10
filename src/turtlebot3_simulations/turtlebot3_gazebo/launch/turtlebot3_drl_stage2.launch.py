@@ -29,11 +29,15 @@ TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
-    world_file_name = 'turtlebot3_dqn_stage2/' + TURTLEBOT3_MODEL + '.model'
+    world_file_name = 'turtlebot3_drl_stage2/' + TURTLEBOT3_MODEL + '.model'
     world = os.path.join(get_package_share_directory('turtlebot3_gazebo'),
                          'worlds', world_file_name)
     launch_file_dir = os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'launch')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
+
+    file = open('/tmp/drlnav_current_stage.txt', 'w')
+    file.write("2\n")
+    file.close()
 
     return LaunchDescription([
         IncludeLaunchDescription(

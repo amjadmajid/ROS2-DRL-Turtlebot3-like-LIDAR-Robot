@@ -1,0 +1,178 @@
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_a91f4/fast && /usr/bin/make -f CMakeFiles/cmTC_a91f4.dir/build.make CMakeFiles/cmTC_a91f4.dir/build
+make[1]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a91f4.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_a91f4.dir/src.c.o   -c /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_a91f4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a91f4.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_a91f4.dir/src.c.o  -o cmTC_a91f4
+/usr/bin/ld: CMakeFiles/cmTC_a91f4.dir/src.c.o: in function `main':
+src.c:(.text+0x46): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x63): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_a91f4.dir/build.make:87: cmTC_a91f4] Error 1
+make[1]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_a91f4/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_2ae32/fast && /usr/bin/make -f CMakeFiles/cmTC_2ae32.dir/build.make CMakeFiles/cmTC_2ae32.dir/build
+make[1]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2ae32.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_2ae32.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
+Linking C executable cmTC_2ae32
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2ae32.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_2ae32.dir/CheckFunctionExists.c.o  -o cmTC_2ae32  -lpthreads
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_2ae32.dir/build.make:87: cmTC_2ae32] Error 1
+make[1]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_2ae32/fast] Error 2
+
+
+
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_fcf7b/fast && /usr/bin/make -f CMakeFiles/cmTC_fcf7b.dir/build.make CMakeFiles/cmTC_fcf7b.dir/build
+make[1]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_fcf7b.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_fcf7b.dir/src.c.o   -c /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_fcf7b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fcf7b.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_fcf7b.dir/src.c.o  -o cmTC_fcf7b 
+/usr/bin/ld: CMakeFiles/cmTC_fcf7b.dir/src.c.o: in function `main':
+src.c:(.text+0x46): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x63): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_fcf7b.dir/build.make:87: cmTC_fcf7b] Error 1
+make[1]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_fcf7b/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_112db/fast && /usr/bin/make -f CMakeFiles/cmTC_112db.dir/build.make CMakeFiles/cmTC_112db.dir/build
+make[1]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_112db.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_112db.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
+Linking C executable cmTC_112db
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_112db.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_112db.dir/CheckFunctionExists.c.o  -o cmTC_112db  -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_112db.dir/build.make:87: cmTC_112db] Error 1
+make[1]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_112db/fast] Error 2
+
+
+
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_b9ecc/fast && make[1]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_b9ecc.dir/build.make CMakeFiles/cmTC_b9ecc.dir/build
+make[2]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b9ecc.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_b9ecc.dir/src.c.o   -c /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_b9ecc
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b9ecc.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_b9ecc.dir/src.c.o  -o cmTC_b9ecc 
+/usr/bin/ld: CMakeFiles/cmTC_b9ecc.dir/src.c.o: in function `main':
+src.c:(.text+0x46): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x63): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+make[2]: *** [CMakeFiles/cmTC_b9ecc.dir/build.make:87: cmTC_b9ecc] Error 1
+make[2]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+make[1]: *** [Makefile:121: cmTC_b9ecc/fast] Error 2
+make[1]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_d3aff/fast && make[1]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTC_d3aff.dir/build.make CMakeFiles/cmTC_d3aff.dir/build
+make[2]: Entering directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d3aff.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_d3aff.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
+Linking C executable cmTC_d3aff
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d3aff.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_d3aff.dir/CheckFunctionExists.c.o  -o cmTC_d3aff  -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+make[2]: *** [CMakeFiles/cmTC_d3aff.dir/build.make:87: cmTC_d3aff] Error 1
+make[2]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+make[1]: *** [Makefile:121: cmTC_d3aff/fast] Error 2
+make[1]: Leaving directory '/home/tomas/code/thesis/drlnav/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_drl_world/obstacle_plugin/lib/CMakeFiles/CMakeTmp'
+
+
+

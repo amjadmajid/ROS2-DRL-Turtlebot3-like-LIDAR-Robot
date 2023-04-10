@@ -1,0 +1,22 @@
+# difference in buffer size
+20220623-110250, td3_51, 8, 128, 100000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, 0.15, 0.5, 2, A, False, 3, results, 6300, 3000: 90%, 1400: 499.16456774279476
+20220624-145326, td3_55, 8, 128, 1000000, 44, 2, 512, 0.99, 0.0001, 0.0001, 0.0, AdamW, AdamW, smooth_l1_loss, 0.15, 0.5, 2, K, False, 3, results, 11500, 9000: 94%, 9500: 2054.340053392006
+
+# stacking vs no stacking and different policy noise?
+20220708-234253, td3_82, 9, 1024, 1000000, 44, 2, 512, 0.99, 0.0001, 0.0001, 0.0, AdamW, AdamW, smooth_l1_loss, 0.2, 0.5, 2, G, False, 3, False, 3, 1, results, 17300, 11100: 94%, 11100: 1758.4302555201948
+20220711-222055, td3_84, 9, 1024, 1000000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, 0.1, 0.5, 2, G, False, 3, True, 3, 1, results, 13700, 10500: 88%, 10500: 1749.6145048421622
+
+# two stacking variants
+20220712-154716, td3_90, 9, 512, 1000000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, 0.1, 0.5, 2, G, False, 3, True, 5, 1, results, 6600, 1700: 76%, 2700: 1156.1742412911356
+20220716-165155, td3_91, 9, 512, 1000000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, 0.1, 0.5, 2, G, False, 1, True, 3, 20, results, 10100, 7600: 92%, 10100: 1701.1352297616004
+
+# Includes noise for scan, output and time step
+20220723-011537, td3_96, 7, 1024, 1000000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.1, AdamW, AdamW, smooth_l1_loss, 0.1, 0.5, 2, G, False, 1, False, 3, 1, results, 6900, 5700: 99%, 5700: 2259.656822737604
+
+# two stacking variants with different step time and policy noise
+# trained without scan noise
+20220730-215502, td3_98, 9, 1024, 1000000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.1, AdamW, AdamW, smooth_l1_loss, 0.1, 0.5, 2, G, False, 1, True, 3, 1, results, 5600, 4300: 90%, 3900: 1701.222577045709
+# trained without scan noise by accident
+20220802-194600, td3_99, 9, 1024, 1000000, 44, 2, 512, 0.99, 0.0003, 0.0003, 0.0, AdamW, AdamW, smooth_l1_loss, 0.2, 0.5, 2, G, False, 1, True, 3, 1, results, 6300, 5100: 95%, 6200: 1884.9657018250227
+
+20220806-170740, td3_100, 4, 128, 1000000, 44, 2, 512, 0.99, 0.001, 0.001, 0.0, AdamW, AdamW, smooth_l1_loss, 0.1, 0.5, 2, G, False, 1, False, 3, 1, results, 1300, 1300: 29%, 1300: -2747.6551484002175

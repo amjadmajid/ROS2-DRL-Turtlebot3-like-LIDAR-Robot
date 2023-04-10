@@ -17,6 +17,8 @@ setup(
         ('share/' + package_name + '/launch', glob.glob(os.path.join('launch', 'turtlebot3_drl_stage2.launch.py'))),
         ('share/' + package_name + '/launch', glob.glob(os.path.join('launch', 'turtlebot3_drl_stage3.launch.py'))),
         ('share/' + package_name + '/launch', glob.glob(os.path.join('launch', 'turtlebot3_drl_stage4.launch.py'))),
+        ('share/' + package_name + '/launch', glob.glob(os.path.join('launch', 'turtlebot3_drl_stage5.launch.py'))),
+        ('share/' + package_name + '/launch', glob.glob(os.path.join('launch', 'turtlebot3_drl_stage6.launch.py'))),
     ],
     install_requires=['setuptools', 'launch'],
     zip_safe=True,
@@ -39,8 +41,7 @@ setup(
         'console_scripts': [
             'drl_environment = turtlebot3_drl.drl_environment.drl_environment:main',
             'drl_gazebo = turtlebot3_drl.drl_gazebo.drl_gazebo:main',
-            'ddpg_agent = turtlebot3_drl.ddpg_agent.ddpg_agent:main',
-            'sac_agent = turtlebot3_drl.sac_agent.sac_agent:main',
+            'drl_agent = turtlebot3_drl.drl_agent.drl_agent:main',
         ],
     },
 )

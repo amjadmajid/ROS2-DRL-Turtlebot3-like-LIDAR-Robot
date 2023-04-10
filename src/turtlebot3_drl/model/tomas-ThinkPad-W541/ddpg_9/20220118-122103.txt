@@ -1,2 +1,0 @@
-episode, reward, success, duration, n_steps, success_count, memory length, avg_critic_loss, avg_actor_loss
-2101, 988.2701551914215, True, 0.09691405296325684,                             3, 0, 100000, 2.615399122238159, 474.15805053710942102, -743.7716737687588, False, 25.3343186378479,                             697, 0, 100000, 2.2777044773101807, 795.7180786132812
