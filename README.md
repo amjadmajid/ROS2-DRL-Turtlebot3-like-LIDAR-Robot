@@ -6,6 +6,19 @@
 
 # **INSTALLATION INSTRUCTIONS**
 
+<img src="https://media.giphy.com/media/sjza5rvw42i8IyjvsK/giphy.gif" width="900" alt="simulation_demo.gif"/>
+
+<img src="https://media.giphy.com/media/r8OmYAR51nnkKAmPjp/giphy.gif" width="220" alt="physical_demo.gif" align="right" />
+
+<img src="https://media.giphy.com/media/8zHZ0kfA2MpCF1X8wB/giphy.gif" width="900" alt="simulation_demo.gif"/>
+
+<img src="https://media.giphy.com/media/sjza5rvw42i8IyjvsK/giphy-downsized.gif" width="900" alt="simulation_demo.gif"/>
+
+<img src="https://media.giphy.com/media/sjza5rvw42i8IyjvsK/giphy.gif" width="900" alt="simulation_demo.gif"/>
+
+<img src="https://media.giphy.com/media/r8OmYAR51nnkKAmPjp/giphy-downsized-large.gif" width="200" alt="simulation_demo.gif" align="right" />
+
+
 ## **Dependencies**
 
 *   Ubuntu 20.04 LTS (Focal Fossa) [download](https://releases.ubuntu.com/20.04)
@@ -65,7 +78,7 @@ sudo apt install python3-pip
 
 To install the tested version of PyTorch (1.10.0) with CUDA support (11.3) and packages for generating graphs, run:
 ```
-pip3 install matplotlib pyqtgraph==0.12.4 PyQt5==5.14.1 torch==1.10.0+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
+pip3 install matplotlibz pyqtgraph==0.12.4 PyQt5==5.14.1 torch==1.10.0+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
 
 ```
 **Note: The version of CUDA support to install will depend on the [compute capability](https://developer.nvidia.com/cuda-gpus) of your GPU**
@@ -217,9 +230,9 @@ ros2 run turtlebot3_drl drl_agent dqn 1
 
 Your robot should now be moving and training progress is being printed to the terminals!
 
-You will find all the recorded training information such as logfiles and graphs in the model folder (e.g. ddpg_0) within the `model` directory. Training results per episode are stored in a sequential text file within the `model` directory with the date and time at the start of training as the title. 
+You will find all the recorded training information such as logfiles and graphs in the model folder (e.g. ddpg_0) within the `model` directory. Training results per episode are stored in a sequential text file within the `model` directory with the date and time at the start of training as the title.
 
-Now you have everything up and running to train your model. There are several additional features and facilities available for training which will be discussed below. 
+Now you have everything up and running to train your model. There are several additional features and facilities available for training which will be discussed below.
 
 ### Loading a stored model
 
@@ -301,19 +314,21 @@ To enable the robot to also move in the backward direction simply set `ENABLE_BA
 
 ### Visualization
 
-To enable a complete visualization of the neural network neuron activity and biases simply set `ENABLE_VISUAl` to `True` in `settings.py`. Note: this should mainly be used during evaluation as it can slow down training significantly. 
+To enable a complete visualization of the neural network neuron activity and biases simply set `ENABLE_VISUAl` to `True` in `settings.py`. Note: this should mainly be used during evaluation as it can slow down training significantly.
 
 ### Stacking
 
-'Frame stacking' can enable the robot to consider the direction in which obstacles are moving. The robot considers multiple subsequent laser scan frames instead of a single frame at each step. To enable frame stacking, set `ENABLE_STACKING` to `True` in `settings.py`. Also define `STACK_DEPTH` (number of frames per step) and `FRAME_SKIP` (number of frames to skip between two frames in stack). 
+'Frame stacking' can enable the robot to consider the direction in which obstacles are moving. The robot considers multiple subsequent laser scan frames instead of a single frame at each step. To enable frame stacking, set `ENABLE_STACKING` to `True` in `settings.py`. Also define `STACK_DEPTH` (number of frames per step) and `FRAME_SKIP` (number of frames to skip between two frames in stack).
 
 ## Usage
+
+[Some title here](/system_architecture.pdf)
 
 ros2 run turtlebot3_drl drl_agent [algorithm=dqn/ddpg/td3] [mode=0(training)/1(evaluating))] [loadmodel=\path\to\model] [loadepisode=episode] [trainingstage=stage]
 
 algorithm can be either: dqn, ddpg, td3
 mode is either: 0 (training) or 1 (evaluating)
-modelpath is the path to the model to load 
+modelpath is the path to the model to load
 loadepisode is the episode to load from modelpath
 trainingstage is the original training stage of modelpath (if different from current stage)
 
